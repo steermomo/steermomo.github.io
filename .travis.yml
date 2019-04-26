@@ -17,7 +17,7 @@ install:
   - pip install -r requirements.txt
 # build our blog
 script:
-  - invoke publish_carefully
+  - make travis
 
 # deploy to GitHub pages
 deploy:
