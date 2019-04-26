@@ -8,7 +8,7 @@ OUTPUTDIR=$(BASEDIR)/output
 CONFFILE=$(BASEDIR)/pelicanconf.py
 PUBLISHCONF=$(BASEDIR)/publishconf.py
 
-GITHUB_REPO_SLUG=steermomo/steermomo.github.io  
+GITHUB_REPO_SLUG=steermomo/steermomo.github.io
 GITHUB_REMOTE_NAME=origin 
 GITHUB_PAGES_BRANCH=master
 GITHUB_COMMIT_MSG=$(shell git --no-pager log --format=%s -n 1) 
