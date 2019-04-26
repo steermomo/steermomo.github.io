@@ -22,6 +22,10 @@ AUTHOR_FEED_RSS = None
 STATIC_PATHS = ['images',
                 '_css',
                 ]
+
+EXTRA_PATH_METADATA = {
+    'extra/CNAME': {'path': 'CNAME'},
+    }
 FAVICON = SITEURL + 'images/favicon.ico'
 FAVICON_IE = SITEURL + 'images/favicon.ico'
 SITELOGO = SITEURL + 'images/favicon-48.png'
