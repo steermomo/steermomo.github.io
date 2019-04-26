@@ -1,0 +1,31 @@
+# build using Python 3.6
+language: python
+python:
+  - 3.6
+# Cache Dependencies
+cache: pip
+# we need two Linux packages for the optimize_images plugin
+addons:
+  apt:
+    packages:
+    - optipng
+    - libjpeg-progs
+
+# install dependencies
+install:
+  - pip install --upgrade pip
+  - pip install -r requirements.txt
+# build our blog
+script:
+  - invoke publish_carefully
+
+# deploy to GitHub pages
+deploy:
+  provider: pages
+  local_dir: ../blog.minchin.ca-master/
+  target-branch: master
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard
+  # only deploy on "main" branch
+  on:
+    branch: pelican
