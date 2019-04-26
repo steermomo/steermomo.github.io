@@ -21,6 +21,7 @@ AUTHOR_FEED_RSS = None
 
 STATIC_PATHS = ['images',
                 '_css',
+                'extra/CNAME'
                 ]
 
 EXTRA_PATH_METADATA = {
