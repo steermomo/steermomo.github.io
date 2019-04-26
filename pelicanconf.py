@@ -21,7 +21,6 @@ AUTHOR_FEED_RSS = None
 
 STATIC_PATHS = ['images',
                 '_css',
-                '../CNAME'
                 ]
 FAVICON = SITEURL + 'images/favicon.ico'
 FAVICON_IE = SITEURL + 'images/favicon.ico'
