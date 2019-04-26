@@ -1,5 +1,5 @@
 Title: About
-Slug: my-super-post
+Slug: About
 Authors: H Li
 Summary: Short version for index and feeds
 
