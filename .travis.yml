@@ -19,13 +19,13 @@ install:
 script:
   - make travis
 
-# deploy to GitHub pages
-deploy:
-  provider: pages
-  local_dir: ../blog.minchin.ca-master/
-  target-branch: master
-  skip_cleanup: true
-  github_token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard
-  # only deploy on "main" branch
-  on:
-    branch: pelican
+# # deploy to GitHub pages
+# deploy:
+#   provider: pages
+#   local_dir: ../blog.minchin.ca-master/
+#   target-branch: master
+#   skip_cleanup: true
+#   github_token: $GITHUB_TOKEN  # Set in travis-ci.org dashboard
+#   # only deploy on "main" branch
+#   on:
+#     branch: pelican
