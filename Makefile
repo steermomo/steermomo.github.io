@@ -8,7 +8,7 @@ OUTPUTDIR=$(BASEDIR)/output
 CONFFILE=$(BASEDIR)/pelicanconf.py
 PUBLISHCONF=$(BASEDIR)/publishconf.py
 
-GITHUB_REPO_SLUG=M157q/m157q.github.io  
+GITHUB_REPO_SLUG=steermomo/steermomo.github.io  
 GITHUB_REMOTE_NAME=origin 
 GITHUB_PAGES_BRANCH=master
 GITHUB_COMMIT_MSG=$(shell git --no-pager log --format=%s -n 1) 
@@ -84,8 +84,8 @@ github: publish
 travis: publish  
     # 為 Travis CI 設定 git 的 user.name 和 user.email  
     # 沒設定 email 的話，GitHub 上面看到的 Author 會是 Unknown  
-    git config --global user.name "M157q - Travis"  
-    git config --global user.email M157q.tw@gmail.com  
+    git config --global user.name "steermomo - Travis"  
+    git config --global user.email "hangli@stu.xmu.edu.cn"  
 
     # 將 Pelican output dir 的內容 commit 到 GitHub Pages 用的 branch，準備 push 上去  
     # 因為我用的是 user site，所以 branch 是 master。如果是 project site 的話，branch 會是 gh-pages  
