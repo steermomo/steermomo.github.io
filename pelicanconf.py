@@ -47,6 +47,16 @@ DEFAULT_PAGINATION = 10
 #RELATIVE_URLS = True
 FILENAME_METADATA = r'(?P<date>\d{4}\d{2}\d{2})-(?P<slug>.*)'
 
+DISPLAY_CATEGORIES_ON_MENU = False
+DISPLAY_PAGES_ON_MENU = False
+
+MENUITEMS = (
+    ('Home', '/'),
+    ('Archives', '/archives.html'),
+    ('Tags', '/tags.html'),
+    ('About', '/About.html'),
+)
+
 # Set URL's
 TAG_URL = 'label/{slug}/'
 TAG_SAVE_AS = 'label/{slug}/index.html'
