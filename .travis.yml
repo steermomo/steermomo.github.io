@@ -8,11 +8,11 @@ python:
 # Cache Dependencies
 cache: pip
 # we need two Linux packages for the optimize_images plugin
-addons:
-  apt:
-    packages:
-    - optipng
-    - libjpeg-progs
+# addons:
+#   apt:
+#     packages:
+#     - optipng
+#     - libjpeg-progs
 
 # install dependencies
 install:
