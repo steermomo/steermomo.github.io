@@ -10,7 +10,7 @@ PATH = 'content'
 
 TIMEZONE = 'Asia/Shanghai'
 
-DEFAULT_LANG = 'English'
+DEFAULT_LANG = 'en'
 CHECK_MODIFIED_METHOD = 'md5'
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -18,6 +18,8 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
+
+THEME='themes/notmyidea'
 
 STATIC_PATHS = ['images',
                 '_css',
@@ -32,14 +34,14 @@ FAVICON_IE = SITEURL + 'images/favicon.ico'
 SITELOGO = SITEURL + 'images/favicon-48.png'
 
 # Blogroll
-LINKS = (('Pelican', 'http://getpelican.com/'),
-         ('Python.org', 'http://python.org/'),
-         ('Jinja2', 'http://jinja.pocoo.org/'),
-         ('You can modify those links in your config file', '#'),)
+# LINKS = (('Pelican', 'http://getpelican.com/'),
+#          ('Python.org', 'http://python.org/'),
+#          ('Jinja2', 'http://jinja.pocoo.org/'),
+#          ('You can modify those links in your config file', '#'),)
 
 # Social widget
-SOCIAL = (('You can add links in your config file', '#'),
-          ('Another social link', '#'),)
+# SOCIAL = (('You can add links in your config file', '#'),
+#           ('Another social link', '#'),)
 
 DEFAULT_PAGINATION = 9
 
@@ -51,10 +53,10 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
-    ('Home', '/'),
-    # ('Archives', '/archives.html'),
+    ('/', '/'),
+    ('Archives', '/archives'),
     # ('Tags', '/tags.html'),
-    ('About', '/About.html'),
+    # ('About', '/About.html'),
 )
 
 # Set URL's
