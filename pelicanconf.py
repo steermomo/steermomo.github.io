@@ -41,7 +41,7 @@ LINKS = (('Pelican', 'http://getpelican.com/'),
 SOCIAL = (('You can add links in your config file', '#'),
           ('Another social link', '#'),)
 
-DEFAULT_PAGINATION = 10
+DEFAULT_PAGINATION = 9
 
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
@@ -52,8 +52,8 @@ DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
     ('Home', '/'),
-    ('Archives', '/archives.html'),
-    ('Tags', '/tags.html'),
+    # ('Archives', '/archives.html'),
+    # ('Tags', '/tags.html'),
     ('About', '/About.html'),
 )
 
