@@ -78,7 +78,7 @@ publish:
 	$(PELICAN) $(INPUTDIR) -o $(OUTPUTDIR) -s $(PUBLISHCONF) $(PELICANOPTS)
 
 github:
-	git add *
+	git add -A
 	# git add 
 	git commit -m 'generate by make'
 	git push origin origin:origin
