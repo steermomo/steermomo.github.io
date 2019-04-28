@@ -1,4 +1,4 @@
-pelican==3.6.3  
-markdown==2.6.6       # 因為我用 Markdown 而不是 reStructuredText 寫 blog  
-ghp-import==0.4.1     # 讓你 git add 某個資料夾的內容並將其 commit 到另外一個 branch  
-beautifulsoup4==4.4.1 # 我用到的 plugin 需要 
+pelican==4.0.1  
+markdown==3.1      # 因為我用 Markdown 而不是 reStructuredText 寫 blog  
+ghp-import==0.5.5     # 讓你 git add 某個資料夾的內容並將其 commit 到另外一個 branch  
+# beautifulsoup4==4.4.1 # 我用到的 plugin 需要 
