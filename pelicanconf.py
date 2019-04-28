@@ -10,7 +10,7 @@ PATH = 'content'
 
 TIMEZONE = 'Asia/Shanghai'
 
-DEFAULT_LANG = 'English'
+DEFAULT_LANG = 'en'
 CHECK_MODIFIED_METHOD = 'md5'
 # Feed generation is usually not desired when developing
 FEED_ALL_ATOM = None
@@ -23,15 +23,16 @@ THEME='themes/notmyidea'
 
 STATIC_PATHS = ['images',
                 '_css',
-                'extras/CNAME'
+                'extras'
                 ]
 
 EXTRA_PATH_METADATA = {
     'extras/CNAME': {'path': 'CNAME'},
+    'extras/favicon.ico': {'path': 'favicon.ico'}
     }
-FAVICON = SITEURL + 'images/favicon.ico'
-FAVICON_IE = SITEURL + 'images/favicon.ico'
-SITELOGO = SITEURL + 'images/favicon-48.png'
+# FAVICON = SITEURL + 'images/favicon.ico'
+# FAVICON_IE = SITEURL + 'images/favicon.ico'
+# SITELOGO = SITEURL + 'images/favicon-48.png'
 
 # Blogroll
 # LINKS = (('Pelican', 'http://getpelican.com/'),
@@ -53,7 +54,7 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
-    ('/', '/'),
+    ('👾', '/'),
     ('Archives', '/archives'),
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
