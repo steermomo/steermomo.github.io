@@ -21,7 +21,7 @@
                 {% for title, link in MENUITEMS %}
                     <li><a href="{{ link }}">{{ title }}</a></li>
                 {% endfor %}
-                <li><a id="navName" href="{{ SITEURL }}/">{{ SITENAME }} {% if SITESUBTITLE %}<strong>{{ SITESUBTITLE }}</strong>{% endif %}</a></li>
+                <li id="navName">{{ SITENAME }} {% if SITESUBTITLE %}<strong>{{ SITESUBTITLE }}</strong>{% endif %}</li>
                 {% if DISPLAY_PAGES_ON_MENU -%}
                 {% for pg in pages %}
                     <li{% if pg == page %} class="active"{% endif %}><a href="{{ SITEURL }}/{{ pg.url }}">{{ pg.title }}</a></li>
@@ -65,16 +65,9 @@
                 </div><!-- /.social -->
         {% endif %}
         </section><!-- /#extras -->
-
-        <footer id="contentinfo" class="body">
-                <!-- <address id="about" class="vcard body">
-                Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a href="http://python.org">Python</a>.
-                </address> -->
-                
-                <!-- /#about -->
-
-                
-        </footer><!-- /#contentinfo -->
+        {% block footpage %}
+        {% endblock %}
+        
 
 {% include 'analytics.html' %}
 {% include 'disqus_script.html' %}

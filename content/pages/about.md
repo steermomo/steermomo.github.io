@@ -1,5 +1,5 @@
-Title: About
-Slug: About
+Title: about
+Slug: about
 Authors: H Li
 Summary: Short version for index and feeds
 

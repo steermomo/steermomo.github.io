@@ -211,6 +211,11 @@ img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 	}
 	#banner #navName {
 		border-left: 1px solid #999;
+		color: #000305;
+		display: inline-block;
+		height: 30px;
+		padding: 5px 1.5em;
+		text-decoration: none;
 	}
 	/* #banner nav  */
 	#banner nav a:link, #banner nav a:visited {
@@ -367,7 +372,7 @@ img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 	margin-bottom: 2em;
 	overflow: hidden;
 	padding: 20px;
-	text-align: left;
+	text-align: center;
 	width: 760px;
 
 	border-radius: 10px;

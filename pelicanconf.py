@@ -53,7 +53,7 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
-    ('/', '/'),
+    ('👾', '/'),
     ('Archives', '/archives'),
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
