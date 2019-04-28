@@ -80,7 +80,7 @@ publish:
 github:
 	git add -A
 	# git add 
-	git commit -m 'generate by make'
+	git commit -m 'generate by CI'
 	git push origin origin:origin
 	# ghp-import -m "Generate Pelican site" -b $(GITHUB_PAGES_BRANCH) $(OUTPUTDIR)
 	# git push origin $(GITHUB_PAGES_BRANCH)
