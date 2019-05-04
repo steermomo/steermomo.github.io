@@ -56,6 +56,7 @@ DISPLAY_PAGES_ON_MENU = False
 MENUITEMS = (
     ('👾', '/'),
     ('Archives', '/archives'),
+    ('Blog', '/blog')
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
 )
@@ -69,8 +70,16 @@ CATEGORY_URL = 'category/{slug}/'
 CATEGORY_SAVE_AS = 'category/{slug}/index.html'
 CATEGORIES_URL = 'category/'
 CATEGORIES_SAVE_AS = 'category/index.html'
-ARTICLE_URL = '{date:%Y}/{date:%m}/{slug}.html'
-ARTICLE_SAVE_AS = ARTICLE_URL
+
+# ARTICLE_URL = '{date:%Y}/{date:%m}/{slug}.html'
+# ARTICLE_SAVE_AS = ARTICLE_URL
+
+ARTICLE_URL = 'blog/{date:%Y}/{date:%m}/{slug}/'
+ARTICLE_SAVE_AS = 'blog/{slug}/index.html'
+INDEX_SAVE_AS = 'blog/index.html'
+ARTICLE_ORDER_BY = 'date'
+
+
 AUTHORS_URL = ''
 AUTHORS_SAVE_AS = ''
 ARCHIVES_URL = 'archives/'
