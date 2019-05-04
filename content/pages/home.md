@@ -1,5 +1,9 @@
-Title:  👾 is here.
+Title: echo "Who am I"
 URL:
 save_as: index.html
 
-Thank you for visiting. Welcome!
+This is H Li.
+
+I'm a master's stuednt at [XMU](https://www.xmu.edu.cn/). I majored in CS.
+
+My current research is about `Deep Learning, Medical Image Analysis`, under the supervision of [Prof. Wang liansheng](https://information.xmu.edu.cn/info/1019/3195.htm).
