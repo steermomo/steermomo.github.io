@@ -32,7 +32,11 @@
 
                 <div class="entry-content">
                 {% include 'article_infos.html' %}
+                {% if article.cover %}
+                <p><img src="{{ article.cover }}" height="300"></p>
+                {% endif %}
                 {{ article.summary }}
+                
                 <a class="readmore" href="{{ SITEURL }}/{{ article.url }}">read more</a>
                 {% include 'comments.html' %}
                 </div><!-- /.entry-content -->
