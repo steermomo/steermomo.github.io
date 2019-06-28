@@ -11,7 +11,7 @@ SITEURL = ''
 PATH = 'content'
 
 
-PLUGIN_PATH = "pelican-plugins"
+PLUGIN_PATHS = ["pelican-plugins"]
 PLUGINS = ["render_math", "read_more_link"]
 
 TIMEZONE = 'Asia/Shanghai'
