@@ -10,6 +10,10 @@ SITEURL = ''
 
 PATH = 'content'
 
+
+PLUGIN_PATH = "pelican-plugins"
+PLUGINS = ["render_math", "read_more_link"]
+
 TIMEZONE = 'Asia/Shanghai'
 
 DEFAULT_LANG = 'en'
