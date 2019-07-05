@@ -13,6 +13,14 @@ PATH = 'content'
 
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = ["render_math", "read_more_link"]
+# This settings indicates that you want to create summary at a certain length
+SUMMARY_MAX_LENGTH = 50
+
+# This indicates what goes inside the read more link
+READ_MORE_LINK = '<span>continue</span>'
+
+# This is the format of the read more link
+READ_MORE_LINK_FORMAT = '<a class="read-more" href="/{url}">{text}</a>'
 
 TIMEZONE = 'Asia/Shanghai'
 

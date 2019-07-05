@@ -21,7 +21,7 @@ $$
 L(x, y, \sigma)=G(x, y, \sigma) \ast I(x, y)
 $$
 通过使用不同的$\sigma$, 相当于对图像做不同程度的高斯模糊, 即得到不同尺度的图像.
-<!--more-->
+
 
 ###### 高斯差分近似归一化拉普拉斯
 
@@ -192,7 +192,7 @@ $$
   - 为了保证关键点的方向不变性,需要对特征点邻域进行旋转, 旋转角度为特征点角度. 为使得旋转区域包含正方形, 实际上得边长为$\frac{3\sigma_c(d+1)\sqrt2}{2}$.
 
 - 然后需要将关键点及其邻域的坐标轴(x)旋转到关键点的主方向
-  - 旋转后的采样点坐标为$\left(\begin{array}{1}x' \\ y'\end{array}\right)=\left(\begin{array}{2} \cos\theta & -\sin\theta \\\sin\theta & \cos\theta \end{array}\right)$
+  - 旋转后的采样点坐标为$$\left(\begin{array}{1}x' \\ y'\end{array}\right)=\left(\begin{array}{2} \cos\theta & -\sin\theta \\\sin\theta & \cos\theta \end{array}\right)$$
 - 将邻域分配到对于的子区域内
   - 计算梯度值和角度, 生成直方图
   - 类似方向匹配, 也需要模值的加权
