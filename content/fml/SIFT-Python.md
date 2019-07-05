@@ -208,7 +208,7 @@ $$
 
 ### 代码实现
 
-```
+```python
 # -*- coding: utf-8 -*-
 r'''
 File: c:\Users\lomom\Documents\DL2019\Assignment\code\sift.py
@@ -1257,8 +1257,9 @@ if __name__ == "__main__":
 
     
 
-```Python
 
+
+
+```
 
 🐧
-
