@@ -18,8 +18,9 @@
                     <hr />
                     <ol id="posts-list" class="hfeed">
             {% endif %} -->
+        {% endif %}
         {# other items #}
-        {% else %}
+        <!-- {% else %} -->
             <!-- only show first article -->
             <!-- {% if loop.first %}
                 <section id="content" class="body">
@@ -42,7 +43,7 @@
                 {% include 'comments.html' %}
                 </div><!-- /.entry-content -->
             <!-- </article></li> -->
-        {% endif %}
+        <!-- {% endif %} -->
         <!-- {% if loop.last %}
             {% if loop.length > 1 or articles_page.has_other_pages() %}
                 </ol> -->
