@@ -71,8 +71,8 @@ DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
     ('👾', '/'),
-    # ('Archives', '/archives'),
-    ('Blog', '/blog')
+    ('Blog', '/blog'),
+    ('Archives', '/archives'),
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
 )
