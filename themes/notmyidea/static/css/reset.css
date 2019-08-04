@@ -24,6 +24,12 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	vertical-align: baseline;
 }
 
+img {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 body {line-height: 1;}
 
 ol, ul {list-style: none;}
