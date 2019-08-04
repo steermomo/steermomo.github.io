@@ -268,7 +268,8 @@ img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 	margin: 0.786em 2em 0 5em;
 	width: 248px;
 }
-#featured figure img {display: block; float: right;}
+/* #featured figure img {display: block; float: right;} */
+#featured figure img {display: block; margin-left: auto; margin-right: auto;}
 
 #featured h2 {color: #C74451; font-size: 1.714em; margin-bottom: 0.333em;}
 #featured h3 {font-size: 1.429em; margin-bottom: .5em;}

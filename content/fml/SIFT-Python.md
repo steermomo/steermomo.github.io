@@ -1,6 +1,6 @@
 Title: SIFT算法及Python实现
 Date: 2019-06-28
-
+Summary: 用Python实现了一遍SIFT算法
 
 #### 空间极值检测
 
