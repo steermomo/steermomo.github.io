@@ -1,6 +1,6 @@
-Title: about
+Title: About
 Slug: about
 Authors: H Li
-Summary: Short version for index and feeds
+Summary: 时代变了 大人
 
-This is the content of my super blog post.
+![](http://ww1.sinaimg.cn/large/dd456925ly1g5nyeoz31zj20g40g4jst.jpg)
