@@ -1,4 +1,4 @@
-Title: Fuck my life.
+Title: plt.imshow自动scaling.
 Date: 2019-05-23
 
 ## Matplotlib imshow 自动scaling mapping
@@ -7,7 +7,7 @@ Date: 2019-05-23
 
 问题跟这个`issue` [Why does pyplot display wrong grayscale image?](https://github.com/matplotlib/matplotlib/issues/7221/)完全一致.
 
-这种多做事的太烦了.
+这种多做事的太烦了
 ```python
 plt.imshow(img, cmap=cm.gray, vmin=0, vmax=255)
 ```
