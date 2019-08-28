@@ -1,6 +1,6 @@
 Title: 决策树, 回归树, CART决策树, bootstrap, bagging, boosting, adaboost, GBDT, XGboost
-Date: 2019-08-26 18:20
-Modified: 2019-08-26 18:20
+Date: 2019-08-26 18:10
+Modified: 2019-08-26 18:10
 Category: Python, Machine Learning,
 Tags: pelican, publishing
 Slug: misc-about-decision-tree

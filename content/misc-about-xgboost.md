@@ -1,0 +1,119 @@
+Title: XGBoost 调参
+Date: 2019-08-26 18:15
+Modified: 2019-08-26 18:15
+Category: Python, Machine Learning,
+Tags: pelican, publishing
+Slug: misc-about-decision-tree
+Summary: 
+
+对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是[BayesianOptimization](https://github.com/fmfn/BayesianOptimization) 跑出来的参数跟别人的效果查了老多.
+
+XGBoost是在GBDT的基础上改进的, 首先要看GBM的参数是什么意思[^1].
+
+GBM的参数分为3种:
+1. 决策树参数: 影响决策树的构建
+2. 提升方法(Boosting)参数: 影响提升方法的过程
+3. 杂项: 控制其他部分
+
+
+
+下图介绍了一部分参数的含义[^1]
+
+![](https://www.analyticsvidhya.com/wp-content/uploads/2016/02/tree-infographic.png)
+
+### 与决策树相关的参数 - **Tree-Specific Parameters**
+
+1. `min_samples_split`
+   - 控制结点可划分时的最少样本数, 样本数少于该值时, 结点不会继续划分.
+   - 用于控制过拟合, 这个值太大了又会导致欠拟合( 考虑决策树的剪枝过程,  这个参数的作用是十分直观的 )
+2. `min_sample_leaf`
+   - 控制结点中的最少样本数目,  任何叶节点的样本数都要大于这个值
+   - 类似于上一个参数, 也可以用于控制过拟合
+   - 当存在类别不均衡问题时, 应该设为较小的值, 因为类别较少的样本数可能很少
+3. `min_weight_fraction_leaf`
+
+   - 类似于上一个参数,  只是表示的形式不同, 这里用总样本数的比例表示最小叶结点样本数
+   - 该参数与上一个参数只应该定义一个
+4. `max_depth`
+   - 决策树的最大深度
+   - 用于控制过拟合( 更深的树 更有可能拟合训练数据)
+   - 应该使用CV调整
+5. `max_leaf_nodes`
+   - 最大叶结点数目
+   - 可以用于替代上一个参数, 深度为n的二叉树叶结点的数目为2^n.
+   - 如果定义该参数, 上一个参数将会被忽略
+6. `max_features`
+   - 划分结点时最多选择的特征数目( 考虑一下随机森林的情况, 每次只选择一部分特征用于构建划分结点)
+   - 总特征数目的均方根是较好的选择, 但是应该考虑到特征数量的30%~40%
+
+
+
+
+
+### 与提升方法相关的参数 - Boosting Parameters
+
+提升方法的一个伪码
+
+```algorithm
+1. 初始化基分类器
+
+2. 从1迭代到n_estimators
+	2.1 根据前一次预测, 更新样本权值
+	2.2 在样本上训练模型
+	2.3 在所有样本上进行预测
+	2.4 更新基分类器的线性组合, 考虑learning rate
+	
+3. 返回基分类器的线性组合
+```
+
+
+
+其中涉及到的参数有
+
+1. `learning rate`
+
+   - 在Boosting方法中, 根据基分类器的错误率, 已经会给每一个基分类器指定一个权重. 这里再加一个learning rate, 应该是在这个权重的基础上再加上一个衰减因子. (我记得在kaggle的讨论区看过. 但是一时找不到了)
+   - 更低的lr会增加模型的泛化能力, 但是同时也要求要更多的树.
+2. `n_estimators`
+
+   - 树的数量/Boosting迭代次数 (难以想象半年前我不知道树的数量跟迭代次数有什么关系, 太弱鸡)
+   - 树的数量太多也可能会过拟合, 因此也需要用CV去调整
+3. `subsample`
+   - 训练每棵树时使用的样本比例. 即训练时对数据随机采样, 获取指定比例大小的数据集.
+   - 0.8 通常较好, 但是可以进一步调整.
+
+
+
+
+
+### 杂项参数 - Miscellaneous Parameters
+
+除此之外, 还有一些其他参数控制
+
+1. `loss`
+   - 控制损失函数的类型, 分类或是回归
+2. `init`
+   - GBM的初始值, (统计学习方法P147)
+3. `random_state`
+   - 涉及到随机时都会有的参数,  铁定是42
+4. `verbose`
+   - 控制模型啰嗦的程度, 值越大话越多.
+5. `warm_start`
+   - 是否在训练前先使用一棵树拟合训练集.
+
+
+
+接下来是干瞪眼时刻, 说这些, 虽然知道参数是什么意思,  咋调啊 o.O
+
+<img src="{static}/images/sticker_feature.webp">
+
+
+
+
+
+
+
+
+
+[^1]: [Complete Machine Learning Guide to Parameter Tuning in Gradient Boosting (GBM) in Python](https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/)
+[^2]: [Complete Guide to Parameter Tuning in XGBoost with codes in Python](https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/)

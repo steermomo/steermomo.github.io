@@ -14,3 +14,6 @@ My current research is about `Deep Learning, Medical Image Analysis`, under the 
 
 Imsight Medical Technology, &nbsp; Deep Learning Algorithm Engineer Intern, &nbsp;  Jan 2019 - Apr 2019  
 iFLYTEK Co, &nbsp; Algorithm Engineer Intern, &nbsp; Mar 2018 - May 2018  
+
+
+<img src="{static}/images/sticker_hardcore.webp">
