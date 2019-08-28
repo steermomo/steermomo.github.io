@@ -16,4 +16,4 @@ Imsight Medical Technology, &nbsp; Deep Learning Algorithm Engineer Intern, &nbs
 iFLYTEK Co, &nbsp; Algorithm Engineer Intern, &nbsp; Mar 2018 - May 2018  
 
 
-<img src="{static}/images/sticker_hardcore.webp">
+<img src="{static}/images/sticker_hardcore.webp" style="max-width: 40%">
