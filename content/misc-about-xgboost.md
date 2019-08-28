@@ -3,7 +3,7 @@ Date: 2019-08-26 18:15
 Modified: 2019-08-26 18:15
 Category: Python, Machine Learning,
 Tags: pelican, publishing
-Slug: misc-about-decision-tree
+Slug: misc-about-xgboost
 Summary: 
 
 对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是[BayesianOptimization](https://github.com/fmfn/BayesianOptimization) 跑出来的参数跟别人的效果查了老多.
