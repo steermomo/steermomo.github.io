@@ -2,7 +2,7 @@ Title: XGBoost 调参
 Date: 2019-08-26 18:15
 Modified: 2019-08-26 18:15
 Category: Python, Machine Learning,
-Tags: pelican, publishing
+Tags: XGBoost, GBM
 Slug: misc-about-xgboost
 Summary: 
 
