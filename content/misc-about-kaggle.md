@@ -8,7 +8,7 @@ Summary:
 
 我又迷信了呀....
 
-<img src="{static}/images/sticker_newthing.webp" style="max-width: 50%">
+<img src="{static}/images/sticker_newthing.webp" style="max-width: 30%">
 
 
 
@@ -18,6 +18,7 @@ Summary:
 
 唯一让我觉得新鲜的, 就是target encoding, 因为之前没看过. 其他的都是泛泛而谈.
 
+都没有银弹的么🐱‍🐉
 
 
 <br>
@@ -27,10 +28,15 @@ Summary:
 Mean target encoding
 
 - smoothing
-- 
+
+
+
+
 
 1. 在训练集上计算均值, 应用到测试集上
 2. oof, 在某个kfold上计算, 应用到(k-1)fold上
+
+
 
 
 ```Python
@@ -106,13 +112,13 @@ for train_index, test_index in kf.split(bryant_shots):
 ### Missing Data
 
 
-Numerical data
+
+Numerical data  
 - Mean/Median imputation
 - Constant value imputation (-999)
 
-
-Categorical data
-- 高频项
+Categorical data  
+- 高频项   
 - 新值 (MISS)
 
 

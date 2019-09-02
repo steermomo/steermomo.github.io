@@ -6,7 +6,7 @@ Tags: XGBoost, GBM
 Slug: misc-about-xgboost
 Summary: 
 
-对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是[BayesianOptimization](https://github.com/fmfn/BayesianOptimization) 跑出来的参数跟别人的效果查了老多.
+对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是[BayesianOptimization](https://github.com/fmfn/BayesianOptimization) 跑出来的参数跟别人的效果差了老多.
 
 XGBoost是在GBDT的基础上改进的, 首先要看GBM的参数是什么意思[^1].
 
