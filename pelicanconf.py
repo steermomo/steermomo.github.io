@@ -12,7 +12,7 @@ PATH = 'content'
 
 
 PLUGIN_PATHS = ["./pelican-plugins"]
-PLUGINS = ["render_math", "read_more_link"]
+PLUGINS = ["render_math", "read_more_link", "pin_to_top"]
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 50
 
