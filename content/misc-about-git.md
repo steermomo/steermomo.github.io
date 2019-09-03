@@ -6,6 +6,9 @@ Tags: Git,
 Slug: git
 Summary: 
 
+这个课程我觉得还是有些用处的, 虚拟环境用起来也很方便, 很多不同的命令也可以直接实验.
+代码敲完让我从只会`add, commit, push`到知道`stage, checkout`, 冲突处理.
+
 <img src="{static}/images/sticker_hating.webp" style="max-width: 30%">
 
 <br>
@@ -207,16 +210,17 @@ git merge soure dest
 要处理冲突, 首先要移除标记, 然后编辑冲突内容(如只保留一个, 或其他处理方式), 最后add file, 提交commit.
 
 
+<br>
 ## Chapter 5, 'Collaborating'.
-
+<br>
 ### How can I create a brand new repository?
 `git init project-name`
 
-
+<br>
 ### How can I turn an existing project into a Git repository?
 ``git init path`
 
-
+<br>
 ### How can I create a copy of an existing repository?
 `git clone URL`
 
@@ -224,24 +228,24 @@ git merge soure dest
 
 `git clone /project/name newprojectname`
 
-
+<br>
 ### How can I find out where a cloned repository originated?
 ```bash
 git remote
 git remote -v
 ```
-
+<br>
 ### How can I define remotes?
 You can connect any two Git repositories this way
 ```bash
 git remote add remote-name URL
 git remote rm remote-name
 ```
-
+<br>
 ### How can I pull in changes from a remote repository?
 
 `git pull remote branch`
-
+<br>
 ### What happens if I try to pull when I have unsaved changes?
 commit or revert local changes
 
