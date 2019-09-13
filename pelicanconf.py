@@ -13,6 +13,7 @@ PATH = 'content'
 
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = ["render_math", "read_more_link", "pin_to_top"]
+MATH_JAX = {'Math Renderer':'Common HTML'}
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 50
 
@@ -70,7 +71,7 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
-    ('👾', '/'),
+    ('🐱‍🐉', '/'),
     ('Blog', '/blog'),
     ('Archives', '/archives'),
     # ('Tags', '/tags.html'),
