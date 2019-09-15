@@ -24,10 +24,11 @@
 body {
     background: #F5F4EF;
     color: #000305;
-    font-size: 87.5%;
+    font-size: 90.5%;
     /* Base font size: 14px */
-    font-family: 'Trebuchet MS', Trebuchet, 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    line-height: 1.429;
+    /* font-family: 'Trebuchet MS', Trebuchet, 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; */
+    font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    line-height: 1.9;
     margin: 0;
     padding: 0;
     text-align: left;
@@ -37,7 +38,7 @@ body {
 /* Headings */
 
 h1 {
-    font-size: 2em
+    font-size: 1.7em
 }
 
 h2 {
@@ -84,14 +85,19 @@ h6 {
     font-weight: 400;
     line-height: 1.1;
     margin-bottom: .8em;
-    font-family: 'Yanone Kaffeesatz', arial, serif;
+    /* font-family: 'Yanone Kaffeesatz', arial, serif; */
+    font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+    /* color: #ff0000 */
 }
 
+h2,
 h3,
 h4,
 h5,
 h6 {
-    margin-top: .8em;
+    margin-top: 2em;
+    /* text-shadow: 0.1em 0.1em 0.2em gray */
+    text-shadow: 0px 0px 1px #333;
 }
 
 hr {
@@ -720,7 +726,7 @@ li:last-child .hentry,
 /* .hentry img{display : none ;} */
 
 .entry-title {
-    font-size: 3em;
+    font-size: 2em;
     margin-bottom: 10px;
     margin-top: 0;
 }
