@@ -25,6 +25,7 @@ body {
     /* background: #F5F4EF; */
     /* background-image: url(/extras/bkg.jpg); */
     background-image: url(/extras/bkg_rep.png);
+    opacity: 1;
     /* background-size: contain; */
     color: #000305;
     font-size: 90.5%;
@@ -380,7 +381,8 @@ figure.left {
     /* color: #000305; */
     color: white;
     display: inline-block;
-    background-color: rebeccapurple;
+    background-color: rgba(102, 51, 153, 0.822);
+    ;
     height: 30px;
     padding: 5px 1.5em;
     text-decoration: none;
@@ -399,7 +401,8 @@ figure.left {
 #banner nav a:visited {
     color: white;
     display: inline-block;
-    background-color: rebeccapurple;
+    background-color: rgba(102, 51, 153, 0.822);
+    ;
     height: 30px;
     padding: 5px 1.5em;
     text-decoration: none;
@@ -408,7 +411,7 @@ figure.left {
 #banner nav a:hover,
 #banner nav a:active {
     background: #c7435000;
-    background-color: rebeccapurple;
+    background-color: rgba(102, 51, 153, 0.822);
     text-decoration: underline;
 }
 
