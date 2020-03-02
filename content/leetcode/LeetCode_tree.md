@@ -283,3 +283,43 @@ public:
     }  
 };
 ```
+
+### 113. Path Sum II (Medium)
+Given a binary tree and a sum, find all root-to-leaf paths where each path's sum equals the given sum.
+
+Note: A leaf is a node with no children.
+
+想法上比较简单, 回溯即可.  
+扎心的是看到了提交记录, 上一次是四年前... 四年了我在干嘛...
+![image.png](http://ww1.sinaimg.cn/large/dd456925ly1gcfn8pscmsj20q808i3yt.jpg)
+
+```cpp
+class Solution {
+public:
+    vector<vector<int>> pathSum(TreeNode* root, int sum) {
+        vector<vector<int>> ret;
+        vector<int> path;
+        if (nullptr == root) {
+            return ret;
+        }
+        dfs(root, ret, path, 0, sum);
+        return ret;
+        
+    }
+private:
+    void dfs(TreeNode* p,vector<vector<int>> &ret, vector<int>& path,int c_sum, int sum) {
+        if (nullptr == p) {
+            return;
+        }
+        c_sum += p->val;
+        path.push_back(p->val);
+        if (!p->left && !p->right && c_sum == sum) {
+            ret.push_back(path);
+        }
+        dfs(p->left, ret, path, c_sum, sum);
+        dfs(p->right, ret, path, c_sum, sum);
+        path.pop_back();
+        
+    }
+};
+```
