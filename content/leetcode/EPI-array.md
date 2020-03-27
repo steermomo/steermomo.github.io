@@ -404,6 +404,383 @@ vector<int> NextPermutation(vector<int> perm) {
 
 ### Sample offline data
 
-很久很久以前
+从数组中随机抽取k个元素。 每次从剩余数组中抽取一个元素，直至抽到k个。
 
-大名鼎鼎的蓄水池算法，
+
+
+这个代码很“C++11”... 直接random取余数并不能生成真正的均匀分布。
+
+C++11把随机数分为引擎和分布两个部分，需要先指定一个随机数引擎，再根据分布生成随机数。
+
+> [std::random_device](dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/numeric/random/random_device.html) is a non-deterministic uniform random bit generator, although implementations are allowed to implement [std::random_device](dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/numeric/random/random_device.html) using a pseudo-random number engine if there is no support for non-deterministic random number generation.
+
+random_device() 生成一个对象，其操作符`()`将推进引擎的状态，返回一个随机数，这里用于随机数引擎的种子。
+
+这里的写法，我也没太看懂，为什么分布后面可以是花括号，将其换成圆括号是我能理解的写法。待更
+
+```c++
+void RandomSampling(int k, vector<int>* A_ptr) {
+  // TODO - you fill in here.
+  vector<int> &A = *A_ptr;
+  // default_random_engine 生成随机数引擎
+  // random_device()
+  std::default_random_engine seed((std::random_device())());
+  for (int i = 0; i < k; ++i) {
+      std::swap(
+              A[i],
+              A[std::uniform_int_distribution<int>{i, static_cast<int>(A.size()-1)}(seed)]
+              );
+  }
+  return;
+}
+```
+
+
+
+### Sample online data
+
+很久很久以前，有个蓄水池算法，要从流中随机抽取k个元素。
+
+假设目前已经接受了n个包并抽取了k个元素，当第n+1个包到达时，其属于抽样集的概率应为k/(n+1)，这时随机一个概率值，若当前包可被保留，则从原k个元素中随机剔除一个。
+
+数学证明可见：[水塘抽樣](https://zh.wikipedia.org/wiki/水塘抽樣)
+
+
+
+```c++
+// Assumption: there are at least k elements in the stream.
+vector<int> OnlineRandomSample(vector<int>::const_iterator stream_begin,
+                               const vector<int>::const_iterator stream_end,
+                               int k) {
+  // TODO - you fill in here.
+  vector<int> ret;
+  // 先填充k个元素
+  for (int i = 0; i < k; ++i, ++stream_begin) {
+      ret.push_back(*stream_begin);
+  }
+  // 初始化随机数引擎
+  std::default_random_engine seed((std::random_device())());
+  int element_so_far = k;
+  while (stream_begin != stream_end) {
+      ++element_so_far;
+    	// 以 k/n+1的概率保留元素
+      int rand_val = std::uniform_int_distribution<int>(0, element_so_far-1)(seed);
+      if (rand_val < k) {
+          ret[rand_val] = *stream_begin;
+      }
+      ++stream_begin;
+  }
+  return ret;
+}
+```
+
+
+
+
+
+###　Compute a random permutation
+
+生成一个随机的排列，每次从剩余集合中随机选择一个元素放置到当前位置。可使用之前的从离线采样函数，即从n个元素中随机抽取n个元素。
+
+
+
+> std::iota
+>
+> Fills the range `[first, last)` with sequentially increasing values, starting with `value` and repetitively evaluating ++value.
+>
+> Equivalent operation:
+>
+> ```c++
+> *(d_first)   = value;
+> *(d_first+1) = ++value;
+> *(d_first+2) = ++value;
+> *(d_first+3) = ++value;
+> ...
+> ```
+
+
+
+```c++
+void RandomSampling(int k, vector<int> *A_ptr) {
+  	// 离线采样
+    vector<int> &A = *A_ptr;
+    std::default_random_engine seed((std::random_device())());
+    for (int i = 0; i < k; ++i) {
+        std::swap(
+                A[i],
+                A[std::uniform_int_distribution<int>(i, static_cast<int>(A.size() - 1))(seed)]
+                );
+    }
+    return;
+}
+vector<int> ComputeRandomPermutation(int n) {
+  // TODO - you fill in here.
+  vector<int> perm(n);
+  // 生成序列
+  std::iota(perm.begin(), perm.end(), 0);
+  // 从n个采样n个，即随机打乱
+  RandomSampling(perm.size(), &perm);
+  return perm;
+}
+```
+
+
+
+
+
+
+
+### Compute a random subset
+
+这个有些类似与离线采样的那题，但是当k<<n时，大多数的元素都是未用到的，申请O(n)的空间有些浪费。这里使用hash table记录。
+
+在离线采样方法中，数组中存放0~n-1的结果，每次交换两个元素。通过hash table，可以保存每次交换元素的下标。这样对交换的两个元素，共有四种情况(都在table内，只有一个在，都不在)
+
+
+
+```c++
+//申请O(n)空间
+//Average running time:    1  s
+//Median running time:   969 ms
+vector<int> RandomSubset(int n, int k) {
+  // TODO - you fill in here.
+    vector<int> A(n);
+    std::iota(A.begin(), A.end(), 0);
+    std::default_random_engine seed((std::random_device())());
+
+    for (int i = 0; i < k; ++i) {
+        std::swap(
+                A[i],
+                A[std::uniform_int_distribution<int>(i, static_cast<int>(A.size() - 1))(seed)]
+        );
+    }
+    return {A.begin(), A.begin() + k};
+}
+
+// Hash table
+
+// Returns a random k-sized subset of {0, 1, ..., n - 1}.
+vector<int> RandomSubset(int n, int k) {
+  // TODO - you fill in here.
+    std::default_random_engine seed((std::random_device())());
+    std::unordered_map<int, int> changed_elements;
+    for (int i = 0; i < k; ++i) {
+        int rand_idx = std::uniform_int_distribution<int>(i, n - 1)(seed);
+        auto ptr1 = changed_elements.find(i), ptr2 = changed_elements.find(rand_idx);
+
+        if (ptr1 == changed_elements.end() && ptr2 == changed_elements.end()) {
+            changed_elements[i] = rand_idx;
+            changed_elements[rand_idx] = i;
+        }
+        else if (ptr1 == changed_elements.end() && ptr2 != changed_elements.end()) {
+            changed_elements[i] = ptr2->second;
+            ptr2->second = i;
+        }
+        else if (ptr1 != changed_elements.end() && ptr2 == changed_elements.end()) {
+            changed_elements[rand_idx] = ptr1->second;
+            ptr1->second = rand_idx;
+        }
+        else {
+            std::swap(ptr1->second, ptr2->second);
+        }
+    }
+    vector<int> ret;
+    for (int i = 0; i < k; ++i) {
+        ret.push_back(changed_elements[i]);
+    }
+    return ret;
+}
+```
+
+
+
+
+
+### Generate nonuniform random numbers
+
+按概率生成随机数。记得在做遗传算法的时候处理过这种问题，用饼图去累计概率。
+
+
+
+```c++
+int NonuniformRandomNumberGeneration(const vector<int>& values,
+                                     const vector<double>& probabilities) {
+  // TODO - you fill in here.
+  std::default_random_engine seed((std::random_device())());
+  double p = std::uniform_real_distribution<double> (0., 1.0)(seed);
+  double con_sum = 0.;
+  for (int i = 0; i < values.size(); ++i) {
+      con_sum += probabilities[i];
+      if (con_sum > p) {
+          return values[i];
+      }
+  }
+  return 0;
+}
+```
+
+
+
+
+
+## Multidimensional arrays
+
+
+
+
+
+### The Sudoku checker problem
+
+判断一个未完成的数独盘是否是合法的。 我的做法比较粗暴，用3个集合分别检查3个约束是否满足。
+
+
+
+```c++
+// Check if a partially filled matrix has any conflicts.
+bool IsValidSudoku(const vector<vector<int>>& partial_assignment) {
+  // TODO - you fill in here.
+  vector<std::unordered_set<int>> rows(9); //检测行冲突
+  vector<std::unordered_set<int>> cols(9); //检测列冲突
+  vector<std::unordered_set<int>> inner(9); //检测小9宫格冲突
+  for (int r_idx = 0; r_idx < 9; ++r_idx) {
+      for (int c_idx = 0; c_idx < 9; ++c_idx) {
+          int c_val = partial_assignment[r_idx][c_idx];
+          if (c_val == 0) {
+              continue;
+          }
+
+          auto &c_row = rows[r_idx];
+          if (c_row.find(c_val) != c_row.end()) {
+              return false;
+          }
+          else {
+              c_row.insert(c_val);
+          }
+
+          auto &c_col = cols[c_idx];
+          if (c_col.find(c_val) != c_col.end()) {
+              return false;
+          }
+          else {
+              c_col.insert(c_val);
+          }
+
+          int inner_idx = (r_idx / 3) * 3 + c_idx / 3;
+          auto &c_inner = inner[inner_idx];
+          if (c_inner.find(c_val) != c_inner.end()) {
+              return false;
+          }
+          else {
+              c_inner.insert(c_val);
+          }
+      }
+  }
+  return true;
+}
+```
+
+
+
+
+
+### Compute the spiral ordering of a 2D array
+
+返回数组的螺旋序列。思路上是一层一层地对数组进行访问，最外圈访问完成后，该问题变成了相同形式，但规模更小的子问题。
+
+
+
+这里刚开始时判断nextX和nextY时并没有考虑小于0的情况，但是也能通过测试样例，是因为在与`size()`相比较时，有符号的负值被转换为无符号，会满足第二个条件。当然在逻辑上是有漏洞的。
+
+```c++
+vector<int> MatrixInSpiralOrder(const vector<vector<int>>& square_matrix) {
+  // TODO - you fill in here.
+  // kShift 控制前进方向
+  const vector<vector<int>> kShift = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+  int dir = 0, x = 0, y = 0;
+  int nextX = 0, nextY = 0;
+  vector<vector<int>> visited(square_matrix);
+  vector<int> ret;
+  for (int i = 0; i < square_matrix.size() * square_matrix.size(); ++i) {
+      ret.push_back(square_matrix[x][y]);
+      visited[x][y] = 0;
+      nextX = x + kShift[dir][0];
+      nextY = y + kShift[dir][1];
+      if (nextX < 0 || nextX >= square_matrix.size() || nextY < 0 || nextY >= square_matrix.size() || visited[nextX][nextY] == 0) {
+          dir = (dir + 1) % 4;
+          nextX = x + kShift[dir][0];
+          nextY = y + kShift[dir][1];
+      }
+      x = nextX;
+      y = nextY;
+  }
+  return ret;
+}
+```
+
+
+
+
+
+### Rotate a 2D array
+
+将2D矩阵顺时针旋转90°。
+
+按层处理，每层每次处理四个元素。即将每条边上对应位置的元素交换位置
+
+```c++
+void RotateMatrix(vector<vector<int>>* square_matrix_ptr) {
+  // TODO - you fill in here.
+  vector<vector<int>> &square_matrix = *square_matrix_ptr;
+  const int mat_size = square_matrix.size() - 1;
+  for (int i = 0; i < square_matrix.size() / 2; ++i) {
+      for (int j = i; j < mat_size - i; ++j) {
+          int temp1 = square_matrix[i][j]; // top element
+          int temp2 = square_matrix[j][mat_size-i]; // right element
+          int temp3 = square_matrix[mat_size-i][mat_size-j]; // bottom element
+          int temp4 = square_matrix[mat_size-j][i]; // left element
+
+          square_matrix[i][j] = temp4; // left2top
+          square_matrix[j][mat_size-i] = temp1; //top2right
+          square_matrix[mat_size-i][mat_size-j] = temp2; // right2bottom
+          square_matrix[mat_size-j][i] = temp3; //bottom2left
+      }
+  }
+  return;
+}
+```
+
+
+
+
+
+### Compute rows in Pascal's Triangle
+
+输出帕斯卡三角的前n行，直接模拟即可
+
+
+
+```c++
+vector<vector<int>> GeneratePascalTriangle(int num_rows) {
+  // TODO - you fill in here.
+
+  vector<vector<int>> ret = {{1}};
+  if (num_rows == 0) {
+      return {};
+  }
+  else if (num_rows == 1) {
+      return ret;
+  }
+  for (int i = 1; i < num_rows; ++i) {
+      vector<int> c_row;
+      c_row.emplace_back(1);
+      auto &last_row = ret[i-1];
+      for (int j = 0; j < last_row.size() - 1; ++j) {
+          c_row.push_back(last_row[j] + last_row[j+1]);
+      }
+      c_row.emplace_back(1);
+      ret.emplace_back(c_row);
+  }
+  return ret;
+}
+```
+
