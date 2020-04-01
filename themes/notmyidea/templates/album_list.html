@@ -1,0 +1,33 @@
+{% extends "gallery_base.html" %}
+
+{% block extra_head %}
+    {# These are used on album pages - prefetch now #}
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/jquery-3.3.1.min.js" />
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/galleria.min.js" />
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/themes/classic/galleria.classic.min.js" />
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/plugins/history/galleria.history.min.js" />
+    {% if settings.show_map %}
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/leaflet/leaflet.css" />
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/leaflet/leaflet.js" />
+    <link rel="prefetch" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/leaflet/leaflet-providers.js" />
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+        <div id="albums">
+          <ul>
+            {% for alb in album.albums %}
+            <li><a href="{{ SITEURL }}/{{ alb.url_at_toplevel}}">
+              <img src="{{ alb.thumbnail_at_toplevel}}" class="album_thumb" alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
+              <span class="album_title">{{ alb.title }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        {% if album.description %}
+        <div id="description">
+          {{ album.description }}
+        </div>
+        {% endif %}
+{% endblock %}

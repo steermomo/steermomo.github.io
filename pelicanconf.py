@@ -12,7 +12,7 @@ PATH = 'content'
 
 
 PLUGIN_PATHS = ["./pelican-plugins"]
-PLUGINS = ["render_math", "read_more_link", "pin_to_top"]
+PLUGINS = ["render_math", "read_more_link", "pin_to_top", "change_archive_period","sitemap", "own_gallery"]
 MATH_JAX = {'Math Renderer':'Common HTML'}
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 50
@@ -22,8 +22,6 @@ READ_MORE_LINK = '<span>continue</span>'
 
 # This is the format of the read more link
 READ_MORE_LINK_FORMAT = '<a class="read-more" href="/{url}">{text}</a>'
-
-
 
 TIMEZONE = 'Asia/Shanghai'
 
@@ -36,11 +34,17 @@ TRANSLATION_FEED_ATOM = None
 AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
+SITEMAP = {
+    'exclude': ['tag/', 'category/'],
+    'format': 'xml'
+}
+
 THEME='themes/notmyidea'
 
 STATIC_PATHS = ['images',
                 '_css',
                 'extras'
+                
                 ]
 
 EXTRA_PATH_METADATA = {
@@ -74,6 +78,7 @@ MENUITEMS = (
     ('🐱‍🐉', '/'),
     ('Blog', '/blog'),
     ('Archives', '/archives'),
+    ('Gallery', '/gallery')
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
 )
@@ -101,9 +106,48 @@ AUTHORS_URL = ''
 AUTHORS_SAVE_AS = ''
 ARCHIVES_URL = 'archives/'
 ARCHIVES_SAVE_AS = 'archives/index.html'
-YEAR_ARCHIVE_URL = '{date:%Y}/'
-YEAR_ARCHIVE_SAVE_AS = '{date:%Y}/index.html'
-MONTH_ARCHIVE_URL = '{date:%Y}/{date:%m}/'
-MONTH_ARCHIVE_SAVE_AS = '{date:%Y}/{date:%m}/index.html'
+YEAR_ARCHIVE_URL = 'blog/{date:%Y}/'
+YEAR_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/index.html'
+MONTH_ARCHIVE_URL = 'blog/{date:%Y}/{date:%m}/'
+MONTH_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/index.html'
 PAGE_URL = '{slug}.html'
 PAGE_SAVE_AS = PAGE_URL
+
+# thumbnailer
+IMAGE_PATH = 'pictures'
+THUMBNAIL_DIR = 'thumbnailer'
+THUMBNAIL_KEEP_TREE = True
+
+
+# own gallery
+IGNORE_FILES = ['content/gallery/*']
+GALLERY_SOURCE = './content/gallery'
+GALLERY_DEST = 'gallery'
+GALLERY_IGNORE_DIRS = []
+GALLERY_IGNORE_FILES = []
+GALLERY_OUTPUT_FILENAME = 'gallery_index.html'
+INDEX_IN_URL = False
+GALLERY_IMG_EXT = ['.jpg', '.jpeg', '.png', '.gif']
+GALLERY_V_EXT = []
+GALLERY_THUMB_DIR = 'thumb'
+GALLERY_THUMB_PREFIX = ''
+GALLERY_THUMB_SUFFIX = ''
+KEEP_ORIG = False
+ALBUMS_SORT_ATTR = 'name'
+ALBUMS_SORT_REVERSE = False
+
+MEDIAS_SORT_ATTR = 'filename'
+USE_ORIG = False
+ORIG_LINK =False
+COPY_EXIF_DATA= False
+IMG_FORMAT='JPEG'
+THUMB_SIZE = (280, 210)
+THUMB_FIT = True
+THUMB_FIT_CENTERING = (0.5, 0.5)
+# Reverse sort for medias
+MEDIAS_SORT_REVERSE = False
+piwik = {'tracker_url': '', 'site_id': 0},
+
+JPG_OPT = {'quality': 85,
+               'optimize': True,
+               'progressive': True}

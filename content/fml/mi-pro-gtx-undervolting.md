@@ -1,6 +1,5 @@
 Title: 小米Notebook Pro GTX解锁电压.
 Date: 2020-03-30
-
 status: draft
 
 
