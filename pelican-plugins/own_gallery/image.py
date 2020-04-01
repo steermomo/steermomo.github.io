@@ -141,7 +141,7 @@ def process_image(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
     
     logger = logging.getLogger(__name__)
-    logger.info('Processing %s', filepath)
+    logger.debug('Processing %s', filepath)
     filename = os.path.split(filepath)[1]
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
@@ -157,7 +157,7 @@ def process_image(filepath, outpath, settings):
 
     try:
         generate_image(filepath, outname, settings, options=options)
-        # print(f'secc gene')
+        print(f'successful generate_image')
         if settings.get('make_thumbs', True):
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(

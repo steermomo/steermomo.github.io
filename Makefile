@@ -14,7 +14,7 @@ GITHUB_PAGES_BRANCH=master
 GITHUB_COMMIT_MSG=$(shell git --no-pager log --format=%s -n 1) 
 
 
-DEBUG ?= 0
+DEBUG ?= 1
 ifeq ($(DEBUG), 1)
 	PELICANOPTS += -D
 endif
