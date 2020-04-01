@@ -767,6 +767,7 @@ class Gallery:
             cpu_count = multiprocessing.cpu_count()
         except NotImplementedError:
             cpu_count = 1
+        cpu_count = 1
 
         if ncpu is None:
             ncpu = cpu_count
