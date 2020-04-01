@@ -294,7 +294,7 @@ class Album:
             self.dst_path = join(settings['GALLERY_DEST'], path)
 
         self.logger = logging.getLogger(__name__)
-        # self.logger.setLevel(logging.INFO)
+        
         # logging.getLogger().setLevel(logging.INFO)
         self._get_metadata()
 
@@ -654,7 +654,8 @@ class Gallery:
         self._templates = {}
         self._templates_path = list(self.settings['THEME_TEMPLATES_OVERRIDES'])
 
-        self.logger.setLevel(logging.INFO)
+        # self.logger.setLevel(logging.INFO)
+        self.logger.setLevel(logging.DEBUG)
         theme_templates_path = os.path.expanduser(
             os.path.join(self.theme, 'templates'))
         self._templates_path.append(theme_templates_path)
