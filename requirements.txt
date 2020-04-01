@@ -6,3 +6,5 @@ lxml
 typogrify
 beautifulsoup4
 click
+pilkit
+pillow
