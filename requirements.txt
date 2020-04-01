@@ -5,3 +5,4 @@ ghp-import==0.5.5     # 讓你 git add 某個資料夾的內容並將其 commit 
 lxml
 typogrify
 beautifulsoup4
+click
