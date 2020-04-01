@@ -654,6 +654,7 @@ class Gallery:
         self._templates = {}
         self._templates_path = list(self.settings['THEME_TEMPLATES_OVERRIDES'])
 
+        self.logger.setLevel(logging.INFO)
         theme_templates_path = os.path.expanduser(
             os.path.join(self.theme, 'templates'))
         self._templates_path.append(theme_templates_path)
