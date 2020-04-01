@@ -78,7 +78,7 @@ MENUITEMS = (
     ('🐱‍🐉', '/'),
     ('Blog', '/blog'),
     ('Archives', '/archives'),
-    ('Gallery', '/gallery/')
+    ('Gallery', '/gallery')
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
 )
