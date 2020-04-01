@@ -108,7 +108,8 @@ class Media:
 
     @property
     def url_at_sublevel(self):
-        return os.path.relpath(self.dst_path, self.settings['GALLERY_DEST'])
+        # return os.path.relpath(self.dst_path, self.settings['GALLERY_DEST'])
+        return os.path.relpath(self.dst_path, self.settings['OUTPUT_PATH'])
 
     @property
     def big(self):
@@ -145,7 +146,8 @@ class Media:
 
     @property
     def thumbnail_at_sublevel(self):
-        return os.path.relpath(self.thumb_path, self.settings['GALLERY_DEST'])
+        # return os.path.relpath(self.thumb_path, self.settings['GALLERY_DEST'])
+        return os.path.relpath(self.thumb_path, self.settings['OUTPUT_PATH'])
 
     def _get_metadata(self):
         """Get image metadata from filename.json: title, description, meta."""
@@ -444,7 +446,8 @@ class Album:
     @property
     def url_at_sublevel(self):
         # return self.settings['OUTPUT_PATH'] + self.dst_path
-        return os.path.relpath(self.dst_path, self.settings['GALLERY_DEST'])
+        # return os.path.relpath(self.dst_path, self.settings['GALLERY_DEST'])
+        return os.path.relpath(self.dst_path, self.settings['OUTPUT_PATH'])
 
     @property
     def thumbnail_at_toplevel(self):
@@ -485,7 +488,7 @@ class Album:
                         # self._thumbnail = f.thumbnail
                         thumb_name = get_thumb(self.settings, f.filename) ### thumb_name 已经是完整的路径了
                         thumb_path = join(self.settings['GALLERY_DEST'], self.path, thumb_name)
-                        self._thumbnail = '/' + os.path.relpath(thumb_path, self.settings['OUTPUT_PATH'])
+                        self._thumbnail = os.path.relpath(thumb_path, self.settings['OUTPUT_PATH'])
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
                             self, self._thumbnail)
@@ -497,7 +500,7 @@ class Album:
                 for media in self.medias:
                     thumb_name = get_thumb(self.settings, media.filename) ### thumb_name 已经是完整的路径了
                     thumb_path = join(self.settings['GALLERY_DEST'], self.path, thumb_name)
-                    self._thumbnail = '/' + os.path.relpath(thumb_path, self.settings['OUTPUT_PATH'])
+                    self._thumbnail = os.path.relpath(thumb_path, self.settings['OUTPUT_PATH'])
                     break
                 else:
                     self.logger.debug("No thumbnail found for %r", self)

@@ -78,12 +78,12 @@
         title: "{{ media.title }}",
         // title: "{{ media.name }}",
         description: "{{ img_description(media) | e }}",
-        thumb: "{{ media.thumbnail_at_sublevel }}",
+        thumb: "{{SITEURL}}/{{ media.thumbnail_at_sublevel }}",
         {% if media.big %}
         big: "{{ media.big_url }}",
         {% endif %}
         {% if media.type == "image" %}
-        image: "{{ media.url_at_sublevel }}"
+        image: "{{SITEURL}}/{{ media.url_at_sublevel }}"
         {% endif %}
         {% if media.type == "video" %}
         image: "img/empty.png",

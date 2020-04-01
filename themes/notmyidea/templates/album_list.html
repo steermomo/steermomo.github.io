@@ -18,7 +18,7 @@
           <ul>
             {% for alb in album.albums %}
             <li><a href="{{ SITEURL }}/{{ alb.url_at_toplevel}}">
-              <img src="{{ alb.thumbnail_at_toplevel}}" class="album_thumb" alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
+              <img src="{{SITEURL}}/{{ alb.thumbnail_at_toplevel}}" class="album_thumb" alt="{{ alb.name }}" title="{{ alb.name }}" /></a>
               <span class="album_title">{{ alb.title }}</span>
             </li>
             {% endfor %}
