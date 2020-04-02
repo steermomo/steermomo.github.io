@@ -14,3 +14,21 @@ Slug: epi-stacks-and-queues
 这里记录一下做**Elements of Programming Interviews**的题目，避免四年之后还是在刷Stacks and Queues。
 
 
+
+## Stacks
+
+### 基本语法
+
+```c++
+.push(val);
+.top();
+.pop(); // does not return
+.empty();
+
+```
+
+
+
+
+### Implement a stack with max API
+

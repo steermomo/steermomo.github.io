@@ -75,7 +75,7 @@ DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
 MENUITEMS = (
-    ('🐱‍🐉', '/'),
+    ('🦉', '/'),
     ('Blog', '/blog'),
     ('Archives', '/archives'),
     ('Gallery', '/gallery')
