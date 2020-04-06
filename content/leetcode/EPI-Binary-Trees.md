@@ -3,7 +3,7 @@ Date: 2020-04-05 19:20
 Modified: 2020-04-05 20:20
 Category: LeetCode
 Tags: EPI, c++
-Slug: epi-Binary Trees
+Slug: epi-Binary-Trees
 
 很久很久以前，有人刷题不做记录，从Array刷到二叉树，刷了几年还是在刷二叉树。
 
@@ -447,7 +447,9 @@ vector<int> InorderTraversal(const unique_ptr<BinaryTreeNode<int>>& tree) {
 
 EPI的代码中用了`make_unique`让创建结点的这个过程直观了很多。
 
-```c+=
+
+
+```c++
 unique_ptr<BinaryTreeNode<int>> BinaryTreeFromPreorderInorderHelper(
         const vector<int>& preorder, size_t preorder_start, size_t preorder_end,
         size_t inorder_start, size_t inorder_end,
@@ -503,6 +505,8 @@ unique_ptr<BinaryTreeNode<int>> BinaryTreeFromPreorderInorder(
 另外这里使用了`move`函数
 
 > std::move 只是将参数转换为右值引用而已（相当于一个 static_cast）
+
+
 
 ```c++
 unique_ptr<BinaryTreeNode<int>> ReconstructPreorderHelper(
