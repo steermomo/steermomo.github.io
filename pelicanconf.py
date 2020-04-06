@@ -12,7 +12,7 @@ PATH = 'content'
 
 
 PLUGIN_PATHS = ["./pelican-plugins"]
-PLUGINS = ["render_math", "read_more_link", "pin_to_top", "change_archive_period","sitemap", "own_gallery"]
+PLUGINS = ["render_math", "read_more_link", "pin_to_top", "change_archive_period","sitemap", "own_gallery", "extract_toc"]
 MATH_JAX = {'Math Renderer':'Common HTML'}
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 50
@@ -51,6 +51,16 @@ EXTRA_PATH_METADATA = {
     'extras/CNAME': {'path': 'CNAME'},
     'extras/favicon.ico': {'path': 'favicon.ico'}
     }
+# MARKDOWN = (['toc'])
+MARKDOWN = {
+    'extension_configs': {
+        'markdown.extensions.codehilite': {'css_class': 'highlight'},
+        'markdown.extensions.extra': {},
+        'markdown.extensions.meta': {},
+        'markdown.extensions.toc': {'title': '🐾🐾🐾',},
+    },
+    'output_format': 'html5',
+}
 # FAVICON = SITEURL + 'images/favicon.ico'
 # FAVICON_IE = SITEURL + 'images/favicon.ico'
 # SITELOGO = SITEURL + 'images/favicon-48.png'

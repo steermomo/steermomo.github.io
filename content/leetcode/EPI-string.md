@@ -5,7 +5,7 @@ Category: LeetCode
 Tags: EPI, c++
 Slug: epi-code-string
 
-
+[TOC]
 
 很久很久以前，有人刷题不做记录，从Array刷到String，刷了几年还是在刷String。
 

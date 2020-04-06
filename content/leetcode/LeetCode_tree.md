@@ -4,7 +4,7 @@ Modified: 2020-03-01 18:20
 Category: LeetCode
 Tags: leetcode, c++
 Slug: leetcode-tree
-
+[TOC]
 
 ![](https://docs.google.com/spreadsheets/d/1SbpY-04Cz8EWw3A_LBUmDEXKUMO31DBjfeMoA0dlfIA/edit#gid=126913158)
 ![](https://img.shields.io/badge/-Easy-green) ![](https://img.shields.io/badge/-Medium-orange)

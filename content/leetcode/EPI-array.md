@@ -13,6 +13,8 @@ Slug: epi-code-array
 
 这里记录一下做**Elements of Programming Interviews**的题目，避免四年之后还是在刷Array。
 
+[TOC]
+
 ## Array
 
 

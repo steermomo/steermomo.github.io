@@ -498,10 +498,29 @@ figure.left {
     overflow: hidden;
     padding: 20px 20px;
     width: 760px;
+    /* width: 80%; */
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
 }
+
+/* Table of Contents */
+.toc {
+    font-size: small;
+    display: table;
+    width: auto;
+}
+.toc ul {
+    list-style-type: none;
+    padding-left: 1rem;
+}
+.toc > ul {
+    /* no indentation */
+    padding-left: 0;
+    margin-top: 0;
+}
+
+/* TOC heading in bold */
 
 
 /*

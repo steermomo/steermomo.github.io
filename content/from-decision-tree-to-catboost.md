@@ -6,6 +6,7 @@ Tags: decision-tree,
 Slug: from-decision-tree-to-catboost
 Summary: 
 
+[TOC]
 
 曾经我认为树模型很弱鸡, 毕竟有点像小朋友画的分支决策树, 选择题有啥好玩的. 🐱‍🐉 还是我太弱鸡了, 一群学渣互相交流, 也能将选择题做得很好.
 
