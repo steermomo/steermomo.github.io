@@ -21,5 +21,5 @@ DELETE_OUTPUT_DIRECTORY = False
 
 # Following items are often useful when publishing
 
-DISQUS_SITENAME = "disqus_B0p24GD3d8"
+DISQUS_SITENAME = "i-steer-space"
 #GOOGLE_ANALYTICS = ""
