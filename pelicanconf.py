@@ -8,6 +8,10 @@ AUTHOR = 'H Li'
 SITENAME = 'steer'
 SITEURL = ''
 
+# disable authors
+AUTHORS_SAVE_AS = ''
+DIRECT_TEMPLATES = ['index', 'categories', 'archives']
+
 PATH = 'content'
 
 
