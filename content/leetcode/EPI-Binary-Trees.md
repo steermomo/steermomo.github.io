@@ -99,6 +99,9 @@ bool CheckSymmetrice(const unique_ptr<BinaryTreeNode<int>> &left, const unique_p
 }
 bool IsSymmetric(const unique_ptr<BinaryTreeNode<int>>& tree) {
   // TODO - you fill in here.
+  if (!tree) {
+      return true;
+  }
   return CheckSymmetrice(tree->left, tree->right);
 }
 ```
