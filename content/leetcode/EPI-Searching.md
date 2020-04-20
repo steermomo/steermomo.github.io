@@ -286,4 +286,87 @@ bool MatrixSearch(const vector<vector<int>>& A, int x) {
 
 ### Find the min and max simultaneously
 
-需要在少于$2(n-1)$次比较下完成,
+需要在少于$2(n-1)$次比较下查找序列中的最小值和最大值.
+
+
+
+如果朴素地比较, 每过一个元素需要进行两次比较. 通过先将两个元素比较得到较大较小值, 再与最大值和最小值分别比较, 将两个元素四次比较降低到两个元素三次比较.
+
+
+
+```c++
+MinMax FindMinMax(const vector<int>& A) {
+  // TODO - you fill in here.
+  if (A.size() <= 1) {
+      return {A.front(), A.front()};
+  }
+  std::pair<int, int> global_min_max = std::minmax(A[0], A[1]);
+  for (int i = 2; i + 1 < A.size(); ++i) {
+      auto local_min_max = std::minmax(A[i], A[i+1]);
+      global_min_max.first = std::min(local_min_max.first, global_min_max.first);
+      global_min_max.second = std::max(local_min_max.second, global_min_max.second);
+  }
+  if (A.size() % 2 != 0) {
+      global_min_max.first = std::min(A.back(), global_min_max.first);
+      global_min_max.second = std::max(A.back(), global_min_max.second);
+  }
+  return {global_min_max.first, global_min_max.second};
+}
+```
+
+
+
+
+
+### Find the kth largest element
+
+如果排序的话, 时间复杂度为$O(n\log n)$, 用最大堆的时间复杂度为$O(n\log k)$.
+
+
+
+类似与快排的partition, 只是划分后并不继续对每个区间进行排序.
+
+```c++
+int PartitionAroundPivot(int left, int right, int pivot_idx, vector<int>* A_ptr) {
+    vector<int> & A = *A_ptr;
+    int pivot_value = A[pivot_idx];
+    int new_pivot_idx = left;
+    std::swap(A[right], A[pivot_idx]);
+    for (int i = left; i < right; ++i) {
+        if (A[i] > pivot_value) {
+            std::swap(A[i], A[new_pivot_idx++]);
+        }
+    }
+    std::swap(A[right], A[new_pivot_idx]); // swap pivot back
+    return new_pivot_idx;
+}
+
+// The numbering starts from one, i.e., if A = [3, 1, -1, 2] then
+// FindKthLargest(1, A) returns 3, FindKthLargest(2, A) returns 2,
+// FindKthLargest(3, A) returns 1, and FindKthLargest(4, A) returns -1.
+int FindKthLargest(int k, vector<int>* A_ptr) {
+  // TODO - you fill in here.
+  vector<int> & A = *A_ptr;
+  int left = 0, right = A.size() - 1;
+  std::default_random_engine gen((std::random_device())());
+  while (left <= right) {
+      int pivot_idx = std::uniform_int_distribution<int>{left, right}(gen);
+      int new_pivot_idx = PartitionAroundPivot(left, right, pivot_idx, &A);
+      if (new_pivot_idx == k - 1) {
+          return A[new_pivot_idx];
+      } else if (new_pivot_idx  < k - 1) {
+          left = new_pivot_idx + 1;
+      } else {
+          right = new_pivot_idx - 1;
+      }
+  }
+  return 0;
+}
+```
+
+
+
+### Find the missing IP address
+
+查找32bit序列中的缺失值，假设有无限制的硬盘空间，却只有MB级别的RAM。
+
