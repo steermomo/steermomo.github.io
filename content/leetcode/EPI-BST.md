@@ -314,3 +314,280 @@ unique_ptr<BstNode<int>> RebuildBSTFromPreorder(
 
 ### Find the closest entries in three sorted arrays
 
+
+
+Design an algorithm that takes three sorted arrays and returns one entry from each such that the minimum interval containing these three entries is as small as possible . For example , if the three arrays are ( 5 , 10 , 15 ) , ( 3 , 6 , 9 , 12 , 15 ) , and ( 8, 16 , 24 ) , then 15 , 15 , 16 lie in the smallest possible interval.
+
+Hint How would you proceed if you needed to pick three entries in a single sorted array ?
+
+
+
+我连题目都没看懂... 没理解错的话，是要在3个排序数组中分别找到3个元素，使得这3个元素之间的间距最小。
+
+
+
+从这3个数组的头部开始，初始时读入3个元素，计算最大最小值之间的差异。然后将最小的元素替换为其下一个元素，再次计算最大最小的差异。
+
+这里需要不停地插入、删除、找到最大最小元素，所以比较适合使用BST。（而我第一时间居然是想到造一个BST的轮子！！！！
+
+在多个排序数组中，会出现相同的元素，这里用`multimap`保持迭代器信息.
+
+```c++
+//minimum_distance_3_sorted_arrays.cc
+
+int FindClosestElementsInSortedArrays(
+    const vector<vector<int>>& sorted_arrays) {
+  // TODO - you fill in here.
+  int min_distance_so_far = std::numeric_limits<int>::max();
+  struct IterTail {
+      vector<int>::const_iterator iter, tail;
+  };
+  // 存在多个相同值的情况，使用multimap
+  std::multimap<int, IterTail> iter_and_tail;
+    for (const vector<int>& sorted_array : sorted_arrays) {
+        iter_and_tail.emplace(sorted_array.front(),
+                              IterTail{cbegin(sorted_array), cend(sorted_array)});
+    }
+  while (true) {
+      // 更新间距
+      int min_val = iter_and_tail.cbegin()->first;
+      int max_val = iter_and_tail.crbegin()->first;
+      min_distance_so_far = std::min(max_val - min_val, min_distance_so_far);
+      // 推进迭代器
+      const auto next_min_iter = std::next(cbegin(iter_and_tail)->second.iter),
+                 next_min_end = cbegin(iter_and_tail)->second.tail;
+      if (next_min_iter == next_min_end) {
+          return min_distance_so_far;
+      }
+      // 插入新迭代器位置
+      iter_and_tail.emplace(
+              *next_min_iter,
+              IterTail{next_min_iter, next_min_end}
+              );
+      // 删除最小元素
+      iter_and_tail.erase(iter_and_tail.cbegin());
+
+  }
+  return 0;
+}
+```
+
+
+
+
+
+### ENUMERATE NUMBERS OF THE FORM a + b $\sqrt{2}$
+
+Numbers of the form a + b$\sqrt q$ , where a and b are nonnegative integers , and q is an integer which is not the square of another integer , have special properties , e. g . , they are closed under addition and multiplication . Some of the first few numbers of this form are given in Figure 15.4.
+
+
+
+Design an algorithm for efficiently computing the k smallest numbers a + b$\sqrt{2}$  for nonnegative integers a and b.
+
+
+
+要计算前k个符合a + b $\sqrt{2}$的数值。
+
+暴力的解法就是分别计算前k个a和b对应的值，然后对$k^2$个结果排序. 
+
+
+
+时间复杂度更低的方法有些类似之前用堆排序查找最小的$n$个值做法.   这里用到两个特性:
+
+1. C++中的set的底层是BST
+2. BST的`begin()`方法返回最小元素的迭代器.
+
+这样在最开始时向BST中插入$a$, $b$均为0的结点, 然后每次从BST中取出最小元素, 将其$a$, $b$值分别+1后再插入到BST中.
+
+```c++
+struct ABSqrt2{
+    ABSqrt2(int a, int b) : a(a), b(b), val(a + b * sqrt(2)){}
+    bool operator <(const ABSqrt2& rhs) const { return val < rhs.val;}
+    int a, b;
+    double val;
+};
+vector<double> GenerateFirstKABSqrt2(int k) {
+  // TODO - you fill in here.
+  std::set<ABSqrt2> candidates;
+  candidates.emplace(0, 0);
+
+  vector<double> ret;
+  while (ret.size() < k) {
+      auto next_smallest = candidates.cbegin();
+      ret.emplace_back(next_smallest->val);
+
+      candidates.emplace(next_smallest->a + 1, next_smallest->b);
+      candidates.emplace(next_smallest->a, next_smallest->b+1);
+
+      candidates.erase(next_smallest);
+  }
+
+  return ret;
+}
+```
+
+
+
+
+
+### THE MOST VISITED PAGES PROBLEM
+
+You are given a server log file containing billions of lines. Each line contains a number of fields. For this problem, the relevant field is an id denoting the page that was accessed.
+Write a function to read the next line from a log file, and a function to find the k most visited pages, where k is an input to the function. Optimize performance for the situation where calls to the two functions are interleaved. You can assume the set of distinct pages is small enough to fit in RAM.
+
+
+
+
+
+
+
+### BUILDA MINIMUM HEIGHT BST FROM A SORTED ARRAY
+Given a sorted array, the number of BSTs that can be built on the entries in the array grows enormously with its size. Some of these trees are skewed, and are closer to lists; others are more balanced. See Figure 15.3 on Page 259 for an example.
+How would you build a BST of minimum possible height from a sorted array?
+Hint: Which element should be the root?
+
+要构建最矮的BST，BST的左右子树需要平衡， 这样才能降低树的高度。
+
+而且数组也已经是排序过的，则排在中间位置的结点用于构建根结点。
+
+递归地向下构建树
+
+
+
+```c++
+unique_ptr<BstNode<int>> BuildMinHeightBSTFromSortedArrayHelper(const vector<int>& A, int left, int right){
+    if (left >= right) {
+        return nullptr;
+    }
+    int middle_idx = left + (right - left) / 2;
+    // 递归构建结点
+    return std::make_unique<BstNode<int>>(BstNode<int>{A[middle_idx],
+                                                       BuildMinHeightBSTFromSortedArrayHelper(A, left, middle_idx),
+                                                       BuildMinHeightBSTFromSortedArrayHelper(A, middle_idx+1, right)});
+}
+```
+
+
+
+
+
+### INSERTIONANDDELETIONINABST
+
+A BST is a dynamic data structure—in particular, if implemented carefully, key inser-tion and deletion can be made very fast.
+Design efficient functions for inserting and removing keys in a BST. Assume that all elements in the BST are unique, and that your insertion method must preserve this property.
+
+
+
+
+
+### TEST IF THREE BST NODES ARE TOTALLY ORDERED
+Write a program which takes two nodes in a BST and a third node, the "middle" node, and determines if one of the two nodes is a proper ancestor and the other a proper descendant of the middle. (A proper ancestor of a node is an ancestor that is not equal to the node; a proper descendant is defined similarly.) For example, in Figure 15.1 on Page 251, if the middle is Node /, your function should return true if the two nodes are {A,K\ or It should return false if the two nodes are {I,P\ or {/, K\. You can assume that all keys are unique. Nodes do not have pointers to their parents
+
+给出BST中的两个结点和第三个结点，判断第三个结点是否是刚好在前两个结点中间（在同一条向上遍历的路径内）， 结点不包含父结点信息。
+
+
+
+因为是BST，结点不包含父结点信息也可以实现路径遍历。
+
+从第一个结点查找至第二个结点，如果中间有经过第3个结点，则第3个结点是在它们之间的。
+
+这里因为前两个结点并没有保证顺序，需要逆转再查找一次。
+
+```c++
+bool IsAncAndDes(std::vector<BstNode<int>*> &lookup) {
+    // 从head 到 tail遍历一次
+    auto head = lookup.front(), tail = lookup.back();
+    int c_idx = 0;
+    while (head != nullptr && head->data != tail->data) {
+        if (head->data == lookup[c_idx]->data) {
+            ++c_idx;
+        }
+        if (head->data > tail->data) {
+            head = head->left.get();
+        } else {
+            head = head->right.get();
+        }
+    }
+    if (head == nullptr || c_idx < 2) {
+        return false;
+    }
+    return true;
+}
+bool PairIncludesAncestorAndDescendantOfM(
+    const unique_ptr<BstNode<int>>& possible_anc_or_desc_0,
+    const unique_ptr<BstNode<int>>& possible_anc_or_desc_1,
+    const unique_ptr<BstNode<int>>& middle) {
+  // TODO - you fill in here.
+  std::vector<BstNode<int>*> lookup = {possible_anc_or_desc_0.get(), middle.get(), possible_anc_or_desc_1.get()};
+  bool s_order_ret = IsAncAndDes(lookup);
+  if (s_order_ret) {
+      return true;
+  }
+  std::reverse(std::begin(lookup), std::end(lookup));
+  bool reverse_order_ret = IsAncAndDes(lookup);
+  if (reverse_order_ret) {
+      return true;
+  }
+  return false;
+}
+```
+
+
+
+### THE RANGE LOOKUP PROBLEM
+
+Consider the problem of developing a web-service that takes a geographical loca- tion, and returns the nearest restaurant. The service starts with a set of restaurant locations—each location includes X and Y-coordinates. A query consists of a location, and should return the nearest restaurant (ties can be broken arbitrarily).
+
+
+
+One approach is to build two BSTs on the restaurant locations: Tx sorted on the X coordinates, and Ty sorted on the Y coordinates. A query on location ( p,q) can be performed by finding all the restaurants whose X coordinate is in the interval [ p- D, p+ D], and all the restaurants whose Ycoordinate is in the interval [q- D, q+ D], taking the intersection of these two sets, and finding the restaurant in the intersection which is closest to ( p,q). Heuristically, if D is chosen correctly, the subsets are small and a brute-force search for the closest point is fast. One approach is to start with a small value for D and keep doubling it until the final intersection is nonempty.
+There are other data structures which are more robust, e.g., Quadtrees and k-d trees, but the approach outlined above works well in practice.
+Write a program that takes as input a BST and an interval and returns the BST keys that lie in the interval. For example, for the tree in Figure 15.1 on Page 251, and interval [16, 31], you should return 17, 19, 23, 29, 31.
+
+
+
+对BST中序遍历可以得到顺序序列，在中序遍历的过程中，设置条件进行剪枝，降低搜索的空间，直接针对区间进行搜索， 区间内的值都找完后立刻退出搜索。
+
+```c++
+void RangeLookupInBSTHelper(BstNode<int>* node, vector<int>& ret, const Interval& interval) {
+    if (node == nullptr) {
+        return;
+    }
+    int c_data = node->data;
+    if (c_data >= interval.left) {
+        RangeLookupInBSTHelper(node->left.get(), ret, interval);
+    }
+    if (c_data >= interval.left && c_data <= interval.right) {
+        ret.emplace_back(c_data);
+    }
+    if (c_data <= interval.right) {
+        RangeLookupInBSTHelper(node->right.get(), ret, interval);
+    }
+
+}
+vector<int> RangeLookupInBST(const unique_ptr<BstNode<int>>& tree,
+                             const Interval& interval) {
+  // TODO - you fill in here.
+  vector<int> ret;
+  RangeLookupInBSTHelper(tree.get(), ret, interval);
+  return ret;
+}
+```
+
+
+
+## Augmented BSTs
+
+
+
+### ADD CREDITS
+
+Consider a server that a large number of clients connect to. Each client is identified by a string. Each client has a "credit", which is a nonnegative integer value. The server needs to maintain a data structure to which clients can be added, removed, queried, or updated. In addition, the server needs to be able to add a specified number of credits to all clients simultaneously.
+
+Design a data structure that implements the following methods:
+
++ Insert
++ Remove
++ Lookup
++ Add-to-all
++ Max
