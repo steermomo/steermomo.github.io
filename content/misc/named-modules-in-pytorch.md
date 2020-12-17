@@ -1,7 +1,7 @@
 Title: Pytorch中的named_modules是个啥-debug真难
 Date: 2019-09-05 13:20
 Modified: 2019-09-05 21:20
-Category: Pytorch,
+Category: Pytorch
 Tags: Python, Pytorch
 Slug: named-modules-in-pytorch
 Summary: 

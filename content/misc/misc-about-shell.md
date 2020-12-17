@@ -1,7 +1,6 @@
 Title: Introduction to Shell for Data Science
 Date: 2019-08-26 18:19
 Modified: 2019-08-26 18:19
-Category: Linux, Shell,
 Tags: Shell, 
 Slug: Introduction-to-Shell-for-Data-Science
 Summary: 

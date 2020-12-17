@@ -1,8 +1,8 @@
 Title: Dimensionality Reduction in Python - 这不是迷信
 Date: 2019-08-26 18:18
 Modified: 2019-08-26 18:18
-Category: Python, Machine Learning,
-Tags: PCA, 
+Category: Python
+Tags: PCA,Python, Machine Learning 
 Slug: dimensionality-reduction-in-python
 Summary: 
 

@@ -13,7 +13,7 @@ GITHUB_REMOTE_NAME=origin
 GITHUB_PAGES_BRANCH=master
 GITHUB_COMMIT_MSG=$(shell git --no-pager log --format=%s -n 1) 
 
-
+PORT=8081
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
 	PELICANOPTS += -D

@@ -48,7 +48,6 @@ THEME='themes/notmyidea'
 STATIC_PATHS = ['images',
                 '_css',
                 'extras'
-                
                 ]
 
 EXTRA_PATH_METADATA = {
@@ -100,15 +99,15 @@ MENUITEMS = (
 # Set URL's
 TAG_URL = 'label/{slug}/'
 TAG_SAVE_AS = 'label/{slug}/index.html'
-TAGS_URL = 'label/'
-TAGS_SAVE_AS = 'label/index.html'
+TAGS_URL = 'label/{slug}/'
+TAGS_SAVE_AS = 'label/{slug}/index.html'
 CATEGORY_URL = 'category/{slug}/'
 CATEGORY_SAVE_AS = 'category/{slug}/index.html'
 CATEGORIES_URL = 'category/'
 CATEGORIES_SAVE_AS = 'category/index.html'
 
-ARTICLE_URL = 'blog/{date:%Y}/{date:%m}/{slug}.html'
-ARTICLE_SAVE_AS = ARTICLE_URL
+ARTICLE_URL = 'blog/{date:%Y}/{date:%m}/{slug}'
+ARTICLE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/{slug}.html'
 
 # ARTICLE_URL = 'blog/{date:%Y}/{date:%m}/{slug}/'
 # ARTICLE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/{slug}/index.html'

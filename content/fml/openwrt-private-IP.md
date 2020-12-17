@@ -1,8 +1,8 @@
 Title: OpenWrt不能解析内网地址
-Date: 2020-04-10 14:20
-Modified: 2020-04-10 28:20
-Category: LeetCode
-Tags: EPI, c++
+Date: 2020-04-10
+Modified: 2020-04-10
+Category: Linux
+Tags: Linux, DNS, OpenWrt
 Slug: openwrt-resolve-private-IP
 
 目前在不同的网络环境下有多台设备，我是用zerotier-one把他们组到一个虚拟局域网内，并用子域名管理这些内网地址。

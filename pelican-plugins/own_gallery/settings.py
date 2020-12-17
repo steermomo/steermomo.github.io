@@ -16,9 +16,9 @@ def get_thumb(settings, filename):
     "bar/thumbnails/foo.jpg"
     """
 
-    path, filen = os.path.split(filename)
-    print(f'path filen => {path}, {filen}')
-    name, ext = os.path.splitext(filen)
+    path, filename = os.path.split(filename)
+    print(f'path filename => {path}, {filename}')
+    name, ext = os.path.splitext(filename)
 
     if ext.lower() in settings['GALLERY_V_EXT']:
         ext = '.jpg'

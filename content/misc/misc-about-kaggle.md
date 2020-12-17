@@ -1,7 +1,6 @@
 Title: Winning a kaggle Competition 教你如何噶韭菜
 Date: 2019-08-26 18:16
 Modified: 2019-08-26 18:16
-Category: Python, Machine Learning,
 Tags: kaggle, 
 Slug: misc-about-kaggle
 Summary: 

@@ -1,8 +1,8 @@
 Title: Introduction to Git for Data Science 
 Date: 2019-08-26 18:19
 Modified: 2019-08-26 18:19
-Category: Python, Git,
-Tags: Git, 
+Category: Python
+Tags: Git, Python
 Slug: misc-about-cluster
 Summary: 
 

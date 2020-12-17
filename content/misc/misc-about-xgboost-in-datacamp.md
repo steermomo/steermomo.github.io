@@ -1,8 +1,8 @@
 Title: Extreme Gradient Boosting with XGBoost - 再一次迷信
 Date: 2019-08-26 18:17
 Modified: 2019-08-26 18:17
-Category: Python, Machine Learning,
-Tags: xgboost, 
+Category: Python
+Tags: xgboost,Machine Learning
 Slug: misc-about-xgboost-in-datacamp
 Summary: 
 

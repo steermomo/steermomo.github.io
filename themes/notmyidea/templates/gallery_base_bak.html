@@ -16,25 +16,6 @@
     {% include 'analytics.html' %}
   </head>
   <body>
-    <header id="banner" class="body">
-      <!-- <h1><a href="{{ SITEURL }}/">{{ SITENAME }} {% if SITESUBTITLE %}<strong>{{ SITESUBTITLE }}</strong>{% endif %}</a></h1> -->
-      <nav><ul>
-      {% for title, link in MENUITEMS %}
-          <li><a href="{{ link }}">{{ title }}</a></li>
-      {% endfor %}
-      <li id="navName">{{ SITENAME }} {% if SITESUBTITLE %}<strong>{{ SITESUBTITLE }}</strong>{% endif %}</li>
-      {% if DISPLAY_PAGES_ON_MENU -%}
-      {% for pg in pages %}
-          <li{% if pg == page %} class="active"{% endif %}><a href="{{ SITEURL }}/{{ pg.url }}">{{ pg.title }}</a></li>
-      {% endfor %}
-      {% endif %}
-      {% if DISPLAY_CATEGORIES_ON_MENU -%}
-      {% for cat, null in categories %}
-          <li{% if cat == category %} class="active"{% endif %}><a href="{{ SITEURL }}/{{ cat.url }}">{{ cat }}</a></li>
-      {% endfor %}
-      {% endif %}
-      </ul></nav>
-</header>
     {% include 'gtm.html' %}
     <div class="container body">
       <header>
@@ -54,8 +35,5 @@
     </div>
     {% block late_js %}{% endblock late_js %}
     <!-- {% include 'piwik.html' %} -->
-
   </body>
-  </html>
-
-
+</html>

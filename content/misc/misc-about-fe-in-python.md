@@ -1,7 +1,6 @@
 Title: Feature Engineering for Machine Learning in Python
 Date: 2019-09-03 21:20
 Modified: 2019-09-03 21:20
-Category: DNS,
 Tags: DNS, CNAME, namecheap, 
 Slug: fe-in-python
 Summary: 

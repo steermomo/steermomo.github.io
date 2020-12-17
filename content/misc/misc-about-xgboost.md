@@ -1,8 +1,8 @@
 Title: XGBoost 调参
 Date: 2019-08-26 18:15
 Modified: 2019-08-26 18:15
-Category: Python, Machine Learning,
-Tags: XGBoost, GBM
+Category: XGBoost
+Tags: XGBoost, GBM, Machine Learning,
 Slug: misc-about-xgboost
 Summary: 
 

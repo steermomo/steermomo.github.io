@@ -4,16 +4,56 @@ save_as: index.html
 
 This is H Li.
 
-I'm a master's stuednt at [XMU](https://www.xmu.edu.cn/). I majored in CS.
+I'm a master's stuednt at [XMU](). I majored in CS.
 
 My current research is about `Deep Learning, Medical Image Analysis`.
 
-<br>
-## Experience
+
+<h2 style="font-size: 1.4em;
+    font-family: 'PT Sans Narrow', 'Fira Sans', sans-serif;
+	margin: 40px 10px 20px 0;
+	padding-left: 9px;
+	border-left: 6px solid #ff7e79;
+	font-weight: 700;
+	line-height: 1.4;">Experience</h2>
 
 
-Imsight Medical Technology, &nbsp; Deep Learning Algorithm Engineer Intern, &nbsp;  Jan 2019 - Apr 2019  
-iFLYTEK Co, &nbsp; Algorithm Engineer Intern, &nbsp; Mar 2018 - May 2018  
+<table style="width:80%;text-align: left; float: left;">
+<tr >
+<td>
+Tencent AI Lab
+</td>
+<td>
+Algorithm Engineer Intern
+</td>
+<td>
+May 2020 - Now
+</td>
+</tr>
+<tr >
+<td>
+Imsight Medical Technology
+</td>
+<td>
+Algorithm Engineer Intern
+</td>
+<td>
+Jan 2019 - Apr 2019 
+</td>
+</tr>
 
+
+<tr>
+<td>
+iFLYTEK
+</td>
+<td>
+Algorithm Engineer Intern
+</td>
+<td>
+Mar 2018 - May 2018  
+</td>
+</tr>
+</table>
 
 <img src="{static}/images/sticker_hardcore.webp" style="max-width: 40%">

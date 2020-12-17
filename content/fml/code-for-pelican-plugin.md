@@ -1,5 +1,7 @@
 Title: 为Pelican编写插件
 Date: 2020-03-31
+Category: Pelican
+Tags: Pelican, Python
 
 🐧
 

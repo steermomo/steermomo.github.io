@@ -1,7 +1,7 @@
 Title: namecheap中设置裸域CNAME与TXT解析的问题 
 Date: 2019-09-03 18:20
 Modified: 2019-09-03 18:20
-Category: DNS,
+Category: DNS
 Tags: DNS, CNAME, namecheap, 
 Slug: cname-txt-record-in-namecheap
 Summary: 

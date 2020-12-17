@@ -24,15 +24,15 @@
 body {
     /* background: #F5F4EF; */
     /* background-image: url(/extras/bkg.jpg); */
-    background-image: url(/extras/bkg_rep.png);
-    opacity: 1;
-    /* background-size: contain; */
+    background: url(/extras/Negociation.jpg) no-repeat right top;
+    background-size: auto 100%;
+    background-attachment: fixed;
+    background-color: #f5f7f9;
+    background-size: cover;
     color: #000305;
-    font-size: 90.5%;
+    font-size: 100%;
     /* Base font size: 14px */
-    /* font-family: 'Trebuchet MS', Trebuchet, 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif; */
-    /* font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; */
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    font-family: "Fira Sans","Helvetica Neue",Helvetica,Arial,"Hiragino Sans GB","Microsoft YaHei",sans-serif;
     line-height: 1.9;
     margin: 0;
     padding: 0;
@@ -90,9 +90,8 @@ h6 {
     font-weight: 400;
     line-height: 1.1;
     margin-bottom: .8em;
-    /* font-family: 'Yanone Kaffeesatz', arial, serif; */
-    /* font-family: "lucida grande", "lucida sans unicode", lucida, helvetica, "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif; */
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    /* font-family: "Fira Sans","Helvetica Neue",Helvetica,Arial,"Hiragino Sans GB","Microsoft YaHei",sans-serif; */
+    font-family: 'PT Sans Narrow', 'Fira Sans', sans-serif;
     /* color: #ff0000 */
 }
 
@@ -115,6 +114,7 @@ hr {
 
 a {
     outline: 0;
+    color: #1EAEDB;
 }
 
 a img {
@@ -122,20 +122,16 @@ a img {
     text-decoration: none;
 }
 
-a:link,
-a:visited {
-    color: #C74350;
-    padding: 0 1px;
-    text-decoration: underline;
-}
-
+/* Links
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+a:link, 
+a:visited{
+    color: #1EAEDB; }
 a:hover,
 a:active {
-    background-color: #C74350;
-    color: #fff;
-    text-decoration: none;
-    text-shadow: 1px 1px 1px #333;
-}
+    color: #0FA0CE; }
+
+
 
 h1 a:hover {
     background-color: inherit
@@ -419,7 +415,7 @@ figure.left {
 #banner nav .active a:visited {
     background: #c7435000;
     color: #fff;
-    text-decoration: underline;
+    text-decoration: none;
     text-shadow: none !important;
 }
 
@@ -442,7 +438,8 @@ figure.left {
     margin-bottom: 2em;
     overflow: hidden;
     padding: 20px;
-    width: 760px;
+    max-width: 800px;
+    width: 80%;
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -497,12 +494,14 @@ figure.left {
     margin-bottom: 2em;
     overflow: hidden;
     padding: 20px 20px;
-    width: 760px;
+    width: 80%;
+    max-width: 800px;
     /* width: 80%; */
-    border-radius: 10px;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
+
 
 /* Table of Contents */
 .toc {
@@ -522,6 +521,62 @@ figure.left {
 
 /* TOC heading in bold */
 
+
+/*
+archive body
+*/
+#blog-archive-content {
+    background: rgba(255,255,255,0.95);
+    margin-bottom: 2em;
+    overflow: hidden;
+    padding: 20px 20px;
+    width: 80%;
+    max-width: 800px;
+    /* width: 80%; */
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+
+#blog-archive-content h2 {
+    margin-top: 0em;
+}
+
+#blog-archive-content article {
+    padding-left: 4.5em;
+    padding-bottom: .7em;
+    position: relative;
+    color: #B5BFC5;
+}
+
+#blog-archive-content article time {
+    font-size: .9em;
+    line-height: 1.2em;
+    text-transform: uppercase;
+    position: absolute;
+    text-align: right;
+    left: 0em;
+    top: 1.2em;
+}
+
+#blog-archive-content h2 {
+    margin-bottom: .3em;
+    font-size: 2em;
+    color: #B5BFC5;
+    margin-top: 1em;
+    border-bottom: 1px dotted #CCC;
+}
+
+#blog-archive-content h1 {
+    font-size: 1.5em;
+    font-weight: normal;
+    font-family: 'PT Sans Narrow', 'Fira Sans', sans-serif;
+}
+
+#blog-archive-content h1 a {
+    color: #555;
+    text-decoration: none;
+}
 
 /*
 	Extras
@@ -694,7 +749,9 @@ figure.left {
     overflow: hidden;
     padding: 20px;
     text-align: center;
-    width: 760px;
+    /* width: 760px; */
+    width: 80%;
+    max-width: 800px;
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -732,6 +789,8 @@ figure.left {
 *****************/
 
 #contentinfo {
+    width: 100%;
+    max-width: 800px;
     padding-bottom: 2em;
     text-align: right;
 }
@@ -750,12 +809,12 @@ figure.left {
 }
 
 li:last-child .hentry,
-#content>.hentry {
+#content .blog-archive-content>.hentry {
     border: 0;
     margin: 0;
 }
 
-#content>.hentry {
+#content .blog-archive-content>.hentry {
     padding: 1em 0;
 }
 
@@ -766,6 +825,7 @@ li:last-child .hentry,
     font-size: 2em;
     margin-bottom: 10px;
     margin-top: 0;
+    text-align: center;
 }
 
 .entry-title a:link,
