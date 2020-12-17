@@ -31,10 +31,11 @@ jobs:
       run: |
         remote_repo="https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git"
         remote_branch=${GH_PAGES_BRANCH:=gh-pages}
-        git config user.name "${GITHUB_ACTOR}"
-        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+        
         cd output
         git init
+        git config user.name "${GITHUB_ACTOR}"
+        git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
         git remote add deploy "$remote_repo"
         git checkout $remote_branch || git checkout --orphan $remote_branch
         echo -n 'Files to Commit:' && ls -l | wc -l
