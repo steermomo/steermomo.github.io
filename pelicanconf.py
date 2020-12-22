@@ -60,7 +60,7 @@ MARKDOWN = {
         'markdown.extensions.codehilite': {'css_class': 'highlight'},
         'markdown.extensions.extra': {},
         'markdown.extensions.meta': {},
-        'markdown.extensions.toc': {'title': '🐾🐾🐾',},
+        # 'markdown.extensions.toc': {'title': '🚀🚀🚀🚀🚀🚀🚀🚀',},
     },
     'output_format': 'html5',
 }

@@ -38,3 +38,15 @@ Address: 172.26.48.92
 
 Update...
 
+### 2020-12-22更新
+忘记有这么个事情了。
+这个问题是DNSmasq中的rebind_protection造成的，在[Openwrt的文档](https://openwrt.org/docs/guide-user/base-system/dhcp)中可以看到关于rebind_protection的说明。
+> rebind_protection
+> 
+> --stop-dns-rebind
+> 
+> Enables DNS rebind attack protection by discarding upstream RFC1918 responses
+
+而RFC1918指的是私有网络地址分配，这里遇到的问题就是zerotier-one分配的地址是私有IP，而我把一个域名解析到这个私有IP上了，在DNSmasq这一层会把它当作DNS重新绑定攻击，直接把这个请求给抛弃掉了，导致在内网中解析出现问题。
+解决方法就是关闭rebind_protection。
+
