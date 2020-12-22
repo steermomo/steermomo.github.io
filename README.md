@@ -1,4 +1,3 @@
-# steermomo.github.io
-Blog
+# i.steer.space
 
-![](https://travis-ci.org/steermomo/steermomo.github.io.svg?branch=origin)
+![GitHub Action Automatic Build](https://github.com/steermomo/steermomo.github.io/workflows/Python%20application/badge.svg?branch=origin)
