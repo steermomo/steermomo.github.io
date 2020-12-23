@@ -1,4 +1,4 @@
-Title: PyTorch DistributedSampler封装其他Sampler策略
+Title: 在PyTorch DistributedSampler中封装其他Sampler策略
 Date: 2020-12-23 18:20
 Modified: 2020-12-23 18:20
 Category: Coding
