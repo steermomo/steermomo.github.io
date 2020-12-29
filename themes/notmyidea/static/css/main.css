@@ -431,6 +431,7 @@ figure.left {
 }
 
 #banner nav li:first-child a {
+    /* visibility: hidden; */
     border-top-left-radius: 5px;
     -moz-border-radius-topleft: 5px;
     -webkit-border-top-left-radius: 5px;
@@ -438,6 +439,13 @@ figure.left {
     -moz-border-radius-bottomleft: 5px;
     -webkit-border-bottom-left-radius: 5px;
 }
+
+@media screen and (max-width: 633px) {
+    nav li:not(:first-child):not(:last-child) {
+      visibility: hidden;
+      display: none !important;
+    }
+  }
 
 
 /*
