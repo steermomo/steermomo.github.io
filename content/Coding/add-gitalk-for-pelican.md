@@ -3,6 +3,7 @@ Date: 2020-12-29
 Modified: 2020-12-29
 Category: Coding
 Tags: Pelican
+Slug: add-gitalk-for-pelican
 
 静态博客因为是静态的，所以评论系统啥的都得靠第三方的服务。
 
