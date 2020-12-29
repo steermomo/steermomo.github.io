@@ -392,7 +392,7 @@ img.left, figure.left {
 }
 
 @media screen and (max-width: 633px) {
-    nav li:not(:first-child):not(:last-child) {
+    nav li:not(:first-child):not(:last-child):not(:nth-child(3)) {
         visibility: hidden;
         display: none !important;
     }
