@@ -2,7 +2,8 @@ body {
   background-color: #242424;
   color: #aaaaaa;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
-  font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; */
+  font: 'PT Sans Narrow', 'Fira Sans', sans-serif;
 }
 
 .container {
@@ -105,12 +106,16 @@ header h1 a:hover, header h2 a:hover {
 
 #albums ul {
   list-style-type: none;
-  padding-left: 0;
+  /* padding-left: 0; */
+  text-align: center;
+  margin-right: auto;
+  margin-left: auto;
 }
 
 #albums ul li {
   display: inline-block;
-  margin: 0 55px 30px 0;
+  margin: 2rem 2rem 30px 0;
+  /* margin: auto; */
   text-align: center;
   vertical-align: top;
   width: 280px;
