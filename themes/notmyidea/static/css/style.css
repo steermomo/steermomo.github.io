@@ -1,7 +1,7 @@
 body {
   background-color: #242424;
   color: #aaaaaa;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.7);
   /* font: 16px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; */
   font: 'PT Sans Narrow', 'Fira Sans', sans-serif;
 }
@@ -9,7 +9,13 @@ body {
 .container {
   margin: 0 auto;
   text-align: left;
-  width: 96%;
+  background-color: #f5f5f5;
+  /* width: 100%; */
+  max-width: 1080px;
+  min-width: 415px;
+  border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
 }
 
 #description {
@@ -63,13 +69,14 @@ header {
 }
 
 header h1, header h2 {
+  padding-left: 0.5rem;
   color: #eeeeee;
   margin: 10px 0;
 }
 
 header h1 a, header h1 a:link, header h1 a:visited, header h2 a, header h2 a:link, header h2 a:visited {
-  color: #eeeeee;
-  text-shadow: 0 2px 0 #000;
+  color:#484747;
+  text-shadow: 0 1px 0 #000;
   text-decoration: none;
 }
 
@@ -114,16 +121,16 @@ header h1 a:hover, header h2 a:hover {
 
 #albums ul li {
   display: inline-block;
-  margin: 2rem 2rem 30px 0;
+  margin: 2rem 2rem 2rem 2rem ;
   /* margin: auto; */
   text-align: center;
   vertical-align: top;
   width: 280px;
 }
 
-#albums ul li:nth-child(3n+3) {
+/* #albums ul li:nth-child(3n+3) {
   margin-right: 0;
-}
+} */
 
 #albums ul li a img {
   opacity: 1;
@@ -142,7 +149,7 @@ header h1 a:hover, header h2 a:hover {
 
 .album_title {
   display: block;
-  color: #eeeeee;
+  color: #484747;
   font-size: 1.3em;
   font-variant: small-caps;
   font-weight: bold;
@@ -224,11 +231,11 @@ footer span:not(:last-child):after {
 
 @media only screen and (min-width: 980px) {
   .container {
-    width: 960px;
+    width: 1000px;
   }
   #gallery {
     width: 980px;
-    margin: 0 0 40px -10px;
+    margin: 0 0 40px 10px;
   }
   header h1, #menu {
     display: inline-block;

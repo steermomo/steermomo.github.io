@@ -127,10 +127,10 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
     original_format = img.format
 
     if fit:
-        img = ImageOps.fit(img, box, PILImage.ANTIALIAS,
+        img = ImageOps.fit(img, box, PILImage.LANCZOS,
                            centering=thumb_fit_centering)
     else:
-        img.thumbnail(box, PILImage.ANTIALIAS)
+        img.thumbnail(box, PILImage.LANCZOS)
 
     outformat = img.format or original_format or 'JPEG'
     logger.debug('Save thumnail image: %s (%s)', outname, outformat)
@@ -151,7 +151,8 @@ def process_image(filepath, outpath, settings):
     if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
         options = settings['JPG_OPT']
     elif ext == '.png':
-        options = {'optimize': True}
+        # options = {'optimize': True}
+        options = {}
     else:
         options = {}
 
