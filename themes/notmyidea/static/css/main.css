@@ -925,6 +925,21 @@ li:last-child .hentry,
 
 /* Comments */
 
+#comments {
+    background: #fff;
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    padding: 20px 20px;
+    width: 80%;
+    max-width: 50rem;
+    margin-top: 2rem;
+    /* width: 80%; */
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
+
 #comments-list {
     list-style: none;
     margin: 0 1em;

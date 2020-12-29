@@ -8,6 +8,9 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
         <title>{% block title %}{{ SITENAME }}{%endblock%}</title>
         <link rel="stylesheet" href="{{ SITEURL }}/{{ THEME_STATIC_DIR }}/css/{{ CSS_FILE }}" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
         
         
         {% if FEED_ALL_ATOM %}

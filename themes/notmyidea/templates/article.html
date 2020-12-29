@@ -30,6 +30,7 @@
       
       {{ article.content }}
     </div><!-- /.entry-content -->
+    
     {% if DISQUS_SITENAME and SITEURL and article.status != "draft" %}
     <div class="comments">
       <h2>Comments !</h2>
@@ -49,7 +50,27 @@
     {% endif %}
 
   </article>
+
+
 </section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
 {% endblock %}
 {% block footpage %}
 <footer id="contentinfo" class="body">
