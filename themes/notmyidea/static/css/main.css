@@ -156,6 +156,14 @@ li {
     padding: 5px;
 }
 
+@media screen and (max-width: 633px) {
+    .post-info {
+        visibility: hidden;
+        display: none !important;
+    }
+}
+
+
 .post-info p {
     margin-top: 1px;
     margin-bottom: 1px;
