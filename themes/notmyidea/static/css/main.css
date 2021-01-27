@@ -35,6 +35,10 @@ body {
     padding: 0;
     text-align: left;
 }
+code {
+    font-family: 'Fira Code Light';
+    font-size: 0.70rem;
+}
 
 /* Headings */
 
