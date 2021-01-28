@@ -2,7 +2,7 @@ Title: EPI-String
 Date: 2020-03-27 18:20
 Modified: 2020-03-27 18:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-code-string
 
 [TOC]

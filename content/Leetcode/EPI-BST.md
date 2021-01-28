@@ -2,7 +2,7 @@ Title: EPI-BST
 Date: 2020-04-20 19:20
 Modified: 2020-04-20 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-BST
 
 很久很久以前，有人刷题不做记录。

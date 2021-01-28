@@ -4,8 +4,6 @@ Modified: 2019-09-05 21:20
 Category: Pytorch
 Tags: Python, Pytorch
 Slug: named-modules-in-pytorch
-Summary: 
-
 
 Summary =>  在改写deeplabv3+时, 因为需要去掉ASPP和decoder部分, 仅保留mobilenet的backbone. 但是因为误对`nn.Module`内的所有权值进行初始化, 导致backbone中的预训练权值丢失. 同样的模型训练1000个epoch的效果依然很差.
 

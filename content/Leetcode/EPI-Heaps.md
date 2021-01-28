@@ -2,7 +2,7 @@ Title: EPI-Heaps
 Date: 2020-04-07 19:20
 Modified: 2020-04-07 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-Heaps
 
 很久很久以前，有人刷题不做记录，没刷过Heaps。

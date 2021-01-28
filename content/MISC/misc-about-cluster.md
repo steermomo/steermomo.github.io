@@ -4,7 +4,7 @@ Modified: 2019-08-26 18:19
 Category: Python
 Tags: Git, Python
 Slug: misc-about-cluster
-Summary: 
+
 
 
 emm...有门课需要做笔记, 忘记聚类的部分了, 直接补一个datacamp的Clustering Methods with SciPy. 感觉这个课印度口音好重, 不开字幕压根听不懂.

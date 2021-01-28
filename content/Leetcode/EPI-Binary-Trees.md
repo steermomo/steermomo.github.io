@@ -2,7 +2,7 @@ Title: EPI-Binary Trees
 Date: 2020-04-05 19:20
 Modified: 2020-04-05 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-Binary-Trees
 
 很久很久以前，有人刷题不做记录，从Array刷到二叉树，刷了几年还是在刷二叉树。

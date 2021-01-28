@@ -7,6 +7,7 @@ CURRENTYEAR = date.today().year
 AUTHOR = 'H Li'
 SITENAME = 'steer'
 SITEURL = ''
+# SITEURL = 'https://i.steer.space'
 
 # disable authors
 AUTHORS_SAVE_AS = ''
@@ -19,7 +20,7 @@ PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = ["render_math", "read_more_link", "pin_to_top", "change_archive_period","sitemap", "own_gallery", "extract_toc"]
 MATH_JAX = {'Math Renderer':'Common HTML'}
 # This settings indicates that you want to create summary at a certain length
-SUMMARY_MAX_LENGTH = 50
+SUMMARY_MAX_LENGTH = 30
 
 # This indicates what goes inside the read more link
 READ_MORE_LINK = '<span>continue</span>'
@@ -39,7 +40,7 @@ AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
 SITEMAP = {
-    'exclude': ['tag/', 'category/'],
+    'exclude': [],
     'format': 'xml'
 }
 
@@ -97,10 +98,10 @@ MENUITEMS = (
 )
 
 # Set URL's
-TAG_URL = 'label/{slug}/'
-TAG_SAVE_AS = 'label/{slug}/index.html'
-TAGS_URL = 'label/{slug}/'
-TAGS_SAVE_AS = 'label/{slug}/index.html'
+TAG_URL = 'tags/{slug}/'
+TAG_SAVE_AS = 'tags/{slug}/index.html'
+TAGS_URL = 'tags/{slug}/'
+TAGS_SAVE_AS = 'tags/{slug}/index.html'
 CATEGORY_URL = 'category/{slug}/'
 CATEGORY_SAVE_AS = 'category/{slug}/index.html'
 CATEGORIES_URL = 'category/'
@@ -161,6 +162,6 @@ THUMB_FIT_CENTERING = (0.5, 0.5)
 MEDIAS_SORT_REVERSE = False
 piwik = {'tracker_url': '', 'site_id': 0},
 
-JPG_OPT = {'quality': 85,
+JPG_OPT = {'quality': 95,
                'optimize': True,
                'progressive': True}

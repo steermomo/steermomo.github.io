@@ -2,7 +2,7 @@ Title: LeetCode-Tree
 Date: 2020-02-29 18:20
 Modified: 2020-03-01 18:20
 Category: LeetCode
-Tags: leetcode, c++
+Tags: leetcode, cpp
 Slug: leetcode-tree
 [TOC]
 

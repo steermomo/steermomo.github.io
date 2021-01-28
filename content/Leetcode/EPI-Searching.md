@@ -2,7 +2,7 @@ Title: EPI-Searching
 Date: 2020-04-10 19:20
 Modified: 2020-04-10 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-Searching
 
 很久很久以前，有人刷题不做记录，没刷过Searching。

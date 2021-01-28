@@ -4,7 +4,6 @@ Modified: 2019-08-26 18:18
 Category: Python
 Tags: PCA,Python, Machine Learning 
 Slug: dimensionality-reduction-in-python
-Summary: 
 
 这次不是迷信...
 

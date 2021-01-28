@@ -2,7 +2,7 @@ Title: EPI-Hash Tables
 Date: 2020-04-17 19:20
 Modified: 2020-04-17 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-Hash-Tables
 
 很久很久以前，有人刷题不做记录，没刷过Hash Tables。

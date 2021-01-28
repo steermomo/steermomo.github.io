@@ -3,7 +3,6 @@ Date: 2019-08-26 18:19
 Modified: 2019-08-26 18:19
 Tags: Shell, 
 Slug: Introduction-to-Shell-for-Data-Science
-Summary: 
 
 emm, 这个有点太简单了
 <img src="{static}/images/sticker_try.webp" style="max-width: 30%">

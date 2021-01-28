@@ -2,7 +2,7 @@ Title: EPI-Sorting
 Date: 2020-04-19 19:20
 Modified: 2020-04-19 20:20
 Category: LeetCode
-Tags: EPI, c++
+Tags: EPI, cpp
 Slug: epi-Sorting
 
 很久很久以前，有人刷题不做记录，没刷过Sorting。

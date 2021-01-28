@@ -4,7 +4,7 @@ Modified: 2019-09-03 18:20
 Category: DNS
 Tags: DNS, CNAME, namecheap, 
 Slug: cname-txt-record-in-namecheap
-Summary: 
+
 
 起因是我在Google Search Console中设置自己的域名, 在namecheap配置了TXT记录, 却一直查不到对应的TXT解析结果. 不管是等半天还是重新设置都不管用. 
 

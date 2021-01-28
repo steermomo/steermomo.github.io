@@ -3,7 +3,6 @@ Date: 2019-08-26 18:19
 Modified: 2019-08-26 18:19
 Tags: Git 
 Slug: git
-Summary: 
 
 这个课程我觉得还是有些用处的, 虚拟环境用起来也很方便, 很多不同的命令也可以直接实验.
 代码敲完让我从只会`add, commit, push`到知道`stage, checkout`, 冲突处理.
