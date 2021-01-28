@@ -4,8 +4,6 @@ Modified: 2019-08-10 19:30
 Category: Python
 Tags: jupyter notebook,
 Slug: jupyter-notebook-server
-Summary: Short version for index and feeds
-
 
 jupyter notebook中关于这部分的文档[Here](https://jupyter-notebook.readthedocs.io/en/stable/public_server.html)
 
