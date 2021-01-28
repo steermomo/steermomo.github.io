@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - WSL2</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2020/12/wsl2-env" rel="bookmark"
+                               title="Permalink to WSL2环境踩坑配置">WSL2环境踩坑配置</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-12-24T18:20:00+08:00">
+                Published: Thu 24 December 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-12-24T18:20:00+08:00">
+                Updated: Thu 24 December 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">MISC</a>.</p>
+<p>tags: <a href="/tags/wsl2/">WSL2</a> <a href="/tags/linux/">Linux</a> </p>
+</footer><!-- /.post-info -->                    <p>这两天装了好几遍WSL2... 每次都是要重新配置环境，开个页面集中记录一下做了哪些配置，免得又得开很多页面去找配置项</p>
+<p><img alt="" src="/images/wsl2-neofetch.png"></p>
+<h2>解决WSL2 DNS解析问题</h2>
+<p>在公司的内网环境下，Windows的升级都是由内部管理的，之前一直没法升级到支持WSL2的版本。</p>
+<p>在几次更新后，终于用上了WSL2，但是将WSL1转为WSL2之后，DNS解析出现了问题。在WSL2内是有网络的，ping其他的ip地址都没有问题，需要解析域名的时候就挂了，
+这里应该是内网的一些网络配置与WSL2的网络配置有不一致的地方。</p>
+<p>反反复复将WSL2重装了几次都没有搞定，最后终于在一个<a href="https://gist.github.com/coltenkrauter/608cfe02319ce60facd76373249b8ca6">gist</a>的评论下面找到了解决方法。</p>
+<p>下面的<code>$</code>命令指示在Linux下的命令, <code>^$</code>指示Windows下的命令.</p>
+<div class="highlight"><pre><span></span><code>$ <span class="nb">cd</span> /etc
+$ <span class="nb">echo</span> <span class="s2">&quot;[network]&quot;</span> <span class="p">|</span> sudo tee …</code></pre></div>
+                    <a class="readmore" href="/blog/2020/12/wsl2-env">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

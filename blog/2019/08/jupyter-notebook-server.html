@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Jupyter Notebook 允许远程访问</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/08/jupyter-notebook-server" rel="bookmark" title="Permalink to Jupyter Notebook 允许远程访问">Jupyter Notebook 允许远程访问</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-10T10:20:00+08:00">
+                Published: Sat 10 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-10T19:30:00+08:00">
+                Updated: Sat 10 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/python/">Python</a>.</p>
+<p>tags: <a href="/tags/jupyter-notebook/">jupyter notebook</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>jupyter notebook中关于这部分的文档<a href="https://jupyter-notebook.readthedocs.io/en/stable/public_server.html">Here</a></p>
+<p>首先需要生成jupyter notebook的配置文件</p>
+<div class="highlight"><pre><span></span><code>$ jupyter notebook --generate-config
+Writing default config to: /home/unnamed/.jupyter/jupyter_notebook_config.py
+</code></pre></div>
+
+<p>然后设置访问密码</p>
+<div class="highlight"><pre><span></span><code>$ jupyter notebook password
+Enter password:
+Verify password:
+<span class="o">[</span>NotebookPasswordApp<span class="o">]</span> Wrote hashed password to /home/unnamed/.jupyter/jupyter_notebook_config.json
+</code></pre></div>
+
+<p>编辑配置文件</p>
+<div class="highlight"><pre><span></span><code>$ vim ~/.jupyter/jupyter_notebook_config.py 
+</code></pre></div>
+
+<p>搜索配置ip的位置</p>
+<div class="highlight"><pre><span></span><code><span class="o">#</span> <span class="n">vim</span> <span class="err">中键入</span> <span class="o">/</span>
+<span class="o">#</span> <span class="err">然后输入</span> <span class="k">c</span><span class="p">.</span><span class="n">NotebookApp</span><span class="p">.</span><span class="n">ip</span>
+
+<span class="o">#</span> <span class="err">修改如下</span>
+<span class="o">##</span> <span class="n">The</span> <span class="n">IP</span> <span class="n">address</span> <span class="n">the</span> <span class="n">notebook</span> <span class="n">server</span> <span class="n">will</span> <span class="k">listen</span> <span class="k">on</span><span class="p">.</span>
+<span class="o">#</span><span class="k">c</span><span class="p">.</span><span class="n">NotebookApp</span><span class="p">.</span><span class="n">ip</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span>
+
+<span class="o">#</span> <span class="err">为</span>
+
+<span class="k">c</span><span class="p">.</span><span class="n">NotebookApp</span><span class="p">.</span><span class="n">ip</span> <span class="o">=</span> <span class="s1">&#39;*&#39;</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

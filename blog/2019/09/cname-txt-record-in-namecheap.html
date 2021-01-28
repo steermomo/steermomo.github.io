@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>namecheap中设置裸域CNAME与TXT解析的问题</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/09/cname-txt-record-in-namecheap" rel="bookmark" title="Permalink to namecheap中设置裸域CNAME与TXT解析的问题">namecheap中设置裸域CNAME与TXT解析的问题</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-09-03T18:20:00+08:00">
+                Published: Tue 03 September 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-09-03T18:20:00+08:00">
+                Updated: Tue 03 September 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/dns/">DNS</a>.</p>
+<p>tags: <a href="/tags/dns/">DNS</a> <a href="/tags/cname/">CNAME</a> <a href="/tags/namecheap/">namecheap</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>起因是我在Google Search Console中设置自己的域名, 在namecheap配置了TXT记录, 却一直查不到对应的TXT解析结果. 不管是等半天还是重新设置都不管用. </p>
+<p>看namecheap的文档说明<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, 才发现一个问题</p>
+<blockquote>
+<p><strong>NOTE:</strong> Before setting up your mail service, be sure that there is no CNAME record created for a <strong>bare domain</strong>, (e.g., <em>yourdomain.tld</em>) in the <strong>Host records</strong> section, or email will not work correctly. CNAME has the highest priority and prevails over all the other records for the host name, including MX Records which are responsible for mail delivery.</p>
+</blockquote>
+<p>我在裸域上直接设置了CNAME, 解析到github pages, 而CNAME的优先级最高, 会忽略所有其他的记录. 如果想要设置Google search console的话, 站点只能绑定到子域名上, 而反之则不行.</p>
+<p>将github pages绑定到<code>i</code>子域名, 再设置裸域的txt解析后, 解析查询正常</p>
+<div class="highlight"><pre><span></span><code>$ dig @8.8.8.8 -t txt steer.space
+
+<span class="p">;</span> &lt;&lt;&gt;&gt; DiG <span class="m">9</span>.11.3-1ubuntu1.5-Ubuntu &lt;&lt;&gt;&gt; @8.8.8.8 -t txt steer.space
+<span class="p">;</span> <span class="o">(</span><span class="m">1</span> server found<span class="o">)</span>
+<span class="p">;;</span> global options: +cmd
+<span class="p">;;</span> Got answer:
+<span class="p">;;</span> -&gt;&gt;HEADER<span class="s">&lt;&lt;- opco</span>de: QUERY, status: NOERROR, id: <span class="m">47342</span>
+<span class="p">;;</span> flags: qr rd ra<span class="p">;</span> QUERY: <span class="m">1</span>, ANSWER: <span class="m">2</span>, AUTHORITY: <span class="m">0</span>, ADDITIONAL: <span class="m">1</span>
+
+<span class="p">;;</span> OPT PSEUDOSECTION:
+<span class="p">;</span> EDNS: version: <span class="m">0</span>, flags:<span class="p">;</span> udp: <span class="m">512</span>
+<span class="p">;;</span> QUESTION SECTION:
+<span class="p">;</span>steer.space.                   IN      TXT
+
+<span class="p">;;</span> ANSWER SECTION:
+steer.space.            <span class="m">1798</span>    IN      TXT     <span class="s2">&quot;google-site-verification=aaaaaaaaa=============xxxxxxxU&quot;</span>
+steer.space.            <span class="m">1799</span>    IN      TXT     <span class="s2">&quot;v=spf1 include:xx.xx.registrar-servers.com ~all&quot;</span>
+
+<span class="p">;;</span> Query time: <span class="m">761</span> msec
+<span class="p">;;</span> SERVER: <span class="m">8</span>.8.8.8#53<span class="o">(</span><span class="m">8</span>.8.8.8<span class="o">)</span>
+<span class="p">;;</span> WHEN: Tue Sep <span class="m">03</span> <span class="m">11</span>:04:35 CST <span class="m">2019</span>
+<span class="p">;;</span> MSG SIZE  rcvd: <span class="m">184</span>
+</code></pre></div>
+
+<p><img src="http://ww1.sinaimg.cn/large/dd456925ly1g6m5d63awhj20mb09x74z.jpg" style="max-width: 80%"></p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://www.namecheap.com/support/knowledgebase/article.aspx/322/2237/how-can-i-set-up-mx-records-required-for-mail-service">NAMECHEAP:How can I set up MX records required for mail service?</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

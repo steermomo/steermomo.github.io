@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-String</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/03/epi-code-string" rel="bookmark" title="Permalink to EPI-String">EPI-String</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-27T18:20:00+08:00">
+                Published: Fri 27 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-03-27T18:20:00+08:00">
+                Updated: Fri 27 March 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>[TOC]</p>
+<p>很久很久以前，有人刷题不做记录，从Array刷到String，刷了几年还是在刷String。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷String。</p>
+<h2>String</h2>
+<h3>String 的基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">//</span>
+<span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="err">&#39;&#39;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+<span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="n">shift</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+<span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="c1">//</span>
+</code></pre></div>
+
+<h3>Interconvert strings and integers</h3>
+<p>虽然这题的意思是要手动转换。。。但是有现成的封装📦为啥不用呢</p>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">IntToString</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">StringToInt</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">stoi</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Base conversion</h3>
+<p>进制间的相互转换，原理上倒是挺简单，写的时候犯浑了，将取余后的结果和字符进行比较。。。</p>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">ConvertBase</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">num_as_string</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b1</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b2</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">start_idx</span> <span class="o">=</span> <span class="n">num_as_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">neg</span> <span class="o">=</span> <span class="n">num_as_string</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">len</span> <span class="o">=</span> <span class="n">num_as_string</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="c1">// 转为10进制</span>
+  <span class="k">for</span> <span class="p">(;</span> <span class="n">start_idx</span> <span class="o">&lt;</span> <span class="n">num_as_string</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">start_idx</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">char</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">num_as_string</span><span class="p">[</span><span class="n">start_idx</span><span class="p">];</span>
+      <span class="kt">int</span> <span class="n">c_val</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">ch</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">ch</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">c_val</span> <span class="o">=</span> <span class="n">ch</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="n">c_val</span> <span class="o">=</span> <span class="n">ch</span> <span class="o">-</span> <span class="sc">&#39;A&#39;</span> <span class="o">+</span> <span class="mi">10</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">num</span> <span class="o">*=</span> <span class="n">b1</span><span class="p">;</span>
+      <span class="n">num</span> <span class="o">+=</span> <span class="n">c_val</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="s">&quot;0&quot;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="c1">//  string ret = std::to_string(num) + &quot;;&quot;;</span>
+  <span class="c1">//转为b2进制</span>
+  <span class="n">string</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">num</span> <span class="o">%</span> <span class="n">b2</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">mod</span> <span class="o">&amp;&amp;</span> <span class="n">mod</span> <span class="o">&lt;=</span> <span class="mi">9</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;0&#39;</span><span class="o">+</span><span class="n">mod</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;A&#39;</span> <span class="o">+</span> <span class="n">mod</span> <span class="o">-</span> <span class="mi">10</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">num</span> <span class="o">/=</span> <span class="n">b2</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">neg</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="sc">&#39;-&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">{</span><span class="n">ret</span><span class="p">.</span><span class="n">rbegin</span><span class="p">(),</span> <span class="n">ret</span><span class="p">.</span><span class="n">rend</span><span class="p">()};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the spreadsheet column encoding</h3>
+<p>将表格的列名‘AABEZ’转换为整型数值。等价于进制转换。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">SSDecodeColID</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">code</span> <span class="p">:</span> <span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+       <span class="n">id</span> <span class="o">*=</span> <span class="mi">26</span><span class="p">;</span>
+       <span class="n">id</span> <span class="o">+=</span> <span class="n">code</span> <span class="o">-</span> <span class="sc">&#39;A&#39;</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">id</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Replace and remove</h3>
+<p>将字符串中的‘b’删除，将‘a'换成’dd‘。</p>
+<p>题目保证给出s的大小满足要求，为了不开辟新空间，第一遍正向将’b‘删除，同时统计’a‘的个数，第二部反向将元素向后移动。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">ReplaceAndRemove</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span><span class="p">,</span> <span class="kt">char</span> <span class="n">s</span><span class="p">[])</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">a_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">write_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">last_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span><span class="p">(</span><span class="n">last_idx</span> <span class="o">&lt;</span> <span class="n">size</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">last_idx</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;b&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">last_idx</span><span class="p">;</span>
+          <span class="k">continue</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">last_idx</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;a&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">a_cnt</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">s</span><span class="p">[</span><span class="n">write_idx</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">last_idx</span><span class="o">++</span><span class="p">];</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="n">back_write_idx</span> <span class="o">=</span> <span class="n">write_idx</span> <span class="o">+</span> <span class="n">a_cnt</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">back_idx</span> <span class="o">=</span> <span class="n">write_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">ret_cnt</span> <span class="o">=</span> <span class="n">back_write_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">back_write_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">back_idx</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;a&#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">s</span><span class="p">[</span><span class="n">back_write_idx</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;d&#39;</span><span class="p">;</span>
+          <span class="n">s</span><span class="p">[</span><span class="n">back_write_idx</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="sc">&#39;d&#39;</span><span class="p">;</span>
+          <span class="o">--</span><span class="n">back_idx</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="n">s</span><span class="p">[</span><span class="n">back_write_idx</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">back_idx</span><span class="o">--</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret_cnt</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Test palindromicity</h3>
+<blockquote>
+<p>palindromic string：移除非字母数字的字符，不考虑大小写，剩下的左右对称。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">IsPalindrome</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">l_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r_idx</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">l_idx</span> <span class="o">&lt;</span> <span class="n">r_idx</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">while</span><span class="p">(</span><span class="n">l_idx</span> <span class="o">&lt;</span> <span class="n">r_idx</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">isalnum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">l_idx</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">l_idx</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">r_idx</span> <span class="o">&gt;</span> <span class="n">l_idx</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">std</span><span class="o">::</span><span class="n">isalnum</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">r_idx</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="o">--</span><span class="n">r_idx</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">tolower</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">l_idx</span><span class="o">++</span><span class="p">])</span> <span class="o">!=</span> <span class="n">std</span><span class="o">::</span><span class="n">tolower</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">r_idx</span><span class="o">--</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Reverse all the words in a sentence</h3>
+<p>将句子中的单词逆序排列，这里是将每个单词提取出来，逆序后填回原字符串， 空间复杂度为O(n)。</p>
+<p>EPI给出了一个空间复杂度O(1)的解法：先将字符串翻转，再对每个单词进行翻转。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">//EPI solution</span>
+<span class="kt">void</span> <span class="nf">ReverseWords</span><span class="p">(</span><span class="n">string</span><span class="o">*</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">(),</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">());</span>
+    <span class="kt">size_t</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">((</span><span class="n">end</span> <span class="o">=</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">find</span><span class="p">(</span><span class="sc">&#39; &#39;</span><span class="p">,</span> <span class="n">start</span><span class="p">))</span> <span class="o">!=</span> <span class="n">string</span><span class="o">::</span><span class="n">npos</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="n">start</span><span class="p">,</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="n">end</span><span class="p">);</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="n">start</span><span class="p">,</span> <span class="n">s</span><span class="o">-&gt;</span><span class="n">end</span><span class="p">());</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">ReverseWords</span><span class="p">(</span><span class="n">string</span><span class="o">*</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">string</span> <span class="o">&amp;</span><span class="n">ss</span> <span class="o">=</span> <span class="o">*</span><span class="n">s</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">s_len</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">s</span><span class="p">).</span><span class="n">size</span><span class="p">();</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">words</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">word_st_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">word_end_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">word_end_idx</span> <span class="o">&lt;</span> <span class="n">s_len</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// find next word</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">word_end_idx</span> <span class="o">&lt;</span> <span class="n">s_len</span> <span class="o">&amp;&amp;</span> <span class="n">ss</span><span class="p">[</span><span class="n">word_end_idx</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">word_end_idx</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">words</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ss</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">word_st_idx</span><span class="p">,</span> <span class="n">word_end_idx</span><span class="o">-</span><span class="n">word_st_idx</span><span class="p">));</span>
+      <span class="c1">// deal with space</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">word_end_idx</span> <span class="o">&lt;</span> <span class="n">s_len</span> <span class="o">&amp;&amp;</span> <span class="n">ss</span><span class="p">[</span><span class="n">word_end_idx</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">words</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="c1">// move idx to next word</span>
+      <span class="o">++</span><span class="n">word_end_idx</span><span class="p">;</span>
+      <span class="n">word_st_idx</span> <span class="o">=</span> <span class="n">word_end_idx</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// fill words reversely</span>
+  <span class="kt">int</span> <span class="n">s_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">w_idx</span> <span class="o">=</span> <span class="n">words</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">w_idx</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">w_idx</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">idx_in_word</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">idx_in_word</span> <span class="o">&lt;</span> <span class="n">words</span><span class="p">[</span><span class="n">w_idx</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">idx_in_word</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ss</span><span class="p">[</span><span class="n">s_idx</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">w_idx</span><span class="p">][</span><span class="n">idx_in_word</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>The look-and-say problem</h3>
+<blockquote>
+<p>look-and-say序列：&lt;1, 11, 21, 1211,...&gt; </p>
+</blockquote>
+<p>对前一个序列值，读出其有x个y值，写作xy。</p>
+<p>模拟即可。</p>
+<blockquote>
+<p>std::to_string 的参数类型均为数值类型</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">LookAndSay</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">string</span> <span class="n">start_str</span> <span class="o">=</span> <span class="s">&quot;1&quot;</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">iter_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">string</span> <span class="n">c_str</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">iter_idx</span> <span class="o">&lt;</span> <span class="n">start_str</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+          <span class="kt">char</span> <span class="n">c_val</span> <span class="o">=</span> <span class="n">start_str</span><span class="p">[</span><span class="n">iter_idx</span><span class="p">];</span>
+          <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="k">while</span> <span class="p">(</span><span class="n">iter_idx</span> <span class="o">&lt;</span> <span class="n">start_str</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">start_str</span><span class="p">[</span><span class="n">iter_idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">start_str</span><span class="p">[</span><span class="n">iter_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+              <span class="o">++</span><span class="n">iter_idx</span><span class="p">;</span>
+              <span class="o">++</span><span class="n">cnt</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="o">++</span><span class="n">iter_idx</span><span class="p">;</span>
+          <span class="n">c_str</span> <span class="o">+=</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">cnt</span><span class="p">)</span> <span class="o">+</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">c_val</span><span class="o">-</span><span class="sc">&#39;0&#39;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">start_str</span> <span class="o">=</span> <span class="n">c_str</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">start_str</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Convert from Roman to decimal</h3>
+<p>将罗马数字转换为10进制，难度可能在理解规则上。</p>
+<div class="highlight"><pre><span></span><code><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">mp</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="p">{</span><span class="sc">&#39;I&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;V&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;X&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;L&#39;</span><span class="p">,</span> <span class="mi">50</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;C&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;D&#39;</span><span class="p">,</span> <span class="mi">500</span><span class="p">},</span>
+        <span class="p">{</span><span class="sc">&#39;M&#39;</span><span class="p">,</span><span class="mi">1000</span><span class="p">}</span>
+<span class="p">};</span>
+<span class="kt">int</span> <span class="nf">RomanToInteger</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">char</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// 处理exception</span>
+          <span class="k">if</span> <span class="p">((</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;V&#39;</span> <span class="o">||</span> <span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;X&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;I&#39;</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">cnt</span> <span class="o">-=</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">((</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;L&#39;</span> <span class="o">||</span> <span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;C&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;X&#39;</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">cnt</span> <span class="o">-=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">((</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;D&#39;</span> <span class="o">||</span> <span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;M&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;C&#39;</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">cnt</span> <span class="o">-=</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="n">cnt</span> <span class="o">+=</span> <span class="n">mp</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">cnt</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute all valid IP addresses</h3>
+<p>计算一个无分隔符的ip字符串的所有可能形式。</p>
+<p>遍历3个分隔符的位置，判断每个区间的字串是否合法。 需要处理边界情况，如整个串都是不合法的。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 判断ip区间十分合规</span>
+<span class="kr">inline</span> <span class="kt">bool</span> <span class="nf">isValid</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">){</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">){</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">stoi</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">val</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">GetValidIpAddress</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="c1">// 遍历3个点的位置</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">first_dot</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">first_dot</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">3</span><span class="p">;</span> <span class="o">++</span><span class="n">first_dot</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">string</span> <span class="n">f_part</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">first_dot</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isValid</span><span class="p">(</span><span class="n">f_part</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">sec_dot</span> <span class="o">=</span> <span class="n">first_dot</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">sec_dot</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span> <span class="o">++</span><span class="n">sec_dot</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">string</span> <span class="n">s_part</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">first_dot</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">sec_dot</span><span class="o">-</span><span class="n">first_dot</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isValid</span><span class="p">(</span><span class="n">s_part</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+          <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">th_dot</span> <span class="o">=</span> <span class="n">sec_dot</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">th_dot</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">th_dot</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">string</span> <span class="n">t_part</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">sec_dot</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">th_dot</span><span class="o">-</span><span class="n">sec_dot</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isValid</span><span class="p">(</span><span class="n">t_part</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+              <span class="n">string</span> <span class="n">fo_part</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">th_dot</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">th_dot</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">isValid</span><span class="p">(</span><span class="n">fo_part</span><span class="p">))</span> <span class="k">continue</span><span class="p">;</span>
+
+              <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">f_part</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">s_part</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">t_part</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">fo_part</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Write a string sinusoidally</h3>
+<p>输出字符串的蛇皮走位。 将字符串展示成sin函数状，然后按行输出。</p>
+<p>模拟的做法是申请3个数组，依次往数组内填充元素。这样的做法太浪费空间，sin函数形状也是有规律的，直接按照下标拼接结果即可。</p>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">SnakeString</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">string</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">+=</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">+=</span><span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">+=</span><span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement run-length encoding</h3>
+<p>RLE编码在kaggle比赛中也见过，即将<code>bbbccd</code>表示为<code>3b2c1d</code>。类似与之前的lookup-and-say。</p>
+<p>有个需要注意的地方就是计数会是大于1位数的，在编码和解码的时候都需要注意这个。</p>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">Decoding</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">string</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();)</span> <span class="p">{</span>
+      <span class="kt">size_t</span> <span class="n">ed</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="c1">// ed 为字符位置</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">isdigit</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="n">ed</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">ed</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">stoi</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">ed</span><span class="o">-</span><span class="n">i</span><span class="p">));</span>
+      <span class="kt">char</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">ed</span><span class="p">];</span>
+      <span class="k">while</span><span class="p">(</span><span class="n">cnt</span><span class="o">--</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">i</span> <span class="o">=</span> <span class="n">ed</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">string</span> <span class="nf">Encoding</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">string</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="kt">size_t</span> <span class="n">start</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="kt">char</span> <span class="n">ch</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="n">start</span><span class="p">];</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">start</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">[</span><span class="n">start</span><span class="p">]</span> <span class="o">==</span> <span class="n">s</span><span class="p">[</span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">cnt</span><span class="p">;</span>
+          <span class="o">++</span><span class="n">start</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">ret</span> <span class="o">+=</span> <span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">cnt</span><span class="p">);</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+      <span class="o">++</span><span class="n">start</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the first occurrence of a substring</h3>
+<p>子串查找，上KMP。可惜忘光了。。。</p>
+<p>有3种线性时间的搜索算法：KMP、BM、RK。其中RK是最简单，最容易实现的。</p>
+<p>RK算法基于滚动的hash，当s与t的子串hash值相同时，他们有可能是匹配的，进一步验证其是否真正匹配。滚动的hash匹配避免了匹配失败时的多次回溯。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">RabinKarp</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">t</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span> <span class="o">&amp;</span><span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">kBase</span> <span class="o">=</span> <span class="mi">26</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">t_hash</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">s_hash</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">power_s</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// kBase ^|s|</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">power_s</span> <span class="o">=</span> <span class="n">i</span> <span class="o">?</span> <span class="n">power_s</span> <span class="o">*</span> <span class="nl">kBase</span> <span class="p">:</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="n">t_hash</span> <span class="o">=</span> <span class="n">t_hash</span> <span class="o">*</span> <span class="n">kBase</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+      <span class="n">s_hash</span> <span class="o">=</span> <span class="n">s_hash</span> <span class="o">*</span> <span class="n">kBase</span> <span class="o">+</span> <span class="n">s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// 匹配成功</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">t_hash</span> <span class="o">==</span> <span class="n">s_hash</span> <span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">i</span> <span class="o">-</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+      <span class="p">}</span>
+
+      <span class="c1">// 滚动更新hash</span>
+      <span class="n">t_hash</span> <span class="o">-=</span> <span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">()]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">power_s</span><span class="p">;</span>
+      <span class="n">t_hash</span> <span class="o">=</span> <span class="n">t_hash</span> <span class="o">*</span> <span class="n">kBase</span> <span class="o">+</span> <span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">t_hash</span> <span class="o">==</span> <span class="n">s_hash</span> <span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

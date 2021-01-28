@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - SCL</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2021/01/upgrade-gcc-in-centos" rel="bookmark"
+                               title="Permalink to CentOS中更新GCC">CentOS中更新GCC</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-28T18:20:00+08:00">
+                Published: Thu 28 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-28T18:20:00+08:00">
+                Updated: Thu 28 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/centos/">CentOS</a> <a href="/tags/gcc/">GCC</a> <a href="/tags/scl/">SCL</a> </p>
+</footer><!-- /.post-info -->                    <!-- Status: draft -->
+
+<p>厂里的系统都是基于CentOS 的，就是那个</p>
+<blockquote>
+<p>One centOS 倒下了，Ten centOS 起来了</p>
+</blockquote>
+<p>的CentOS 。</p>
+<p>这玩意的问题就是它实在是太老了，我要装一下xgboost编译都不成功。</p>
+<p>看了一下目前GCC的版本还是<code>4.8.5</code>, 而GCC都出到<code>10.2</code>了<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, 真心穿越千年的爱恋。</p>
+<div class="highlight"><pre><span></span><code>$ gcc -v
+Using built-in specs.
+<span class="nv">COLLECT_GCC</span><span class="o">=</span>gcc
+<span class="nv">COLLECT_LTO_WRAPPER …</span></code></pre></div>
+                    <a class="readmore" href="/blog/2021/01/upgrade-gcc-in-centos">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

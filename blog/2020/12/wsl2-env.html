@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>WSL2环境踩坑配置</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/12/wsl2-env" rel="bookmark" title="Permalink to WSL2环境踩坑配置">WSL2环境踩坑配置</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-12-24T18:20:00+08:00">
+                Published: Thu 24 December 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-12-24T18:20:00+08:00">
+                Updated: Thu 24 December 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">MISC</a>.</p>
+<p>tags: <a href="/tags/wsl2/">WSL2</a> <a href="/tags/linux/">Linux</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>这两天装了好几遍WSL2... 每次都是要重新配置环境，开个页面集中记录一下做了哪些配置，免得又得开很多页面去找配置项</p>
+<p><img alt="" src="/images/wsl2-neofetch.png"></p>
+<h2>解决WSL2 DNS解析问题</h2>
+<p>在公司的内网环境下，Windows的升级都是由内部管理的，之前一直没法升级到支持WSL2的版本。</p>
+<p>在几次更新后，终于用上了WSL2，但是将WSL1转为WSL2之后，DNS解析出现了问题。在WSL2内是有网络的，ping其他的ip地址都没有问题，需要解析域名的时候就挂了，
+这里应该是内网的一些网络配置与WSL2的网络配置有不一致的地方。</p>
+<p>反反复复将WSL2重装了几次都没有搞定，最后终于在一个<a href="https://gist.github.com/coltenkrauter/608cfe02319ce60facd76373249b8ca6">gist</a>的评论下面找到了解决方法。</p>
+<p>下面的<code>$</code>命令指示在Linux下的命令, <code>^$</code>指示Windows下的命令.</p>
+<div class="highlight"><pre><span></span><code>$ <span class="nb">cd</span> /etc
+$ <span class="nb">echo</span> <span class="s2">&quot;[network]&quot;</span> <span class="p">|</span> sudo tee wsl.conf
+$ <span class="nb">echo</span> <span class="s2">&quot;generateResolvConf = false&quot;</span> <span class="p">|</span> sudo tee -a wsl.conf 
+
+^$ wsl --terminate
+
+$ <span class="nb">cd</span> /etc
+$ sudo rm -Rf resolv.conf 
+
+
+<span class="c1"># 下面在Windows下查找主机所用的DNS解析IP</span>
+^$ ipconfig /all 
+
+<span class="c1"># 将上一步找到的DNS解析替换到下面的xxxx内</span>
+$ <span class="nb">echo</span> <span class="s2">&quot;nameserver X.X.X.X&quot;</span> <span class="p">|</span> sudo tee resolv.conf
+$ <span class="nb">echo</span> <span class="s2">&quot;nameserver X.X.X.X&quot;</span> <span class="p">|</span> sudo tee -a resolv.conf
+
+^$ wsl --terminate
+
+$ <span class="nb">cd</span> /etc
+$ sudo chattr +i resolv.conf
+</code></pre></div>
+
+<h2>SSH会话复用</h2>
+<p>在内网中会有各种跳板机，跳板机认证又是各种token，每次连新机器都需要重连一次跳板机，这个过程繁琐又无趣，免认证的内部工具又不是很好用。</p>
+<p>会话复用能让在已有一个跳板机连接后，后续的连接无需再次认证。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ~/.ssh/config</span>
+Host *
+    ControlMaster auto
+    ControlPath ~/.ssh/sockets/%r@%h-%p
+    ControlPersist <span class="m">600</span>
+</code></pre></div>
+
+<p>记得创建文件夹</p>
+<div class="highlight"><pre><span></span><code>mkdir ~/.ssh/sockets
+</code></pre></div>
+
+<h2>配置WSL2 &amp; Clion</h2>
+<p>后面的开发中希望能用Clion连接到WSL2的环境里，这里用Clion给的WSL2的配置脚本。</p>
+<div class="highlight"><pre><span></span><code>wget https://raw.githubusercontent.com/JetBrains/clion-wsl/master/ubuntu_setup_env.sh <span class="o">&amp;&amp;</span> bash ubuntu_setup_env.sh
+</code></pre></div>
+
+<h2>解决WSL2挂载Windows磁盘的git权限问题</h2>
+<p>因为一些内网的限制，这里需要将代码放到Windows的硬盘上才能方便与远程环境进行代码同步。
+在WSL2挂载的Windows磁盘中执行git clone会有权限问题.</p>
+<blockquote>
+<p>NTFS partitions do not support chmod or similar Linux permissions commands</p>
+</blockquote>
+<p>根据万能的StackOverflow，这里应该在挂载的时候指定meta选项, 向/etc/wsl.conf文件添加</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># /etc/wsl.conf </span>
+<span class="o">[</span>automount<span class="o">]</span>
+<span class="nv">options</span> <span class="o">=</span> <span class="s2">&quot;metadata&quot;</span>
+</code></pre></div>
+
+<h2>ZSH</h2>
+<h3>oh-my-zsh</h3>
+<div class="highlight"><pre><span></span><code>sh -c <span class="s2">&quot;</span><span class="k">$(</span>curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h3>zsh-autosuggestions</h3>
+<p>设置zsh自动补全</p>
+<div class="highlight"><pre><span></span><code>git clone https://github.com/zsh-users/zsh-autosuggestions <span class="si">${</span><span class="nv">ZSH_CUSTOM</span><span class="k">:-</span><span class="p">~/.oh-my-zsh/custom</span><span class="si">}</span>/plugins/zsh-autosuggestions
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="nv">plugins</span><span class="o">=(</span>zsh-autosuggestions<span class="o">)</span>
+</code></pre></div>
+
+<h3>pip3 package command not found</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># .zshrc</span>
+<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$HOME</span>/.local/bin:<span class="nv">$PATH</span>
+</code></pre></div>
+
+<h2>TMUX</h2>
+<p>tmux设置默认shell</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ~/.tmux.conf</span>
+set-option -g default-shell /bin/zsh
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

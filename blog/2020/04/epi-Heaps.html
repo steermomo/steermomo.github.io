@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Heaps</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-Heaps" rel="bookmark" title="Permalink to EPI-Heaps">EPI-Heaps</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-07T19:20:00+08:00">
+                Published: Tue 07 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-07T20:20:00+08:00">
+                Updated: Tue 07 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，没刷过Heaps。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Heaps。</p>
+<p>[TOC]</p>
+<h2>Heaps</h2>
+<p>Heaps又可以称为优先队列，是一个特化的二叉树(完全二叉树)。</p>
+<p>Heap中一个结点的键值需要大于等于其子树中的键值。</p>
+<p>一个最大堆插入时间复杂度为 <span class="math">\(O(\log n)\)</span>，查找最大值为<span class="math">\(O(1)\)</span>, 删除最大值为<span class="math">\(O(\log n)\)</span>.</p>
+<h3>Tips</h3>
+<ul>
+<li>当需要操心最大值,最小值且不需要快速查找删除时,使用heap</li>
+<li>当需要查找k个最大(最小)元素时, 可以使用最小(最大)堆.</li>
+</ul>
+<h3>Heap libraries</h3>
+<blockquote>
+<p>A priority queue is a container adaptor that provides constant time lookup of the largest (by default) element, at the expense of logarithmic insertion and extraction.</p>
+<p>A user-provided <code>Compare</code> can be supplied to change the ordering, e.g. using std::greater<T> would cause the smallest element to appear as the <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/container/priority_queue/top.html">top()</a>.</p>
+<p>Working with a <code>priority_queue</code> is similar to managing a <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/algorithm/make_heap.html">heap</a> in some random access container, with the benefit of not being able to accidentally invalidate the heap.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1">// priority_queue</span>
+<span class="c1">//std::priority_queue</span>
+<span class="c1">// 定义</span>
+<span class="k">template</span><span class="o">&lt;</span>
+    <span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="c1">// 数据类型</span>
+    <span class="k">class</span> <span class="nc">Container</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="c1">//priority_queue 容器</span>
+    <span class="k">class</span> <span class="nc">Compare</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Container</span><span class="o">::</span><span class="n">value_type</span><span class="o">&gt;</span> <span class="c1">// 比较符</span>
+<span class="o">&gt;</span> <span class="k">class</span> <span class="nc">priority_queue</span><span class="p">;</span>
+<span class="p">.</span><span class="n">push</span><span class="p">();</span>
+<span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+</code></pre></div>
+
+<h3>Merge sorted files</h3>
+<p>问题场景：有500个文件，每个文件包含一个公司的股票交易信息，每次交易编码成一行：123211，APPL，30，456.12，分别表示自从交易日至今的时间、股票代码、股票的股数(shares)、单价。</p>
+<p>要去将这500个文件合并成单个文件，按照时间增序排列。</p>
+<p>这个有些类似有序列表的合并, 每次取每个500个文件头中最小的那个插入到结果中. 只是要同时维护500个文件的当前位置有些困难.</p>
+<p>这里就直接看EPI的解析了. 给出的代码实现挺好的, 在堆内保存vector的迭代器, 将比较操作定义为迭代器指向的值之间的大小比较.</p>
+<p>这样每个vector都有对应的iterator记录当前读取的位置. heap的排序特性会自动将当前最小值对应的iterator调整到堆首.</p>
+<p>时间复杂度为<span class="math">\(O(n\log k)\)</span></p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">IteratorCurrentAndEnd</span><span class="p">{</span>
+    <span class="c1">// 比较迭代器指向的值</span>
+    <span class="kt">bool</span> <span class="k">operator</span><span class="o">&gt;</span><span class="p">(</span><span class="k">const</span> <span class="n">IteratorCurrentAndEnd</span><span class="o">&amp;</span> <span class="n">that</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">*</span><span class="n">current</span> <span class="o">&gt;</span> <span class="o">*</span><span class="n">that</span><span class="p">.</span><span class="n">current</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">current</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">end</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">MergeSortedArrays</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">sorted_arrays</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">IteratorCurrentAndEnd</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">IteratorCurrentAndEnd</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">greater</span><span class="o">&lt;&gt;&gt;</span>
+  <span class="n">min_heap</span><span class="p">;</span>
+  <span class="c1">// 保存每个数组的迭代器</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="nl">sorted_array</span><span class="p">:</span> <span class="n">sorted_arrays</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">sorted_array</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">IteratorCurrentAndEnd</span><span class="p">{</span><span class="n">sorted_array</span><span class="p">.</span><span class="n">cbegin</span><span class="p">(),</span> <span class="n">sorted_array</span><span class="p">.</span><span class="n">cend</span><span class="p">()});</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">min_heap</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// 取出当前最小元素对应的迭代器</span>
+      <span class="k">auto</span> <span class="n">smallest_array</span> <span class="o">=</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+      <span class="n">min_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">smallest_array</span><span class="p">.</span><span class="n">current</span> <span class="o">!=</span> <span class="n">smallest_array</span><span class="p">.</span><span class="n">end</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// 对应的数组非空</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="o">*</span><span class="n">smallest_array</span><span class="p">.</span><span class="n">current</span><span class="p">);</span>
+          <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">IteratorCurrentAndEnd</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">next</span><span class="p">(</span><span class="n">smallest_array</span><span class="p">.</span><span class="n">current</span><span class="p">),</span> <span class="n">smallest_array</span><span class="p">.</span><span class="n">end</span><span class="p">});</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Sort an increasing-decreasing array</h3>
+<p>k increasing-decreasing array: 数组中的元素递增递减再递增...共k次</p>
+<p>直接排序的方法时间复杂度为<span class="math">\(O(n \log n)\)</span>. 这样就没有利用到元素有递增递减的特性.</p>
+<p>至于怎么用到这个特性呢...我也不知道, 没做过</p>
+<p>Solution: 先将递减的序列翻转, 也变成递增的序列. 这样就得到了一组都递增的子数组, 然后就类似上一题的操作.</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">SortKIncreasingDecreasingArray</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">sorted_subarrays</span><span class="p">;</span>
+  <span class="k">typedef</span> <span class="k">enum</span> <span class="p">{</span><span class="n">INCREASING</span><span class="p">,</span> <span class="n">DECREASING</span><span class="p">}</span> <span class="n">SubarrayType</span><span class="p">;</span>
+  <span class="n">SubarrayType</span> <span class="n">subarray_type</span> <span class="o">=</span> <span class="n">INCREASING</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">start_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// 状态发生变化或到达尾部</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">||</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">subarray_type</span> <span class="o">==</span> <span class="n">DECREASING</span><span class="p">)</span>
+        <span class="o">||</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="n">subarray_type</span> <span class="o">==</span> <span class="n">INCREASING</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">subarray_type</span> <span class="o">==</span> <span class="n">INCREASING</span><span class="p">)</span> <span class="p">{</span>
+              <span class="c1">// 递增的序列直接添加进ret</span>
+              <span class="n">sorted_subarrays</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">cbegin</span><span class="p">()</span><span class="o">+</span><span class="n">start_idx</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">cbegin</span><span class="p">()</span><span class="o">+</span><span class="n">i</span><span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="c1">// 将递减的序列翻转后再添加到ret</span>
+              <span class="n">sorted_subarrays</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">crbegin</span><span class="p">()</span> <span class="o">+</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">i</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">crbegin</span><span class="p">()</span> <span class="o">+</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_idx</span><span class="p">);</span>
+          <span class="p">}</span>
+          <span class="n">subarray_type</span> <span class="o">=</span> <span class="n">subarray_type</span> <span class="o">==</span> <span class="n">INCREASING</span> <span class="o">?</span> <span class="nl">DECREASING</span> <span class="p">:</span> <span class="n">INCREASING</span><span class="p">;</span>
+          <span class="n">start_idx</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">MergeSortedArrays</span><span class="p">(</span><span class="n">sorted_subarrays</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Sort an almost-sorted array</h3>
+<p>问题背景: 由于延时等原因,服务器按时间接收的数据在顺序上可能会有些许的漂移. 给一个数组,其中元素距离其正确的位置距离不会超过k, 将其排序.</p>
+<p>...</p>
+<p>不会, 看解析</p>
+<p>...</p>
+<p>这个要用到元素距离正确位置的距离不会超过k这个特性. 在一共读入k+1个元素的情况下, 这个集合中的最小值一定也是后续元素的最小值. 因此就能确定这个值的位置.</p>
+<p>因为每次都需要读入一个数, 并获得当前集合的最小值, 这里需要使用最小堆来实现.</p>
+<p>时间复杂度为<span class="math">\(O(n \log k)\)</span>, 空间复杂度为<span class="math">\(O(k)\)</span></p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">SortApproximatelySortedData</span><span class="p">(</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">sequence_begin</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="o">&amp;</span> <span class="n">sequence_end</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="kt">int</span> <span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">greater</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">min_heap</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="c1">// 先存入k+1个数</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">sequence_begin</span> <span class="o">!=</span> <span class="n">sequence_end</span> <span class="o">&amp;&amp;</span> <span class="n">cnt</span> <span class="o">&lt;</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="o">*</span><span class="n">sequence_begin</span><span class="p">;</span>
+      <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+      <span class="o">++</span><span class="n">sequence_begin</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="c1">// 每新读取一个数， 当前堆的最小值就是正确排序的最小值</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">sequence_begin</span> <span class="o">!=</span> <span class="n">sequence_end</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+      <span class="n">min_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+      <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="o">*</span><span class="n">sequence_begin</span><span class="p">);</span>
+      <span class="o">++</span><span class="n">sequence_begin</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// 将堆中的剩余元素追加到结果中</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">min_heap</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+      <span class="n">min_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the k closest stars</h3>
+<p>Milky Way銀河系</p>
+<p>计算在银河系中距离地球最近的k颗星球.</p>
+<p>这个还是比较简单的, 只是需要用最大堆来处理.</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">Star</span><span class="o">&gt;</span> <span class="n">FindClosestKStars</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Star</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">stars_begin</span><span class="p">,</span>
+                               <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Star</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="o">&amp;</span> <span class="n">stars_end</span><span class="p">,</span>
+                               <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">Star</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Star</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;&gt;&gt;</span> <span class="n">max_heap</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">stars_begin</span> <span class="o">!=</span> <span class="n">stars_end</span> <span class="o">&amp;&amp;</span> <span class="n">cnt</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">++</span><span class="n">cnt</span><span class="p">;</span>
+        <span class="n">max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="o">*</span><span class="n">stars_begin</span><span class="p">);</span>
+        <span class="o">++</span><span class="n">stars_begin</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">stars_begin</span> <span class="o">!=</span> <span class="n">stars_end</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="o">*</span><span class="n">stars_begin</span><span class="p">);</span>
+        <span class="n">max_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span> <span class="c1">// pop 最大元素</span>
+        <span class="o">++</span><span class="n">stars_begin</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="n">Star</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">max_heap</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">max_heap</span><span class="p">.</span><span class="n">top</span><span class="p">());</span>
+        <span class="n">max_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the median of online data</h3>
+<p>计算一个流中元素的中位数.</p>
+<p>这里是需要保存历史数据的, 如果是用数组顺序保存, 每次插入一个元素都需要查找一次中位数.</p>
+<p>中位数的特点是将数值集合分成两个大小均等的部分, 那么就可以用一个最大堆和一个最小堆来分别表示这两个部分. 每次读取一个新元素, 就依次从这两个堆里过一遍.</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">OnlineMedian</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">sequence_begin</span><span class="p">,</span>
+                            <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="o">&amp;</span><span class="n">sequence_end</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="c1">// 最小堆存储较大的那半部份数  最大堆存储较小的那部份</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">greater</span><span class="o">&lt;&gt;&gt;</span> <span class="n">min_heap</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;&gt;&gt;</span> <span class="n">max_heap</span><span class="p">;</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">sequence_begin</span> <span class="o">!=</span> <span class="n">sequence_end</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="o">*</span><span class="n">sequence_begin</span><span class="o">++</span><span class="p">);</span>
+        <span class="n">max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">());</span>
+        <span class="n">min_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="c1">// 偶数个元素情况下， 两个堆大小将会相等， 否则最小堆将会多一个元素</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">max_heap</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">min_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">max_heap</span><span class="p">.</span><span class="n">top</span><span class="p">());</span>
+            <span class="n">max_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">max_heap</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">?</span>
+                         <span class="mf">0.5</span> <span class="o">*</span> <span class="n">max_heap</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">:</span>
+                         <span class="n">min_heap</span><span class="p">.</span><span class="n">top</span><span class="p">());</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the k largest elements in a max-heap</h3>
+<p>在不改变堆存储的情况下获取k个最大的元素.</p>
+<p>如果对堆进行排序,则改变了堆存储.</p>
+<p>这里利用最大堆的性质: 结点的值大于等于所有子树中结点的值, 同时堆是一个完全二叉树, 在数组的存储结构中父子结点很容易索引.</p>
+<p>那么根结点包含最大的元素, 第二大的则是根结点的左右孩子中较大者, 第三大的又是前述子结点的子结点中较大者. </p>
+<p>如果手写判断将会十分麻烦,  刚好在上面的操作中又一直有取集合的最大值,另开一个堆来完成元素的排列比较方便.</p>
+<p>EPI的写法中使用了<code>std::function&lt;bool(HeapEntry, HeapEntry)&gt;</code>来完成队列的类型指定. </p>
+<p>在<code>priority_queue</code>的定义中, <code>Compare</code>对象需要是一个class</p>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span>
+    <span class="k">class</span> <span class="nc">T</span><span class="p">,</span>
+    <span class="k">class</span> <span class="nc">Container</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="k">class</span> <span class="nc">Compare</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">less</span><span class="o">&lt;</span><span class="k">typename</span> <span class="n">Container</span><span class="o">::</span><span class="n">value_type</span><span class="o">&gt;</span>
+<span class="o">&gt;</span> <span class="k">class</span> <span class="nc">priority_queue</span><span class="p">;</span>
+</code></pre></div>
+
+<p>不能直接传入<code>lambda</code>函数. 在模板中指定了<code>Compare</code>后,  通过构造函数赋值比较函数</p>
+<div class="highlight"><pre><span></span><code><span class="k">explicit</span> <span class="nf">priority_queue</span><span class="p">(</span><span class="k">const</span> <span class="n">Compare</span><span class="o">&amp;</span> <span class="n">compare</span><span class="p">)</span> 
+    <span class="o">:</span> <span class="n">priority_queue</span><span class="p">(</span><span class="n">compare</span><span class="p">,</span> <span class="n">Container</span><span class="p">())</span> <span class="p">{</span> <span class="p">}</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">KLargestInBinaryHeap</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="k">struct</span> <span class="n">HeapEntry</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">idx</span><span class="p">,</span> <span class="n">val</span><span class="p">;</span>
+  <span class="p">};</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">priority_queue</span><span class="o">&lt;</span><span class="n">HeapEntry</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">HeapEntry</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">(</span><span class="n">HeapEntry</span><span class="p">,</span> <span class="n">HeapEntry</span><span class="p">)</span><span class="o">&gt;&gt;</span>
+    <span class="n">candidate_max_heap</span><span class="p">([]</span> <span class="p">(</span><span class="k">const</span> <span class="n">HeapEntry</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">HeapEntry</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">val</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">val</span><span class="p">;});</span>
+  <span class="c1">// 放入根结点</span>
+  <span class="n">candidate_max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">HeapEntry</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]});</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="c1">// 取出k个最大的数</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">candidate_idx</span> <span class="o">=</span> <span class="n">candidate_max_heap</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">idx</span><span class="p">;</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">candidate_idx</span><span class="p">]);</span>
+      <span class="n">candidate_max_heap</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+
+      <span class="kt">int</span> <span class="n">left_idx</span> <span class="o">=</span> <span class="n">candidate_idx</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">left_idx</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">candidate_max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">HeapEntry</span><span class="p">{</span><span class="n">left_idx</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">left_idx</span><span class="p">]});</span>
+      <span class="p">}</span>
+      <span class="kt">int</span> <span class="n">right_idx</span> <span class="o">=</span> <span class="n">candidate_idx</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">right_idx</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">candidate_max_heap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">HeapEntry</span><span class="p">{</span><span class="n">right_idx</span><span class="p">,</span> <span class="n">A</span><span class="p">[</span><span class="n">right_idx</span><span class="p">]});</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}</script>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

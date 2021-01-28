@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>在NCCL后端下Pytorch的distributed.all_gather卡死排查</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2021/01/pytorch-dist-nccl-backend-allgather-stuck" rel="bookmark" title="Permalink to 在NCCL后端下Pytorch的distributed.all_gather卡死排查">在NCCL后端下Pytorch的distributed.all_gather卡死排查</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-05T21:20:00+08:00">
+                Published: Tue 05 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-05T21:20:00+08:00">
+                Updated: Tue 05 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/pytorch/">PyTorch</a> <a href="/tags/python/">Python</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>用了Github上一个<a href="https://github.com/Spijkervet/SimCLR">SimCLR的PyTorch实现</a>，但是在训练过程中遇到了一些问题。</p>
+<p>原repo要用DDP训练的方式有点质朴，需要手动启动N的进程进行训练，那8张卡岂不是要操作八次！实验开多了要累死了。</p>
+<div class="highlight"><pre><span></span><code><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span> python main.py --nodes <span class="m">2</span> --nr <span class="m">0</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span> python main.py --nodes <span class="m">2</span> --nr <span class="m">1</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">2</span> python main.py --nodes <span class="m">2</span> --nr <span class="m">2</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span>N python main.py --nodes <span class="m">2</span> --nr <span class="m">3</span>
+</code></pre></div>
+
+<h2>一行代码起</h2>
+<p>这肯定不能忍，不符合我的风格，我从陈年代码包里拿出了我的顺手工具，能一行做完的事情绝不用八行。</p>
+<div class="highlight"><pre><span></span><code>python3 -m torch.distributed.launch --nproc_per_node <span class="m">2</span> --master_port<span class="o">=</span><span class="m">9495</span> main.py
+</code></pre></div>
+
+<p>一行代码起！完美！</p>
+<p>后面还有一些把分布式通讯的配置修改的问题，比如移除</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Master address for distributed data parallel</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MASTER_ADDR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;127.0.0.1&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;MASTER_PORT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;8000&quot;</span>
+<span class="n">mp</span><span class="o">.</span><span class="n">spawn</span><span class="p">(</span><span class="n">main</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">args</span><span class="p">,),</span> <span class="n">nprocs</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">gpus</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<p>加上</p>
+<div class="highlight"><pre><span></span><code><span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;nccl&#39;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">local_rank</span><span class="p">)</span>
+</code></pre></div>
+
+<h2>Debug靠Google</h2>
+<p>完事了，Docker调起、磁盘挂载、程序启动...</p>
+<p>然后就看见GPU0卡死100%，GPU1-N傻站着不动。</p>
+<p>这不行，上工具定位，发现是多卡通讯中卡在dist.all_gather这一步。
+这里有一步实现需要对所有卡上的特征进行聚合计算正负样本，但只希望保留当前卡内的梯度。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">GatherLayer</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">Function</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Gather tensors from all process, supporting backward propagation.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span> \
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dist</span><span class="o">.</span><span class="n">get_world_size</span><span class="p">())]</span>
+
+        <span class="n">dist</span><span class="o">.</span><span class="n">all_gather</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="nb">input</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="o">*</span><span class="n">grads</span><span class="p">):</span>
+        <span class="nb">input</span><span class="p">,</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+        <span class="n">grad_out</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+        <span class="n">grad_out</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">grads</span><span class="p">[</span><span class="n">dist</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">grad_out</span>
+</code></pre></div>
+
+<p>想下班回家了...不想写了，反正就是对着Google一顿猛搜，发现有跟我一样的倒霉蛋遇到了类似的问题<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>，就是在NCCL初始化init_process_group之前，需要先为每个进程分配GPU，分配完事了就没任何问题了。</p>
+<div class="highlight"><pre><span></span><code><span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">rank</span><span class="p">)</span>
+<span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;nccl&#39;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">local_rank</span><span class="p">)</span>
+</code></pre></div>
+
+<p>AP:
+🤣</p>
+<p>之前还遇到过诡异的M40卡死在dist.all_gather，但是在P40上运行就十分正常，还找了机器学习平台的同事花了一下午时间debug。</p>
+<p>现在回去检查当时出现诡异bug的代码，果然是我写错了，我给这两句写反了啊！😑🙄</p>
+<div class="highlight"><pre><span></span><code><span class="n">dist</span><span class="o">.</span><span class="n">init_process_group</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;nccl&#39;</span><span class="p">,</span> <span class="n">rank</span><span class="o">=</span><span class="n">local_rank</span><span class="p">)</span>
+<span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">set_device</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">local_rank</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://github.com/pytorch/pytorch/issues/18689">distributed.all_gather function stuck when using NCCL backend</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

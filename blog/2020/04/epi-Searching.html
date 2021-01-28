@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Searching</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-Searching" rel="bookmark" title="Permalink to EPI-Searching">EPI-Searching</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-10T19:20:00+08:00">
+                Published: Fri 10 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-10T20:20:00+08:00">
+                Updated: Fri 10 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，没刷过Searching。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Searching。</p>
+<p>[TOC]</p>
+<h2>Searching</h2>
+<p>这里主要考虑有序存储在数组中的静态数据。</p>
+<h3>Binary search</h3>
+<p>Binary search看起来比较简单，实现起来还是容易产生bug的，比如下面这个(我压根没注意过数值问题)</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">bsearch</span><span class="p">(</span><span class="kt">int</span> <span class="n">t</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="n">U</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">M</span> <span class="o">=</span> <span class="p">(</span><span class="n">L</span> <span class="o">+</span> <span class="n">U</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">L</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">==</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">M</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">U</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>产生bug的在<code>M = (L + U) / 2</code>， 有可能会导致overflow，改成<code>M = L + (U - L) /2</code>能避免这个问题。</p>
+<h3>Boot camp</h3>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Student</span> <span class="p">{</span>
+  <span class="n">string</span> <span class="n">name</span><span class="p">;</span>
+  <span class="kt">double</span> <span class="n">grade_point_average</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">const</span> <span class="k">static</span> <span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">(</span><span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">CompGPA</span> <span class="o">=</span> <span class="p">[]</span> <span class="p">(</span><span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">grade_point_average</span> <span class="o">!=</span> <span class="n">b</span><span class="p">.</span><span class="n">grade_point_average</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">grade_point_average</span> <span class="o">&gt;</span> <span class="n">b</span><span class="p">.</span><span class="n">grade_point_average</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">a</span><span class="p">.</span><span class="n">name</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="kt">bool</span> <span class="n">SearchStudent</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Student</span><span class="o">&gt;&amp;</span> <span class="n">students</span><span class="p">,</span> <span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span> <span class="n">target</span><span class="p">,</span> <span class="k">const</span> <span class="n">function</span><span class="o">&lt;</span><span class="kt">bool</span><span class="p">(</span><span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">Student</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;&amp;</span> <span class="n">comp_GPA</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">binary_search</span><span class="p">(</span><span class="n">students</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">students</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">target</span><span class="p">,</span> <span class="n">comp_GPA</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Tips</h3>
+<ul>
+<li>Binary search 不仅可以用在有序数组中， 还可以搜索整数或实数的interval</li>
+<li>如果排序后的操作比排序本身更快，尝试使用部分排序的方法</li>
+<li>考虑时间和空间的tradeoff</li>
+</ul>
+<h3>库函数</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// &lt;algorithm&gt;</span>
+<span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">target</span><span class="p">);</span>
+<span class="p">.</span><span class="n">binary_search</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span> <span class="c1">//return bool</span>
+<span class="p">.</span><span class="n">lower_bound</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span> 
+<span class="p">.</span><span class="n">upper_bound</span><span class="p">(</span><span class="n">begin</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">target</span><span class="p">);</span>
+</code></pre></div>
+
+<h3>Search a sorted array for first occurrence of k</h3>
+<p>类似与二分查找，不过这里需要查找第一次出现的位置，更改一下判断条件。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">SearchFirstOfK</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="n">U</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">M</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">M</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">k</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">M</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">L</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">U</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Search a sorted array for entry equal to its index</h3>
+<p>返回有序数组中的一个数值等于下标的元素。</p>
+<p>直接迭代也是能求解的，利用类似二分的做法可以进一步降低时间复杂度。注意数组是有序的，index之间的最小差异是1.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">SearchEntryEqualToItsIndex</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="n">U</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">M</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">==</span> <span class="n">M</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">M</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">M</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// 值大于index 向左查找</span>
+          <span class="n">U</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">L</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Search a cyclically sorted array</h3>
+<p>cyclically sorted array: shift 后变得有序</p>
+<p>要求实现<span class="math">\(O(\log n)\)</span>的算法查找数组中的最小元素.</p>
+<p>这个用二分也是可以做的, 关键在于如何定位到要查找的元素以及如何更新上下界.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">SearchSmallest</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">M</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="n">U</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">M</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">//向下取整 M&gt;= L &amp;&amp; M &lt; U</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">A</span><span class="p">[</span><span class="n">U</span><span class="p">])</span> <span class="p">{</span> <span class="c1">// 尖峰在右半部份</span>
+          <span class="n">L</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>  <span class="c1">// 例如[3][1]时，L将前进1， 保证M为最小值</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">M</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="n">L</span><span class="p">]){</span> <span class="c1">//尖峰在左半部分</span>
+          <span class="n">U</span> <span class="o">=</span> <span class="n">M</span><span class="p">;</span> <span class="c1">//只更新到M的位置 如果等于M-1可能会跳过最小值</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">L</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">M</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the integer square root</h3>
+<p>给定一个整数<span class="math">\(k\)</span>, 找出最大的整数<span class="math">\(x\)</span>使得<span class="math">\(x^2\leq k\)</span>.</p>
+<p>直接迭代的话,时间复杂度是<span class="math">\(O(n)\)</span>, 将这个问题转为在<span class="math">\([1, k]\)</span>区间上的二分查找问题可以降低时间复杂度.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">SquareRoot</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">L</span> <span class="o">&lt;=</span> <span class="n">U</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">long</span> <span class="n">M</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="kt">long</span> <span class="n">prod</span> <span class="o">=</span> <span class="n">M</span> <span class="o">*</span> <span class="n">M</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">prod</span> <span class="o">&gt;</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">U</span> <span class="o">=</span> <span class="n">M</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">prod</span> <span class="o">&lt;=</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 要求计算&lt;=k的值</span>
+          <span class="n">L</span> <span class="o">=</span> <span class="n">M</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">L</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the real square root</h3>
+<p>这个可以用牛顿法求解, 将求<span class="math">\(x\)</span>的平方根问题转为求方程的根.</p>
+<p>假设结果为<span class="math">\(k\)</span>, 令<span class="math">\(f(k)=k^2-x\)</span></p>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span> <span class="nf">SquareRoot</span><span class="p">(</span><span class="kt">double</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">bool</span> <span class="n">less_one</span> <span class="o">=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">less_one</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">x</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">double</span> <span class="n">L</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">U</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">L</span> <span class="o">-</span> <span class="n">U</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1e-8</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">k</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+      <span class="kt">double</span> <span class="n">l_res</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">r_res</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">x</span><span class="p">),</span> <span class="n">mid_res</span> <span class="o">=</span> <span class="n">f</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">l_res</span> <span class="o">*</span> <span class="n">mid_res</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">U</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">L</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">k</span> <span class="o">=</span> <span class="n">L</span> <span class="o">+</span> <span class="p">(</span><span class="n">U</span> <span class="o">-</span> <span class="n">L</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">less_one</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">k</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">k</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">k</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Generalized search</h2>
+<p>下面的问题不再考虑二分查找</p>
+<blockquote>
+<p>For example, they focus on tradeoffs between RAM and computation time, avoid wasted comparisons when searching for the minimum and maximum simultaneously, use randomization to perform elimination efficiently, use bit-level manipulations to identify missing elements, etc.</p>
+</blockquote>
+<h3>Search in a 2D sorted array</h3>
+<p>给一个排序的2D数组(按行列非递减), 查找指定元素是否在数组内.</p>
+<p>~~这个在LeetCode上做过, ~~ 这题要是想降低时间复杂度的话, 要注意两点</p>
+<ul>
+<li>如果(x, y)位置的值大于目标值val, 所有(y+)列的元素都大于val</li>
+<li>如果(x, y)位置的值小于目标值, 则当前行的所有(y-)元素都小于val</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">MatrixSearch</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_col</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="c1">// 从右上角搜索到左下角</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">row</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="n">max_col</span><span class="p">;</span> <span class="n">col</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">col</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">])</span> <span class="p">{</span>
+              <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">])</span> <span class="p">{</span>
+              <span class="n">max_col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="o">++</span><span class="n">row</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the min and max simultaneously</h3>
+<p>需要在少于<span class="math">\(2(n-1)\)</span>次比较下查找序列中的最小值和最大值.</p>
+<p>如果朴素地比较, 每过一个元素需要进行两次比较. 通过先将两个元素比较得到较大较小值, 再与最大值和最小值分别比较, 将两个元素四次比较降低到两个元素三次比较.</p>
+<div class="highlight"><pre><span></span><code><span class="n">MinMax</span> <span class="nf">FindMinMax</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">front</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">front</span><span class="p">()};</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">global_min_max</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">minmax</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">local_min_max</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">minmax</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]);</span>
+      <span class="n">global_min_max</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">local_min_max</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">global_min_max</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+      <span class="n">global_min_max</span><span class="p">.</span><span class="n">second</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">local_min_max</span><span class="p">.</span><span class="n">second</span><span class="p">,</span> <span class="n">global_min_max</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">global_min_max</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">back</span><span class="p">(),</span> <span class="n">global_min_max</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+      <span class="n">global_min_max</span><span class="p">.</span><span class="n">second</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">back</span><span class="p">(),</span> <span class="n">global_min_max</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="p">{</span><span class="n">global_min_max</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">global_min_max</span><span class="p">.</span><span class="n">second</span><span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the kth largest element</h3>
+<p>如果排序的话, 时间复杂度为<span class="math">\(O(n\log n)\)</span>, 用最大堆的时间复杂度为<span class="math">\(O(n\log k)\)</span>.</p>
+<p>类似与快排的partition, 只是划分后并不继续对每个区间进行排序.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">PartitionAroundPivot</span><span class="p">(</span><span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="kt">int</span> <span class="n">right</span><span class="p">,</span> <span class="kt">int</span> <span class="n">pivot_idx</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">pivot_value</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">pivot_idx</span><span class="p">];</span>
+    <span class="kt">int</span> <span class="n">new_pivot_idx</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">right</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">pivot_idx</span><span class="p">]);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">left</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pivot_value</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">new_pivot_idx</span><span class="o">++</span><span class="p">]);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">right</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">new_pivot_idx</span><span class="p">]);</span> <span class="c1">// swap pivot back</span>
+    <span class="k">return</span> <span class="n">new_pivot_idx</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// The numbering starts from one, i.e., if A = [3, 1, -1, 2] then</span>
+<span class="c1">// FindKthLargest(1, A) returns 3, FindKthLargest(2, A) returns 2,</span>
+<span class="c1">// FindKthLargest(3, A) returns 1, and FindKthLargest(4, A) returns -1.</span>
+<span class="kt">int</span> <span class="nf">FindKthLargest</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span> <span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">gen</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">pivot_idx</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">}(</span><span class="n">gen</span><span class="p">);</span>
+      <span class="kt">int</span> <span class="n">new_pivot_idx</span> <span class="o">=</span> <span class="n">PartitionAroundPivot</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">pivot_idx</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">new_pivot_idx</span> <span class="o">==</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">A</span><span class="p">[</span><span class="n">new_pivot_idx</span><span class="p">];</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">new_pivot_idx</span>  <span class="o">&lt;</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">left</span> <span class="o">=</span> <span class="n">new_pivot_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">right</span> <span class="o">=</span> <span class="n">new_pivot_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the missing IP address</h3>
+<p>查找32bit序列中的缺失值，假设有无限制的硬盘空间，却只有MB级别的RAM。</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}</script>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

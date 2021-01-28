@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - Pytorch</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2019/09/named-modules-in-pytorch" rel="bookmark"
+                               title="Permalink to Pytorch中的named_modules是个啥-debug真难">Pytorch中的named_modules是个啥-debug真难</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-09-05T13:20:00+08:00">
+                Published: Thu 05 September 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-09-05T21:20:00+08:00">
+                Updated: Thu 05 September 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/pytorch/">Pytorch</a>.</p>
+<p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p>
+</footer><!-- /.post-info -->                    <p>Summary =&gt;  在改写deeplabv3+时, 因为需要去掉ASPP和decoder部分, 仅保留mobilenet的backbone. 但是因为误对<code>nn.Module</code>内的所有权值进行初始化, 导致backbone中的预训练权值丢失. 同样的模型训练1000个epoch的效果依然很差.</p>
+<p><img src="/images/file_3938986.jpg" style="max-width: 30%"></p>
+<p>这几天遇到了一个十分奇怪的问题, 实验需要用到mobilenetv2作为backbone的deeplabv3+做分割, 在对比实验中需要丢掉ASPP和decoder部分, 即backbone后面直接接上两层卷积.  </p>
+<p>最开始是直接在原来的deeplabv3+的代码上魔改, 即创建新的ASPP结构直接返回input, 再创建新的decoder部分只接受high level feature作为输出. </p>
+<p>但是这样修改的模型, 在测试速度时比原始的MobileNetV2要慢很多, 没法给出正确的性能数据. 但是原始的MobileNet又好像没有直接指定<code>out_stride</code>的地方. 我就按照修改后的ASPP跟decoder部分, 在deeplabv3 …</p>
+                    <a class="readmore" href="/blog/2019/09/named-modules-in-pytorch">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Array</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/03/epi-code-array" rel="bookmark" title="Permalink to EPI-Array">EPI-Array</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-26T18:20:00+08:00">
+                Published: Thu 26 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-03-26T18:20:00+08:00">
+                Updated: Thu 26 March 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，从Array刷到Array，刷了几年还是在刷Array。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷Array。</p>
+<p>[TOC]</p>
+<h2>Array</h2>
+<h3>数组的基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">//alloc</span>
+<span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">3</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">A</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">sub_A</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="mi">5</span><span class="p">);</span>
+
+<span class="c1">//2d</span>
+<span class="n">array</span><span class="o">&lt;</span><span class="n">array</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span> <span class="n">A</span><span class="o">=</span><span class="p">{};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">A</span><span class="p">;</span>
+
+<span class="c1">//</span>
+<span class="n">A</span><span class="p">.</span><span class="n">push_back</span><span class="p">();</span>
+<span class="n">A</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">();</span>
+
+<span class="c1">//algorithm</span>
+<span class="n">binary_search</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">42</span><span class="p">);</span>
+<span class="n">lower_bound</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">42</span><span class="p">);</span>
+<span class="n">upper_bound</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">42</span><span class="p">);</span>
+<span class="n">fill</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">42</span><span class="p">);</span>
+<span class="n">swap</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">);</span>
+<span class="n">min_element</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">max_element</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">reverse</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="n">rotate</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="n">shift</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span> <span class="c1">//Performs a left rotation on a range of elements.</span>
+<span class="n">sort</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</code></pre></div>
+
+<h3>Bootcamp: Arrays</h3>
+<blockquote>
+<p>the even entries appear first</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">EvenOdd</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// 将奇数仍到数组尾部即可</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">next_even</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">next_odd</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">next_even</span> <span class="o">&lt;</span> <span class="n">next_odd</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">next_even</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">next_even</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">next_even</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">next_odd</span><span class="o">--</span><span class="p">]);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>The Dutch national flag problem</h3>
+<p>暴力解法需要O(n)的空间，使用数组自身将空间复杂度降低到O(1).</p>
+<p>将数组中小于pivot的元素拍在最前面，等于pivot的排在中间，大于pivot的排在最后。</p>
+<p>简单的想法是类似冒泡排序，通过两遍冒泡分别将小于和大于pivot的元素分配到两端。但是类似于上一题的思路，可以通过一遍直接扔的方式避免冒泡O(n^2)的复杂度。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">DutchFlagPartition</span><span class="p">(</span><span class="kt">int</span> <span class="n">pivot_index</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Color</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Color</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span> <span class="c1">// 这个地方很蠢地忘记创建引用</span>
+  <span class="n">Color</span> <span class="n">pivot</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">pivot_index</span><span class="p">];</span>
+  <span class="c1">//小的扔到左边</span>
+  <span class="kt">int</span> <span class="n">smaller</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">pivot</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">smaller</span><span class="o">++</span><span class="p">]);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">//大的扔到右边</span>
+  <span class="kt">int</span> <span class="n">larger</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pivot</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">pivot</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">larger</span><span class="o">--</span><span class="p">]);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Increment an arbitrary-precision integer</h3>
+<blockquote>
+<p>&lt;1, 2, 9&gt;   ==&gt; &lt;1, 3, 0&gt;</p>
+</blockquote>
+<p>需要处理的是第一位的进位问题。自己的实现调用了两遍reverse太过度了。EPI实现的代码就很简单。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">PlusOne</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="kt">int</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="o">++</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="n">cnt</span><span class="p">;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">10</span><span class="p">;</span>
+          <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">cnt</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="k">return</span> <span class="n">A</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//EPI代码</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">PlusOne</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="o">++</span><span class="n">A</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span><span class="mi">10</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="o">++</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">A</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="mi">1</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">A</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Multiply two arbitrary-precision integers</h3>
+<p>模拟乘法竖式</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">Multiply</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">num1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">num2</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">sign</span> <span class="o">=</span> <span class="n">num1</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">^</span> <span class="n">num2</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span><span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="n">num1</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">num1</span><span class="p">.</span><span class="n">front</span><span class="p">());</span>
+  <span class="n">num2</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">=</span> <span class="n">abs</span><span class="p">(</span><span class="n">num2</span><span class="p">.</span><span class="n">front</span><span class="p">());</span>
+  <span class="c1">// 存放结果</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">result</span><span class="p">(</span><span class="n">num1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="n">num2</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">num1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">num2</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">num1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">num2</span><span class="p">[</span><span class="n">j</span><span class="p">];</span>
+          <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="p">]</span> <span class="o">+=</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mi">10</span><span class="p">;</span>
+          <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">%=</span> <span class="mi">10</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// 移除前导0  find_if_not</span>
+  <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">find_if_not</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">begin</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">end</span><span class="p">(</span><span class="n">result</span><span class="p">),</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">a</span><span class="p">){</span> <span class="k">return</span> <span class="n">a</span><span class="o">==</span><span class="mi">0</span><span class="p">;}),</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">end</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+  <span class="p">};</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span><span class="mi">0</span><span class="p">};</span>
+  <span class="p">}</span>
+  <span class="n">result</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">*=</span> <span class="n">sign</span><span class="p">;</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Advancing through an array</h3>
+<p>数组中的每个元素给出最大移动步数，判断是否能移动到数组尾部。</p>
+<p>~~题不刷，就会忘!~~  </p>
+<p>看了解法之后也比较好理解，记录当前最大能到达的位置，不断地更新这个值就好。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 时间复杂度O(n)，空间复杂度O(1)</span>
+<span class="kt">bool</span> <span class="nf">CanReachEnd</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">max_advance_steps</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// 记录当前最远位置</span>
+  <span class="kt">int</span> <span class="n">furthest_so_far</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">last_idx</span> <span class="o">=</span> <span class="n">max_advance_steps</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">furthest_so_far</span> <span class="o">&amp;&amp;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">last_idx</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">furthest_so_far</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">furthest_so_far</span><span class="p">,</span> <span class="n">max_advance_steps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">furthest_so_far</span> <span class="o">&gt;=</span> <span class="n">last_idx</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Delete duplicates from a sorted array</h3>
+<p>这个从左往右码就行了，数组为空的情况需要处理一下。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 时间复杂度O(n)，空间复杂度O(1)</span>
+<span class="kt">int</span> <span class="nf">DeleteDuplicates</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">valid_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">cur_idx</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">cur_idx</span> <span class="o">&lt;</span> <span class="n">length</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">cur_idx</span><span class="p">]</span> <span class="o">==</span> <span class="n">A</span><span class="p">[</span><span class="n">valid_idx</span><span class="p">])</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">cur_idx</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">else</span><span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="o">++</span><span class="n">valid_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">cur_idx</span><span class="o">++</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">valid_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Buy and sell a stock once</h3>
+<p>买卖是按时间顺序的，计算今日卖出价格与历史最低价的差距，与最大收益比较即可。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span> <span class="nf">BuyAndSellStockOnce</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">prices</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">double</span> <span class="n">min_price</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">(),</span> <span class="n">max_profit</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="nl">price</span><span class="p">:</span> <span class="n">prices</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">double</span> <span class="n">profit_today</span> <span class="o">=</span> <span class="n">price</span> <span class="o">-</span> <span class="n">min_price</span><span class="p">;</span>
+      <span class="n">max_profit</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">max_profit</span><span class="p">,</span> <span class="n">profit_today</span><span class="p">);</span>
+      <span class="n">min_price</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">min_price</span><span class="p">,</span> <span class="n">price</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">max_profit</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Buy and sell a stock twice</h3>
+<p>相比与上一题，这里需要买卖两次。</p>
+<p>如何才能将一次的买入卖出变成两次，在上一题的基础上，一个暴力解法是将时间段划分成两部分，前一部分做第一个交易，后一部分做第二次交易。外层O(n)的遍历加上内层<code>BuyAndSellStockOnce</code>O(n)的复杂度，总的时间复杂度是O(n^2)。</p>
+<p>暴力的解法中有很多的重复计算，如时间划分点变动一天，但是前一部分的计算都要重新做一遍。 既然在思路上是可以将时间拆分成两端，利用<code>BuyAndSellStockOnce</code>方法，可以 对第一次买卖的收益只做一遍计算，对第二次买卖的收益也只做一次计算。</p>
+<p>由此，先正向计算一遍，在当前时间点前买卖一次的最大收益是多少，再反向计算一遍在当前时间点之后买卖一次的最大收益是多少。这两个值和的最大值即为最大收益。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span> <span class="nf">BuyAndSellStockTwice</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">prices</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// vector 开成int的了，卡了好一会没搞定</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="n">max_profit_first_buy</span><span class="p">(</span><span class="n">prices</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="kt">double</span> <span class="n">total_max_profit</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="c1">// 正向计算第一次买卖的收益变化</span>
+  <span class="kt">double</span> <span class="n">min_price_so_far</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">();</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">prices</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">min_price_so_far</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">min_price_so_far</span><span class="p">,</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">total_max_profit</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">total_max_profit</span><span class="p">,</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">min_price_so_far</span><span class="p">);</span>
+      <span class="n">max_profit_first_buy</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">total_max_profit</span><span class="p">;</span>
+  <span class="p">}</span>
+    <span class="c1">// 反向计算第二次买卖的收益变化</span>
+  <span class="kt">double</span> <span class="n">max_price_so_far</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">();</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">prices</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="o">--</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">max_price_so_far</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">max_price_so_far</span><span class="p">,</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+      <span class="n">total_max_profit</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">total_max_profit</span><span class="p">,</span> <span class="n">max_price_so_far</span> <span class="o">-</span> <span class="n">prices</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">max_profit_first_buy</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">total_max_profit</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Computing an alternation</h3>
+<p>void</p>
+<h3>Enumerate all primes to n</h3>
+<p>直接打表筛查。</p>
+<p>这里使用bool数组打表，遇到了之前见过的一个问题， 由于C++98的设计原因，<code>vector&lt;bool&gt;</code>使用的是bit保存的信息，而不是正常的byte保存bool， 这导致了操作符<code>[]</code>并不能真正返回布尔值对应的地址。所以这里应该使用<code>deque&lt;bool&gt;</code></p>
+<p><a href="https://stackoverflow.com/questions/17794569/why-is-vectorbool-not-a-stl-container">Why is vector not a STL container?</a></p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">GeneratePrimes</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">deque</span><span class="o">&lt;</span><span class="kt">bool</span><span class="o">&gt;</span> <span class="n">sieve</span><span class="p">(</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="nb">true</span><span class="p">);</span>
+  <span class="n">sieve</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">n</span><span class="o">/</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">*</span><span class="n">j</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">sieve</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">sieve</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Permute the elements of an array</h3>
+<p>给定一个数组和一个排列，将该排列作用的数组上。</p>
+<p>直接开辟新数组，可以直接根据排列映射得到结果。 在避免申请新数组的情况下，需要用到一个特性</p>
+<blockquote>
+<p>每个排列可由一组独立的排列构成，组内的每个排列都是循环的。</p>
+<p>白话就是每个排列可分成多个圈， 每个圈内shift一次，等价于原排列。</p>
+</blockquote>
+<p>这里使用了C++的lambda表达式，<code>[]</code>内的为引用捕获。</p>
+<p>使用非成员函数<code>begin</code>和<code>end</code>在这里有解释：<a href="https://stackoverflow.com/questions/7593086/why-use-non-member-begin-and-end-functions-in-c11">Why use non-member begin and end functions in C++11?</a></p>
+<blockquote>
+<p>Free functions: 非成员函数</p>
+</blockquote>
+<p>非成员函数</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">ApplyPermutation</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">perm</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+  <span class="c1">// 最多A.size个子排列</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">next</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="c1">// 对当前组内顺序平移一次</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">perm</span><span class="p">[</span><span class="n">next</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">A</span><span class="p">[</span><span class="n">perm</span><span class="p">[</span><span class="n">next</span><span class="p">]]);</span>
+          <span class="kt">int</span> <span class="n">temp</span> <span class="o">=</span> <span class="n">perm</span><span class="p">[</span><span class="n">next</span><span class="p">];</span>
+            <span class="c1">// 使用负数表示已经被访问过， 避免申请新空间</span>
+          <span class="n">perm</span><span class="p">[</span><span class="n">next</span><span class="p">]</span> <span class="o">-=</span> <span class="n">perm</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+          <span class="n">next</span> <span class="o">=</span> <span class="n">temp</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">for_each</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">begin</span><span class="p">(</span><span class="n">perm</span><span class="p">),</span> <span class="n">std</span><span class="o">::</span><span class="n">end</span><span class="p">(</span><span class="n">perm</span><span class="p">),</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">perm</span><span class="p">](</span><span class="kt">int</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">)</span> <span class="p">{</span><span class="n">x</span> <span class="o">+=</span> <span class="n">perm</span><span class="p">.</span><span class="n">size</span><span class="p">();});</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the next permutation</h3>
+<p>要生成一个排列的下一个排列，需要分析其内在的规律。</p>
+<p>如&lt;6, 2, 1, 5, 4, 3, 0&gt;来说，其后缀&lt;5, 4, 3, 0&gt;已经是降序的，意味着该后缀是最大字典序，没有下一个排列。需要将1与后面的元素交换，需要在后缀中找到一个比1大(比1小的字典序更小，符合下一个排列的要求)的最小数(下一个字典序的变动应该是最小的)。 得到&lt;6, 2, 3, 5, 4, 1, 0&gt;，这样前缀已经是最小的了，但后缀还不是。交换后的后缀仍然是降序排列， 将其反转可得到最小后缀，即下一个排列为&lt;6, 2, 3, 0, 1, 4, 5&gt;</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">NextPermutation</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">perm</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">perm</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">;</span>
+  <span class="c1">// 找到最长递减后缀</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">k</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="p">{</span>
+      <span class="o">--</span><span class="n">k</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="c1">//从后向前查找第一个大于perm k的元素</span>
+  <span class="c1">//find_if返回Iterator，解引用后swap</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span>
+          <span class="o">*</span><span class="n">std</span><span class="o">::</span><span class="n">find_if</span><span class="p">(</span><span class="n">perm</span><span class="p">.</span><span class="n">rbegin</span><span class="p">(),</span> <span class="n">perm</span><span class="p">.</span><span class="n">rend</span><span class="p">(),</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="kt">int</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span><span class="k">return</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="p">];}),</span>
+          <span class="n">perm</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+          <span class="p">);</span>
+  <span class="c1">// 将后缀重新由小到大排列</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">perm</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="o">+</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">perm</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="k">return</span> <span class="n">perm</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Sample offline data</h3>
+<p>从数组中随机抽取k个元素。 每次从剩余数组中抽取一个元素，直至抽到k个。</p>
+<p>这个代码很“C++11”... 直接random取余数并不能生成真正的均匀分布。</p>
+<p>C++11把随机数分为引擎和分布两个部分，需要先指定一个随机数引擎，再根据分布生成随机数。</p>
+<blockquote>
+<p><a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/numeric/random/random_device.html">std::random_device</a> is a non-deterministic uniform random bit generator, although implementations are allowed to implement <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/numeric/random/random_device.html">std::random_device</a> using a pseudo-random number engine if there is no support for non-deterministic random number generation.</p>
+</blockquote>
+<p>random_device() 生成一个对象，其操作符<code>()</code>将推进引擎的状态，返回一个随机数，这里用于随机数引擎的种子。</p>
+<p>这里的写法，我也没太看懂，为什么分布后面可以是花括号，将其换成圆括号是我能理解的写法。待更</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">RandomSampling</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+  <span class="c1">// default_random_engine 生成随机数引擎</span>
+  <span class="c1">// random_device()</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span>
+              <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+              <span class="n">A</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">i</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">-</span><span class="mi">1</span><span class="p">)}(</span><span class="n">seed</span><span class="p">)]</span>
+              <span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Sample online data</h3>
+<p>很久很久以前，有个蓄水池算法，要从流中随机抽取k个元素。</p>
+<p>假设目前已经接受了n个包并抽取了k个元素，当第n+1个包到达时，其属于抽样集的概率应为k/(n+1)，这时随机一个概率值，若当前包可被保留，则从原k个元素中随机剔除一个。</p>
+<p>数学证明可见：<a href="https://zh.wikipedia.org/wiki/水塘抽樣">水塘抽樣</a></p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Assumption: there are at least k elements in the stream.</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">OnlineRandomSample</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">stream_begin</span><span class="p">,</span>
+                               <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">stream_end</span><span class="p">,</span>
+                               <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="c1">// 先填充k个元素</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">,</span> <span class="o">++</span><span class="n">stream_begin</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">*</span><span class="n">stream_begin</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="c1">// 初始化随机数引擎</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+  <span class="kt">int</span> <span class="n">element_so_far</span> <span class="o">=</span> <span class="n">k</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">stream_begin</span> <span class="o">!=</span> <span class="n">stream_end</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">element_so_far</span><span class="p">;</span>
+        <span class="c1">// 以 k/n+1的概率保留元素</span>
+      <span class="kt">int</span> <span class="n">rand_val</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">element_so_far</span><span class="o">-</span><span class="mi">1</span><span class="p">)(</span><span class="n">seed</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">rand_val</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">[</span><span class="n">rand_val</span><span class="p">]</span> <span class="o">=</span> <span class="o">*</span><span class="n">stream_begin</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="o">++</span><span class="n">stream_begin</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute a random permutation</h3>
+<p>生成一个随机的排列，每次从剩余集合中随机选择一个元素放置到当前位置。可使用之前的从离线采样函数，即从n个元素中随机抽取n个元素。</p>
+<blockquote>
+<p>std::iota</p>
+<p>Fills the range <code>[first, last)</code> with sequentially increasing values, starting with <code>value</code> and repetitively evaluating ++value.</p>
+<p>Equivalent operation:</p>
+<p><code>c++
+*(d_first)   = value;
+*(d_first+1) = ++value;
+*(d_first+2) = ++value;
+*(d_first+3) = ++value;
+...</code></p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">RandomSampling</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// 离线采样</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">A</span> <span class="o">=</span> <span class="o">*</span><span class="n">A_ptr</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))(</span><span class="n">seed</span><span class="p">)]</span>
+                <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ComputeRandomPermutation</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">perm</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+  <span class="c1">// 生成序列</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">iota</span><span class="p">(</span><span class="n">perm</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">perm</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="c1">// 从n个采样n个，即随机打乱</span>
+  <span class="n">RandomSampling</span><span class="p">(</span><span class="n">perm</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="o">&amp;</span><span class="n">perm</span><span class="p">);</span>
+  <span class="k">return</span> <span class="n">perm</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute a random subset</h3>
+<p>这个有些类似与离线采样的那题，但是当k&lt;&lt;n时，大多数的元素都是未用到的，申请O(n)的空间有些浪费。这里使用hash table记录。</p>
+<p>在离线采样方法中，数组中存放0~n-1的结果，每次交换两个元素。通过hash table，可以保存每次交换元素的下标。这样对交换的两个元素，共有四种情况(都在table内，只有一个在，都不在)</p>
+<div class="highlight"><pre><span></span><code><span class="c1">//申请O(n)空间</span>
+<span class="c1">//Average running time:    1  s</span>
+<span class="c1">//Median running time:   969 ms</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">RandomSubset</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">A</span><span class="p">(</span><span class="n">n</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">iota</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span>
+                <span class="n">A</span><span class="p">[</span><span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))(</span><span class="n">seed</span><span class="p">)]</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="n">k</span><span class="p">};</span>
+<span class="p">}</span>
+
+<span class="c1">// Hash table</span>
+
+<span class="c1">// Returns a random k-sized subset of {0, 1, ..., n - 1}.</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">RandomSubset</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">,</span> <span class="kt">int</span> <span class="n">k</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">changed_elements</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">rand_idx</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">uniform_int_distribution</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)(</span><span class="n">seed</span><span class="p">);</span>
+        <span class="k">auto</span> <span class="n">ptr1</span> <span class="o">=</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">i</span><span class="p">),</span> <span class="n">ptr2</span> <span class="o">=</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">rand_idx</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">ptr1</span> <span class="o">==</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">ptr2</span> <span class="o">==</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">changed_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">rand_idx</span><span class="p">;</span>
+            <span class="n">changed_elements</span><span class="p">[</span><span class="n">rand_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">ptr1</span> <span class="o">==</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">ptr2</span> <span class="o">!=</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">changed_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr2</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+            <span class="n">ptr2</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">ptr1</span> <span class="o">!=</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">ptr2</span> <span class="o">==</span> <span class="n">changed_elements</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="n">changed_elements</span><span class="p">[</span><span class="n">rand_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">ptr1</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+            <span class="n">ptr1</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="n">rand_idx</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="p">{</span>
+            <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">ptr1</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">,</span> <span class="n">ptr2</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">changed_elements</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Generate nonuniform random numbers</h3>
+<p>按概率生成随机数。记得在做遗传算法的时候处理过这种问题，用饼图去累计概率。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">NonuniformRandomNumberGeneration</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">values</span><span class="p">,</span>
+                                     <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&amp;</span> <span class="n">probabilities</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">default_random_engine</span> <span class="n">seed</span><span class="p">((</span><span class="n">std</span><span class="o">::</span><span class="n">random_device</span><span class="p">())());</span>
+  <span class="kt">double</span> <span class="n">p</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">uniform_real_distribution</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="p">(</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)(</span><span class="n">seed</span><span class="p">);</span>
+  <span class="kt">double</span> <span class="n">con_sum</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">values</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">con_sum</span> <span class="o">+=</span> <span class="n">probabilities</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">con_sum</span> <span class="o">&gt;</span> <span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Multidimensional arrays</h2>
+<h3>The Sudoku checker problem</h3>
+<p>判断一个未完成的数独盘是否是合法的。 我的做法比较粗暴，用3个集合分别检查3个约束是否满足。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// Check if a partially filled matrix has any conflicts.</span>
+<span class="kt">bool</span> <span class="nf">IsValidSudoku</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">partial_assignment</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">rows</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span> <span class="c1">//检测行冲突</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">cols</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span> <span class="c1">//检测列冲突</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">inner</span><span class="p">(</span><span class="mi">9</span><span class="p">);</span> <span class="c1">//检测小9宫格冲突</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">r_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">r_idx</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="o">++</span><span class="n">r_idx</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">c_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">c_idx</span> <span class="o">&lt;</span> <span class="mi">9</span><span class="p">;</span> <span class="o">++</span><span class="n">c_idx</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kt">int</span> <span class="n">c_val</span> <span class="o">=</span> <span class="n">partial_assignment</span><span class="p">[</span><span class="n">r_idx</span><span class="p">][</span><span class="n">c_idx</span><span class="p">];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c_val</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="k">continue</span><span class="p">;</span>
+          <span class="p">}</span>
+
+          <span class="k">auto</span> <span class="o">&amp;</span><span class="n">c_row</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[</span><span class="n">r_idx</span><span class="p">];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c_row</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_val</span><span class="p">)</span> <span class="o">!=</span> <span class="n">c_row</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+              <span class="n">c_row</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">c_val</span><span class="p">);</span>
+          <span class="p">}</span>
+
+          <span class="k">auto</span> <span class="o">&amp;</span><span class="n">c_col</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[</span><span class="n">c_idx</span><span class="p">];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c_col</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_val</span><span class="p">)</span> <span class="o">!=</span> <span class="n">c_col</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+              <span class="n">c_col</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">c_val</span><span class="p">);</span>
+          <span class="p">}</span>
+
+          <span class="kt">int</span> <span class="n">inner_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">r_idx</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="n">c_idx</span> <span class="o">/</span> <span class="mi">3</span><span class="p">;</span>
+          <span class="k">auto</span> <span class="o">&amp;</span><span class="n">c_inner</span> <span class="o">=</span> <span class="n">inner</span><span class="p">[</span><span class="n">inner_idx</span><span class="p">];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c_inner</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_val</span><span class="p">)</span> <span class="o">!=</span> <span class="n">c_inner</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">else</span> <span class="p">{</span>
+              <span class="n">c_inner</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">c_val</span><span class="p">);</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the spiral ordering of a 2D array</h3>
+<p>返回数组的螺旋序列。思路上是一层一层地对数组进行访问，最外圈访问完成后，该问题变成了相同形式，但规模更小的子问题。</p>
+<p>这里刚开始时判断nextX和nextY时并没有考虑小于0的情况，但是也能通过测试样例，是因为在与<code>size()</code>相比较时，有符号的负值被转换为无符号，会满足第二个条件。当然在逻辑上是有漏洞的。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">MatrixInSpiralOrder</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">square_matrix</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// kShift 控制前进方向</span>
+  <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">kShift</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">},</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">}};</span>
+  <span class="kt">int</span> <span class="n">dir</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">nextX</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">nextY</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">visited</span><span class="p">(</span><span class="n">square_matrix</span><span class="p">);</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">*</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">square_matrix</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]);</span>
+      <span class="n">visited</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">nextX</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">kShift</span><span class="p">[</span><span class="n">dir</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+      <span class="n">nextY</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">kShift</span><span class="p">[</span><span class="n">dir</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">nextX</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">nextX</span> <span class="o">&gt;=</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">||</span> <span class="n">nextY</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">nextY</span> <span class="o">&gt;=</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">||</span> <span class="n">visited</span><span class="p">[</span><span class="n">nextX</span><span class="p">][</span><span class="n">nextY</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">dir</span> <span class="o">=</span> <span class="p">(</span><span class="n">dir</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">;</span>
+          <span class="n">nextX</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">kShift</span><span class="p">[</span><span class="n">dir</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+          <span class="n">nextY</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">kShift</span><span class="p">[</span><span class="n">dir</span><span class="p">][</span><span class="mi">1</span><span class="p">];</span>
+      <span class="p">}</span>
+      <span class="n">x</span> <span class="o">=</span> <span class="n">nextX</span><span class="p">;</span>
+      <span class="n">y</span> <span class="o">=</span> <span class="n">nextY</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Rotate a 2D array</h3>
+<p>将2D矩阵顺时针旋转90°。</p>
+<p>按层处理，每层每次处理四个元素。即将每条边上对应位置的元素交换位置</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">RotateMatrix</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*</span> <span class="n">square_matrix_ptr</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="o">&amp;</span><span class="n">square_matrix</span> <span class="o">=</span> <span class="o">*</span><span class="n">square_matrix_ptr</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">int</span> <span class="n">mat_size</span> <span class="o">=</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">square_matrix</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">mat_size</span> <span class="o">-</span> <span class="n">i</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+          <span class="kt">int</span> <span class="n">temp1</span> <span class="o">=</span> <span class="n">square_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span> <span class="c1">// top element</span>
+          <span class="kt">int</span> <span class="n">temp2</span> <span class="o">=</span> <span class="n">square_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">mat_size</span><span class="o">-</span><span class="n">i</span><span class="p">];</span> <span class="c1">// right element</span>
+          <span class="kt">int</span> <span class="n">temp3</span> <span class="o">=</span> <span class="n">square_matrix</span><span class="p">[</span><span class="n">mat_size</span><span class="o">-</span><span class="n">i</span><span class="p">][</span><span class="n">mat_size</span><span class="o">-</span><span class="n">j</span><span class="p">];</span> <span class="c1">// bottom element</span>
+          <span class="kt">int</span> <span class="n">temp4</span> <span class="o">=</span> <span class="n">square_matrix</span><span class="p">[</span><span class="n">mat_size</span><span class="o">-</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">];</span> <span class="c1">// left element</span>
+
+          <span class="n">square_matrix</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp4</span><span class="p">;</span> <span class="c1">// left2top</span>
+          <span class="n">square_matrix</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">mat_size</span><span class="o">-</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp1</span><span class="p">;</span> <span class="c1">//top2right</span>
+          <span class="n">square_matrix</span><span class="p">[</span><span class="n">mat_size</span><span class="o">-</span><span class="n">i</span><span class="p">][</span><span class="n">mat_size</span><span class="o">-</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp2</span><span class="p">;</span> <span class="c1">// right2bottom</span>
+          <span class="n">square_matrix</span><span class="p">[</span><span class="n">mat_size</span><span class="o">-</span><span class="n">j</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp3</span><span class="p">;</span> <span class="c1">//bottom2left</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute rows in Pascal's Triangle</h3>
+<p>输出帕斯卡三角的前n行，直接模拟即可</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">GeneratePascalTriangle</span><span class="p">(</span><span class="kt">int</span> <span class="n">num_rows</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">ret</span> <span class="o">=</span> <span class="p">{{</span><span class="mi">1</span><span class="p">}};</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">num_rows</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">num_rows</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">num_rows</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">c_row</span><span class="p">;</span>
+      <span class="n">c_row</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+      <span class="k">auto</span> <span class="o">&amp;</span><span class="n">last_row</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">last_row</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="o">++</span><span class="n">j</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">c_row</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">last_row</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">last_row</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]);</span>
+      <span class="p">}</span>
+      <span class="n">c_row</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+      <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">c_row</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

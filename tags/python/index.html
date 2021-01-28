@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - Python</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2021/01/Build-MSAttn-in-Deformable-DETR" rel="bookmark"
+                               title="Permalink to Deformable-Conv编译后运行报错及解决">Deformable-Conv编译后运行报错及解决</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-27T18:20:00+08:00">
+                Published: Wed 27 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-27T18:20:00+08:00">
+                Updated: Wed 27 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p>
+</footer><!-- /.post-info -->                    <!-- Status: draft -->
+
+<p>最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。</p>
+<p>所用的代码是Deformable DETR的官方实现<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>，其中需要先对CUDA的算子进行编译</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span> ./models/ops
+sh ./make.sh
+<span class="c1"># unit test (should see all checking is True)</span>
+python test.py …</code></pre></div>
+                    <a class="readmore" href="/blog/2021/01/Build-MSAttn-in-Deformable-DETR">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2021/01/pytorch-dist-nccl-backend-allgather-stuck" rel="bookmark"
+                           title="Permalink to 在NCCL后端下Pytorch的distributed.all_gather卡死排查">在NCCL后端下Pytorch的distributed.all_gather卡死排查</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-05T21:20:00+08:00">
+                Published: Tue 05 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-05T21:20:00+08:00">
+                Updated: Tue 05 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/pytorch/">PyTorch</a> <a href="/tags/python/">Python</a> </p>
+</footer><!-- /.post-info -->                <p>用了Github上一个<a href="https://github.com/Spijkervet/SimCLR">SimCLR的PyTorch实现</a>，但是在训练过程中遇到了一些问题。</p>
+<p>原repo要用DDP训练的方式有点质朴，需要手动启动N的进程进行训练，那8张卡岂不是要操作八次！实验开多了要累死了。</p>
+<div class="highlight"><pre><span></span><code><span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">0</span> python main.py --nodes <span class="m">2</span> --nr <span class="m">0</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">1</span> python main.py --nodes <span class="m">2</span> --nr <span class="m">1</span>
+<span class="nv">CUDA_VISIBLE_DEVICES</span><span class="o">=</span><span class="m">2</span> python main.py …</code></pre></div>
+                <a class="readmore" href="/blog/2021/01/pytorch-dist-nccl-backend-allgather-stuck">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/12/pytorch-ddp-sampler-warper" rel="bookmark"
+                           title="Permalink to 在PyTorch DistributedSampler中封装其他Sampler策略">在PyTorch DistributedSampler中封装其他Sampler策略</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-12-23T18:20:00+08:00">
+                Published: Wed 23 December 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-12-23T18:20:00+08:00">
+                Updated: Wed 23 December 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">PyTorch</a> </p>
+</footer><!-- /.post-info -->                <p>用了PyTorch的分布式训练后，我把所有的dataloader都加上了 DistributedSampler 。</p>
+<p>现在遇到的一个问题是需要对不同类别的样本进行采样，而PytTorch自带的WeightedRandomSampler 又不是那么回事，不能直接对类别进行采样，索性自己造了个轮子解决这个问题。</p>
+<h2>WeightedBalanceClassSampler</h2>
+<p>首先要解决的是对每个类别进行采样，这里用了catalyst的一部分代码<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>。catalyst提供了一个 BalanceClassSampler 实现类别均衡采样，但在我的场景下，类别不均衡比较严重，BalanceClassSampler 里将所有类的数量直接填成一样的了，不满足我的要求。</p>
+<p>在 BalanceClassSampler 的基础上，这里实现了 WeightedBalanceClassSampler 用于带权采样。
+用 weight 指定每个类别的采样比例，用length指定采样后数据集的大小 …</p>
+                <a class="readmore" href="/blog/2020/12/pytorch-ddp-sampler-warper">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/03/wei-pelicanbian-xie-cha-jian" rel="bookmark"
+                           title="Permalink to 为Pelican编写插件">为Pelican编写插件</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-31T00:00:00+08:00">
+                Published: Tue 31 March 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/pelican/">Pelican</a>.</p>
+<p>tags: <a href="/tags/pelican/">Pelican</a> <a href="/tags/python/">Python</a> </p>
+</footer><!-- /.post-info -->                <p>🐧</p>
+<p>这里为<a href="Pelican" title="https://blog.getpelican.com/">Pelican</a>移植了一个静态的相册<a href="Sigal" title="http://sigal.saimon.org/en/latest/">Sigal</a>，使得相册程序也能托管在Github Page上。</p>
+<p>很久之前就有打算过给Pelican写个插件实现这样的功能，一直没有仔细看过Pelican的实现逻辑是怎么样的，今天刚好看到了这样一个静态相册，花了一晚上的时间将其以插件的形式集成到Pelican中。</p>
+<p>Pelican中关于插件的文档并不是很多，文档中给的样例很短</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pelican</span> <span class="kn">import</span> <span class="n">signals</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">sender</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> initialized !!&quot;</span> <span class="o">%</span> <span class="n">sender</span>
+
+<span class="k">def</span> <span class="nf">register</span><span class="p">():</span>
+    <span class="n">signals</span><span class="o">.</span><span class="n">initialized</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</code></pre></div>
+
+<p>看起来是自己实现一个处理函数 …</p>
+                <a class="readmore" href="/blog/2020/03/wei-pelicanbian-xie-cha-jian">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/09/named-modules-in-pytorch" rel="bookmark"
+                           title="Permalink to Pytorch中的named_modules是个啥-debug真难">Pytorch中的named_modules是个啥-debug真难</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-09-05T13:20:00+08:00">
+                Published: Thu 05 September 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-09-05T21:20:00+08:00">
+                Updated: Thu 05 September 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/pytorch/">Pytorch</a>.</p>
+<p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p>
+</footer><!-- /.post-info -->                <p>Summary =&gt;  在改写deeplabv3+时, 因为需要去掉ASPP和decoder部分, 仅保留mobilenet的backbone. 但是因为误对<code>nn.Module</code>内的所有权值进行初始化, 导致backbone中的预训练权值丢失. 同样的模型训练1000个epoch的效果依然很差.</p>
+<p><img src="/images/file_3938986.jpg" style="max-width: 30%"></p>
+<p>这几天遇到了一个十分奇怪的问题, 实验需要用到mobilenetv2作为backbone的deeplabv3+做分割, 在对比实验中需要丢掉ASPP和decoder部分, 即backbone后面直接接上两层卷积.  </p>
+<p>最开始是直接在原来的deeplabv3+的代码上魔改, 即创建新的ASPP结构直接返回input, 再创建新的decoder部分只接受high level feature作为输出. </p>
+<p>但是这样修改的模型, 在测试速度时比原始的MobileNetV2要慢很多, 没法给出正确的性能数据. 但是原始的MobileNet又好像没有直接指定<code>out_stride</code>的地方. 我就按照修改后的ASPP跟decoder部分, 在deeplabv3 …</p>
+                <a class="readmore" href="/blog/2019/09/named-modules-in-pytorch">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/08/misc-about-cluster" rel="bookmark"
+                           title="Permalink to Introduction to Git for Data Science">Introduction to Git for Data Science</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:19:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:19:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/python/">Python</a>.</p>
+<p>tags: <a href="/tags/git/">Git</a> <a href="/tags/python/">Python</a> </p>
+</footer><!-- /.post-info -->                <p>emm...有门课需要做笔记, 忘记聚类的部分了, 直接补一个datacamp的Clustering Methods with SciPy. 感觉这个课印度口音好重, 不开字幕压根听不懂.</p>
+<p><img src="/images/sticker_hating.webp" style="max-width: 30%"></p>
+<p>UPDATE: 听了两章, 决定删了记录的内容, 垃圾课程.</p>
+                <a class="readmore" href="/blog/2019/08/misc-about-cluster">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/08/dimensionality-reduction-in-python" rel="bookmark"
+                           title="Permalink to Dimensionality Reduction in Python - 这不是迷信">Dimensionality Reduction in Python - 这不是迷信</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:18:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:18:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/python/">Python</a>.</p>
+<p>tags: <a href="/tags/pca/">PCA</a> <a href="/tags/python/">Python</a> <a href="/tags/machine-learning/">Machine Learning</a> </p>
+</footer><!-- /.post-info -->                <p>这次不是迷信...</p>
+<p>因为有门课需要做笔记, 西瓜书第十章,降维与度量学习, 看到DataCamp上有Dimensionality Reduction in Python, 刚好拿来交差. </p>
+<p>Update: 看完感觉, 真水啊, 我学了个seaborn的pairplot跟heatmap.</p>
+<p><img src="/images/sticker_writecode.webp" style="max-width: 30%"></p>
+<p>看了DataCamp的<a href="https://www.datacamp.com/courses/dimensionality-reduction-in-python">Dimensionality Reduction in Python </a></p>
+<h3>Feature selection vs feature extraction</h3>
+<ul>
+<li>Feature selection<ul>
+<li>只选择部分特征</li>
+</ul>
+</li>
+<li>Feature extraction<ul>
+<li>计算, 提取 …</li></ul></li></ul>
+                <a class="readmore" href="/blog/2019/08/dimensionality-reduction-in-python">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

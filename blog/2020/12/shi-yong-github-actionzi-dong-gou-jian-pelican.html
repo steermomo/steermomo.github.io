@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>使用Github Action自动构建Pelican</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/12/shi-yong-github-actionzi-dong-gou-jian-pelican" rel="bookmark" title="Permalink to 使用Github Action自动构建Pelican">使用Github Action自动构建Pelican</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-12-22T18:20:00+08:00">
+                Published: Tue 22 December 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-12-22T18:20:00+08:00">
+                Updated: Tue 22 December 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/python/">Python</a>.</p>
+<p>tags: <a href="/tags/pelican/">pelican</a> <a href="/tags/publishing/">publishing</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>我自己在博客的部署上，大致经历了三个阶段：</p>
+<ul>
+<li>Wordpress</li>
+<li>Hexo</li>
+<li>Pelican + Travis</li>
+<li>Pelican + Github Action</li>
+</ul>
+<p>对我来说，Pelican + Github Action是静态页面部署的最佳实践。</p>
+<p>Wordpress的功能对我来说有些太多了，有些繁重，我只需要一个静态的页面托管一些想法就够了。在WP之后使用了Hexo，本地生成页面后推送到Github Pages分支上去，Hexo令人烦恼的是<code>node_modules</code>，而且一旦本地丢了文件或者换环境部署就特别麻烦。在折腾Hexo的过程中也看到有人想办法构建了绿色版的node环境放在移动存储设备中，实现环境的简单迁移。</p>
+<p>这种将数据与环境封在一起的做法还是不够简洁，在那之后我开始用Pelican。只要有对应的Python包环境，就能一键编译出静态页面，只需要持续保留原文档即可。
+为了将原始的文档将生成的页面分离，又用了Travis去做持续集成。Travis监控并拉去github上的分支，将编译后的文件推送到另外一个分支内，以此实现原文档与生成文件的分离。</p>
+<p>Travis的一个不太完美的地方就是，它还是一个第三方的网站。在Github Action推出之后我就一直想将持续集成迁移到Github自带的服务上。</p>
+<h2>创建Workflow</h2>
+<p>在项目的选项卡中选择<code>Action</code>，然后使用<code>New workflow</code>，创建新的CI流程，这一步会在项目的<code>.github/workflows</code>下创建<code>.yml</code>格式的配置文件。</p>
+<h2>Workflow配置</h2>
+<p>下面贴上我的CI配置，关于Github Actions的说明可以直接看<a href="https://docs.github.com/cn/free-pro-team@latest/actions">GitHub Actions文档</a>或者<a href="http://www.ruanyifeng.com/blog/2019/09/getting-started-with-github-actions.html">阮一峰的GitHub Actions 入门教程</a>。</p>
+<p>在项目的根目录下需要有<code>requirements.txt</code>配置相关的包依赖，配置中的 <strong>Install dependencies</strong> 这一步会安装相应的依赖，<strong>Generate pages</strong> 这一步会调用pelican的命令行将静态页面生成到<code>output</code>目录下，<strong>Push content</strong> 会在<code>output</code>路径下创建初始化git， 并将该路径下的所有文件推送到gh-pages分支下。对gh-pages这一分支，并没有必要保存历史的commit，使用force命令强制覆盖这一分支。</p>
+<blockquote>
+<p>--force</p>
+<p>Usually, the command refuses to update a remote ref that is not an ancestor of the local ref used to overwrite it. Also, when --force-with-lease option is used, the command refuses to update a remote ref whose current value does not match what is expected.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="cp"># This workflow will install Python dependencies, run tests and lint with a single version of Python</span>
+<span class="cp"># For more information see: https:</span><span class="c1">//help.github.com/actions/language-and-framework-guides/using-python-with-github-actions</span>
+
+<span class="nl">name</span><span class="p">:</span> <span class="n">Python</span> <span class="n">application</span>
+
+<span class="nl">on</span><span class="p">:</span>
+  <span class="nl">push</span><span class="p">:</span>
+    <span class="nl">branches</span><span class="p">:</span> <span class="p">[</span> <span class="n">origin</span> <span class="p">]</span>
+  <span class="nl">pull_request</span><span class="p">:</span>
+    <span class="nl">branches</span><span class="p">:</span> <span class="p">[</span> <span class="n">origin</span> <span class="p">]</span>
+
+<span class="nl">jobs</span><span class="p">:</span>
+  <span class="nl">build</span><span class="p">:</span>
+
+    <span class="n">runs</span><span class="o">-</span><span class="nl">on</span><span class="p">:</span> <span class="n">ubuntu</span><span class="o">-</span><span class="n">latest</span>
+
+    <span class="nl">steps</span><span class="p">:</span>
+    <span class="o">-</span> <span class="nl">uses</span><span class="p">:</span> <span class="n">actions</span><span class="o">/</span><span class="n">checkout</span><span class="p">@</span><span class="n">v2</span>
+    <span class="o">-</span> <span class="nl">name</span><span class="p">:</span> <span class="n">Set</span> <span class="n">up</span> <span class="n">Python</span> <span class="mf">3.8</span>
+      <span class="nl">uses</span><span class="p">:</span> <span class="n">actions</span><span class="o">/</span><span class="n">setup</span><span class="o">-</span><span class="n">python</span><span class="p">@</span><span class="n">v2</span>
+      <span class="nl">with</span><span class="p">:</span>
+        <span class="n">python</span><span class="o">-</span><span class="nl">version</span><span class="p">:</span> <span class="mf">3.8</span>
+    <span class="o">-</span> <span class="nl">name</span><span class="p">:</span> <span class="n">Install</span> <span class="n">dependencies</span>
+      <span class="nl">run</span><span class="p">:</span> <span class="o">|</span>
+        <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">--</span><span class="n">upgrade</span> <span class="n">pip</span>
+        <span class="k">if</span> <span class="p">[</span> <span class="o">-</span><span class="n">f</span> <span class="n">requirements</span><span class="p">.</span><span class="n">txt</span> <span class="p">];</span> <span class="n">then</span> <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="p">.</span><span class="n">txt</span><span class="p">;</span> <span class="n">fi</span>
+    <span class="o">-</span> <span class="nl">name</span><span class="p">:</span> <span class="n">Generate</span> <span class="n">pages</span>
+      <span class="nl">run</span><span class="p">:</span> <span class="o">|</span>
+        <span class="n">pelican</span> <span class="n">content</span> <span class="o">-</span><span class="n">o</span> <span class="n">output</span> <span class="o">-</span><span class="n">s</span> <span class="err">$</span><span class="p">{</span><span class="nl">PELICAN_CONFIG_FILE</span><span class="p">:</span><span class="o">=</span><span class="n">pelicanconf</span><span class="p">.</span><span class="n">py</span><span class="p">}</span>
+    <span class="o">-</span> <span class="nl">name</span><span class="p">:</span> <span class="n">Push</span> <span class="n">content</span>
+      <span class="nl">run</span><span class="p">:</span> <span class="o">|</span>
+        <span class="n">remote_repo</span><span class="o">=</span><span class="s">&quot;https://x-access-token:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git&quot;</span>
+        <span class="n">remote_branch</span><span class="o">=</span><span class="err">$</span><span class="p">{</span><span class="nl">GH_PAGES_BRANCH</span><span class="p">:</span><span class="o">=</span><span class="n">gh</span><span class="o">-</span><span class="n">pages</span><span class="p">}</span>
+
+        <span class="n">cd</span> <span class="n">output</span>
+        <span class="n">git</span> <span class="n">init</span>
+        <span class="n">git</span> <span class="n">add</span> <span class="o">-</span><span class="n">A</span>
+        <span class="n">git</span> <span class="n">config</span> <span class="n">user</span><span class="p">.</span><span class="n">name</span> <span class="s">&quot;${GITHUB_ACTOR}&quot;</span>
+        <span class="n">git</span> <span class="n">config</span> <span class="n">user</span><span class="p">.</span><span class="n">email</span> <span class="s">&quot;${GITHUB_ACTOR}@users.noreply.github.com&quot;</span>
+        <span class="n">git</span> <span class="n">remote</span> <span class="n">add</span> <span class="n">deploy</span> <span class="s">&quot;$remote_repo&quot;</span>
+        <span class="n">git</span> <span class="n">checkout</span> <span class="err">$</span><span class="n">remote_branch</span> <span class="o">||</span> <span class="n">git</span> <span class="n">checkout</span> <span class="o">--</span><span class="n">orphan</span> <span class="err">$</span><span class="n">remote_branch</span>
+        <span class="n">echo</span> <span class="o">-</span><span class="n">n</span> <span class="err">&#39;</span><span class="n">Files</span> <span class="n">to</span> <span class="nl">Commit</span><span class="p">:</span><span class="err">&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">ls</span> <span class="o">-</span><span class="n">l</span> <span class="o">|</span> <span class="n">wc</span> <span class="o">-</span><span class="n">l</span>
+        <span class="n">timestamp</span><span class="o">=</span><span class="err">$</span><span class="p">(</span><span class="n">date</span> <span class="o">+%</span><span class="n">s</span><span class="o">%</span><span class="mi">3</span><span class="n">N</span><span class="p">)</span>
+        <span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s">&quot;[ci skip] Automated deployment to GitHub Pages on $timestamp&quot;</span>
+        <span class="n">git</span> <span class="n">push</span> <span class="n">deploy</span> <span class="err">$</span><span class="n">remote_branch</span> <span class="o">--</span><span class="n">force</span>
+        <span class="n">rm</span> <span class="o">-</span><span class="n">fr</span> <span class="p">.</span><span class="n">git</span>
+        <span class="n">cd</span> <span class="p">..</span><span class="o">/</span>
+        <span class="n">echo</span> <span class="err">&#39;</span><span class="o">===================</span> <span class="n">Done</span>  <span class="o">===================</span><span class="err">&#39;</span>
+</code></pre></div>
+
+<h2>自动持续集成</h2>
+<p>在配置完Github Action后，只需要操心原文档存放的分支。每次更新原文档后，推送到GitHub上，GitHub Actions会自动编译改动，将结果更新到gh-pages，从而实现了原文档与环境、编译输出文件的分离。</p>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

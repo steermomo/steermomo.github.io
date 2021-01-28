@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Stacks and Queues</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/03/epi-stacks-and-queues" rel="bookmark" title="Permalink to EPI-Stacks and Queues">EPI-Stacks and Queues</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-31T18:20:00+08:00">
+                Published: Tue 31 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-05T18:20:00+08:00">
+                Updated: Sun 05 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>[TOC]</p>
+<p>很久很久以前，有人刷题不做记录，从Array刷到Stacks and Queues，刷了几年还是在刷Stacks and Queues。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷Stacks and Queues。</p>
+<h2>Stacks</h2>
+<h3>基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="p">.</span><span class="n">pop</span><span class="p">();</span> <span class="c1">// does not return</span>
+<span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+</code></pre></div>
+
+<h3>Implement a stack with max API</h3>
+<p>第一时间觉得蛮简单的，记录个max就成了。问题是max元素pop出去之后就不存在了。</p>
+<p>将标准库自带的<code>stack</code>再封装一层，同时保存当前栈中的最大元素。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Stack</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="kt">bool</span> <span class="n">Empty</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">return</span> <span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Max</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">Empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="n">length_error</span><span class="p">(</span><span class="s">&quot;MAX(): empty stack&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">c_max</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Pop</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">Empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="n">length_error</span><span class="p">(</span><span class="s">&quot;Pop(): empty stack&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">pop_elem</span> <span class="o">=</span> <span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">element</span><span class="p">;</span>
+    <span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+    <span class="k">return</span> <span class="n">pop_elem</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Push</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="kt">int</span> <span class="n">max_val</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">Empty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="p">{</span>
+        <span class="n">max_val</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">top</span><span class="p">().</span><span class="n">c_max</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">element_with_max_cached_</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">ElementWithMaxCached</span><span class="p">{</span><span class="n">x</span><span class="p">,</span> <span class="n">max_val</span><span class="p">});</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="k">struct</span> <span class="n">ElementWithMaxCached</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">element</span><span class="p">;</span>
+      <span class="kt">int</span> <span class="n">c_max</span><span class="p">;</span>
+  <span class="p">};</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="n">ElementWithMaxCached</span><span class="o">&gt;</span> <span class="n">element_with_max_cached_</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3>Evaluate RPN expressions</h3>
+<p>逆波兰表达式，思路上还是比较简单的，就是太久不写手生。</p>
+<blockquote>
+<p>getline的一个函数形式是</p>
+<p>template&lt; class CharT, class Traits, class Allocator &gt;
+std::basic_istream<CharT,Traits>&amp; getline( std::basic_istream<CharT,Traits>&amp;&amp; input,
+                                                                        std::basic_string<CharT,Traits,Allocator>&amp; str,
+                                                                          CharT delim );</p>
+<p>其中第3个参数指定line中的delimiter，默认为 '\n'</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">Evaluate</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">expression</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">intermediate_result</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">(</span><span class="n">expression</span><span class="p">);</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">token</span><span class="p">;</span>
+  <span class="k">const</span> <span class="kt">char</span> <span class="n">kDelimiter</span> <span class="o">=</span> <span class="sc">&#39;,&#39;</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">kDelimiter</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">token</span> <span class="o">==</span> <span class="s">&quot;+&quot;</span> <span class="o">||</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&quot;-&quot;</span> <span class="o">||</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&quot;*&quot;</span> <span class="o">||</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// 注意pop出x 和 y的顺序</span>
+          <span class="k">const</span> <span class="kt">int</span> <span class="n">y</span> <span class="o">=</span> <span class="n">intermediate_result</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+          <span class="n">intermediate_result</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+          <span class="k">const</span> <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">intermediate_result</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+          <span class="n">intermediate_result</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+          <span class="k">switch</span> <span class="p">(</span><span class="n">token</span><span class="p">.</span><span class="n">front</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">case</span> <span class="sc">&#39;+&#39;</span><span class="o">:</span>
+                  <span class="n">intermediate_result</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">);</span>
+                  <span class="k">break</span><span class="p">;</span>
+              <span class="k">case</span> <span class="sc">&#39;-&#39;</span><span class="o">:</span>
+                  <span class="n">intermediate_result</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">);</span>
+                  <span class="k">break</span><span class="p">;</span>
+              <span class="k">case</span> <span class="sc">&#39;*&#39;</span><span class="o">:</span>
+                  <span class="n">intermediate_result</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">);</span>
+                  <span class="k">break</span><span class="p">;</span>
+              <span class="k">case</span> <span class="sc">&#39;/&#39;</span><span class="o">:</span>
+                  <span class="n">intermediate_result</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">);</span>
+                  <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+          <span class="k">const</span> <span class="kt">int</span> <span class="n">val</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">stoi</span><span class="p">(</span><span class="n">token</span><span class="p">);</span>
+          <span class="n">intermediate_result</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">intermediate_result</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Is a string well-formed?</h3>
+<p>括号配对，栈的经典入门题了...</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">IsWellFormed</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">stk</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;{&#39;</span> <span class="o">||</span> <span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;(&#39;</span> <span class="o">||</span> <span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;[&#39;</span><span class="p">){</span>
+          <span class="n">stk</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">((</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;}&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">&#39;{&#39;</span><span class="p">)</span> <span class="o">||</span>
+              <span class="p">(</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;)&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">&#39;(&#39;</span><span class="p">)</span> <span class="o">||</span>
+              <span class="p">(</span><span class="n">ch</span> <span class="o">==</span> <span class="sc">&#39;]&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">&#39;[&#39;</span><span class="p">))</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="n">stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Normalize pathnames</h3>
+<p>将文件的路径名缩短。</p>
+<p>用vector模拟栈的操作，没有直接用stack是为了方便顺序地对结果做拼接。</p>
+<div class="highlight"><pre><span></span><code><span class="n">string</span> <span class="nf">ShortestEquivalentPath</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">path</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">path_names</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">front</span><span class="p">()</span> <span class="o">==</span> <span class="sc">&#39;/&#39;</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">path_names</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="s">&quot;/&quot;</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">ss</span><span class="p">(</span><span class="n">path</span><span class="p">);</span>
+  <span class="n">string</span> <span class="n">token</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">getline</span><span class="p">(</span><span class="n">ss</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="sc">&#39;/&#39;</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">token</span> <span class="o">==</span> <span class="s">&quot;..&quot;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="c1">// .. 进入上级目录 需要判断当前是pop back 还是插入..</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">path_names</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">||</span> <span class="n">path_names</span><span class="p">.</span><span class="n">back</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;..&quot;</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">path_names</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">token</span><span class="p">);</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="c1">//</span>
+              <span class="n">path_names</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+          <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">token</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span> <span class="o">&amp;&amp;</span> <span class="n">token</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">path_names</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">token</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="n">string</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">path_names</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">ret</span> <span class="o">=</span> <span class="n">path_names</span><span class="p">.</span><span class="n">front</span><span class="p">();</span> <span class="c1">// front 单独处理 防止开始既是 /</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">path_names</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">ret</span> <span class="o">==</span> <span class="s">&quot;/&quot;</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">ret</span> <span class="o">+=</span> <span class="n">path_names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="n">ret</span> <span class="o">+=</span> <span class="s">&quot;/&quot;</span> <span class="o">+</span> <span class="n">path_names</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute buildings with a sunset view</h3>
+<p>一条街道上从东到西排列着一排建筑，西边的建筑如果太高了，东边的将看不到日落。</p>
+<p>以从东到西的顺序给出建筑高度，返回能看见日落的建筑的下标。</p>
+<p>想法上还是比较简单，将元素依次入栈，，如果下个元素大于当前栈顶，pop栈直到当前值小于栈顶或栈为空。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ExamineBuildingsWithSunset</span><span class="p">(</span>
+    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span> <span class="n">sequence_begin</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="o">&amp;</span> <span class="n">sequence_end</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">sequence_begin</span> <span class="o">==</span> <span class="n">sequence_end</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{};</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">building_height</span><span class="p">(</span><span class="n">sequence_begin</span><span class="p">,</span> <span class="n">sequence_begin</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">building_idx</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+  <span class="o">++</span><span class="n">sequence_begin</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">c_max</span> <span class="o">=</span> <span class="n">building_height</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">c_idx</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">sequence_begin</span> <span class="o">!=</span> <span class="n">sequence_end</span><span class="p">){</span>
+      <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="o">*</span><span class="n">sequence_begin</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">building_height</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">building_height</span><span class="p">.</span><span class="n">back</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">building_height</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+          <span class="n">building_idx</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+      <span class="p">}</span>
+      <span class="n">building_height</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">height</span><span class="p">);</span>
+      <span class="n">building_idx</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">c_idx</span><span class="p">);</span>
+      <span class="o">++</span><span class="n">sequence_begin</span><span class="p">;</span>
+      <span class="o">++</span><span class="n">c_idx</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">begin</span><span class="p">(</span><span class="n">building_idx</span><span class="p">),</span> <span class="n">end</span><span class="p">(</span><span class="n">building_idx</span><span class="p">));</span>
+  <span class="k">return</span> <span class="n">building_idx</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Queue</h2>
+<p>Duque: double-ended queue</p>
+<h3>基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// queue</span>
+<span class="p">.</span><span class="n">front</span><span class="p">();</span>
+<span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+
+<span class="c1">//deque</span>
+<span class="c1">//+</span>
+<span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">push_front</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+<span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+<span class="p">.</span><span class="n">front</span><span class="p">();</span>
+<span class="p">.</span><span class="n">back</span><span class="p">();</span>
+</code></pre></div>
+
+<h3>Compute binary tree nodes in order of increasing depth</h3>
+<p>树的按层遍历, 这题在leetcode上写过，不过用的是递归的方式。</p>
+<p>代码里的unique_ptr也给我看懵了，直接看注解。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// unique_ptr p</span>
+<span class="n">p</span><span class="p">.</span><span class="n">release</span><span class="p">();</span> <span class="c1">// return a pointer th the managed oject and released the ownership</span>
+<span class="n">p</span><span class="p">.</span><span class="n">reset</span><span class="p">();</span> <span class="c1">// replace the managed object</span>
+<span class="n">p</span><span class="p">.</span><span class="n">swap</span><span class="p">();</span>
+
+<span class="n">p</span><span class="p">.</span><span class="n">get</span><span class="p">();</span> <span class="c1">// return pointer</span>
+<span class="n">p</span><span class="p">.</span><span class="n">get_deleter</span><span class="p">();</span>
+<span class="k">operator</span> <span class="kt">bool</span>
+</code></pre></div>
+
+<p>非递归的写法是，用两个队列分别表示当前层和下一层的结点</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">BinaryTreeDepthOrder</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">tree</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// 定义当前层的结点，用根节点初始化</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span> <span class="n">curr_depth_nodes</span><span class="p">({</span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">()});</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">ret</span><span class="p">;</span>
+
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">curr_depth_nodes</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// 定义下一层</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span> <span class="n">next_depth_nodes</span><span class="p">;</span>
+      <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">this_level</span><span class="p">;</span>
+      <span class="c1">// 遍历当前层</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">curr_depth_nodes</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">auto</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">curr_depth_nodes</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+          <span class="n">curr_depth_nodes</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">curr</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">this_level</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+              <span class="c1">// 先左后右 保证按层顺序</span>
+              <span class="n">next_depth_nodes</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+              <span class="n">next_depth_nodes</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">this_level</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">this_level</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">curr_depth_nodes</span> <span class="o">=</span> <span class="n">next_depth_nodes</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement a circular queue</h3>
+<p>用循环数组模拟队列...也是数据结构课本上的题目了...</p>
+<p>这题多了个要求，要能够自适应resize。 记录好head和tail的位置，剩下的就是填代码进去了。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Queue</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="n">Queue</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">capacity</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">capacity</span><span class="p">);</span>
+      <span class="n">head</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">cap</span> <span class="o">=</span> <span class="n">capacity</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">_Resize</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">new_cap</span> <span class="o">=</span> <span class="n">data</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">()</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">auto</span> <span class="n">new_field</span> <span class="o">=</span> <span class="k">new</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">new_cap</span><span class="p">);</span>
+      <span class="kt">int</span> <span class="n">n_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="k">while</span><span class="p">(</span><span class="n">head</span> <span class="o">!=</span> <span class="n">tail</span><span class="p">)</span> <span class="p">{</span>
+          <span class="p">(</span><span class="o">*</span><span class="n">new_field</span><span class="p">)[</span><span class="n">n_idx</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)[</span><span class="n">head</span><span class="p">];</span>
+          <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">cap</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">head</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+      <span class="n">tail</span> <span class="o">=</span> <span class="n">n_idx</span><span class="p">;</span>
+      <span class="k">delete</span> <span class="n">data</span><span class="p">;</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="n">new_field</span><span class="p">;</span>
+      <span class="n">cap</span> <span class="o">=</span> <span class="n">new_cap</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Enqueue</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">tail</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">cap</span> <span class="o">==</span> <span class="n">head</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">_Resize</span><span class="p">();</span>
+    <span class="p">}</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)[</span><span class="n">tail</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="n">tail</span> <span class="o">=</span> <span class="p">(</span><span class="n">tail</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">cap</span><span class="p">;</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Dequeue</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="kt">int</span> <span class="n">c_val</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="p">)[</span><span class="n">head</span><span class="p">];</span>
+    <span class="n">head</span> <span class="o">=</span> <span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">cap</span><span class="p">;</span>
+    <span class="k">return</span> <span class="n">c_val</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Size</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">tail</span> <span class="o">+</span> <span class="n">cap</span> <span class="o">-</span> <span class="n">head</span><span class="p">)</span> <span class="o">%</span> <span class="n">cap</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">data</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">head</span><span class="p">,</span> <span class="n">tail</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">cap</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3>Implement a queue using stacks</h3>
+<p>用栈模拟队列，队列跟栈的性质是完全相反的，不过一个栈倒腾两次也就成了队列。</p>
+<p>所以用两个栈来回倒也能实现队列的功能。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">Queue</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="kt">void</span> <span class="n">Enqueue</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="n">stk</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Dequeue</span><span class="p">()</span> <span class="p">{</span>
+      <span class="c1">// TODO - you fill in here.</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="n">length_error</span><span class="p">(</span><span class="s">&quot;Empty Dequeue&quot;</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="kt">int</span> <span class="n">v</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">v</span> <span class="o">=</span> <span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+          <span class="n">aux_stk</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+          <span class="n">stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="p">}</span>
+      <span class="c1">// 取队首元素</span>
+      <span class="kt">int</span> <span class="n">ret_val</span> <span class="o">=</span> <span class="n">aux_stk</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+      <span class="n">aux_stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+      <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">aux_stk</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+          <span class="n">v</span> <span class="o">=</span> <span class="n">aux_stk</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+          <span class="n">aux_stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+          <span class="n">stk</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="k">return</span> <span class="n">ret_val</span><span class="p">;</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">stk</span><span class="p">,</span> <span class="n">aux_stk</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3>Implement a queue with max API</h3>
+<p>emm，跟之前的stack with max API感觉有些相似。</p>
+<p>Python里Counter都是dict的形式，这里用map记录不同元素值的计数。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">QueueWithMax</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="kt">void</span> <span class="n">Enqueue</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="n">cnt</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Dequeue</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="kt">int</span> <span class="n">v</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+    <span class="n">data</span><span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+    <span class="o">--</span><span class="n">cnt</span><span class="p">[</span><span class="n">v</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cnt</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">v</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">v</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Max</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="kt">int</span> <span class="n">max_val</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span> <span class="n">iter</span> <span class="o">!=</span> <span class="n">cnt</span><span class="p">.</span><span class="n">cend</span><span class="p">();</span> <span class="o">++</span><span class="n">iter</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">max_val</span> <span class="o">&lt;</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">max_val</span> <span class="o">=</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">max_val</span><span class="p">;</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">deque</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">data</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">cnt</span><span class="p">;</span>
+
+<span class="p">};</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

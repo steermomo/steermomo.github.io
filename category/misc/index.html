@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - MISC</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2020/12/wsl2-env" rel="bookmark"
+                               title="Permalink to WSL2环境踩坑配置">WSL2环境踩坑配置</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-12-24T18:20:00+08:00">
+                Published: Thu 24 December 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-12-24T18:20:00+08:00">
+                Updated: Thu 24 December 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">MISC</a>.</p>
+<p>tags: <a href="/tags/wsl2/">WSL2</a> <a href="/tags/linux/">Linux</a> </p>
+</footer><!-- /.post-info -->                    <p>这两天装了好几遍WSL2... 每次都是要重新配置环境，开个页面集中记录一下做了哪些配置，免得又得开很多页面去找配置项</p>
+<p><img alt="" src="/images/wsl2-neofetch.png"></p>
+<h2>解决WSL2 DNS解析问题</h2>
+<p>在公司的内网环境下，Windows的升级都是由内部管理的，之前一直没法升级到支持WSL2的版本。</p>
+<p>在几次更新后，终于用上了WSL2，但是将WSL1转为WSL2之后，DNS解析出现了问题。在WSL2内是有网络的，ping其他的ip地址都没有问题，需要解析域名的时候就挂了，
+这里应该是内网的一些网络配置与WSL2的网络配置有不一致的地方。</p>
+<p>反反复复将WSL2重装了几次都没有搞定，最后终于在一个<a href="https://gist.github.com/coltenkrauter/608cfe02319ce60facd76373249b8ca6">gist</a>的评论下面找到了解决方法。</p>
+<p>下面的<code>$</code>命令指示在Linux下的命令, <code>^$</code>指示Windows下的命令.</p>
+<div class="highlight"><pre><span></span><code>$ <span class="nb">cd</span> /etc
+$ <span class="nb">echo</span> <span class="s2">&quot;[network]&quot;</span> <span class="p">|</span> sudo tee …</code></pre></div>
+                    <a class="readmore" href="/blog/2020/12/wsl2-env">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/09/fe-in-python" rel="bookmark"
+                           title="Permalink to Feature Engineering for Machine Learning in Python">Feature Engineering for Machine Learning in Python</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-09-03T21:20:00+08:00">
+                Published: Tue 03 September 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-09-03T21:20:00+08:00">
+                Updated: Tue 03 September 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">misc</a>.</p>
+<p>tags: <a href="/tags/dns/">DNS</a> <a href="/tags/cname/">CNAME</a> <a href="/tags/namecheap/">namecheap</a> </p>
+</footer><!-- /.post-info -->                <p>嚯嚯嚯</p>
+<p><br></p>
+<h3>Chapter 1, 'Creating Features'.</h3>
+<p><br></p>
+<h3>Selecting specific data types</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create subset of only the numeric columns</span>
+<span class="n">so_numeric_df</span> <span class="o">=</span> <span class="n">so_survey_df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;int&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">])</span>
+
+<span class="c1"># Print the column names contained in so_survey_df_num</span>
+<span class="nb">print …</span></code></pre></div>
+                <a class="readmore" href="/blog/2019/09/fe-in-python">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/08/Introduction-to-Shell-for-Data-Science" rel="bookmark"
+                           title="Permalink to Introduction to Shell for Data Science">Introduction to Shell for Data Science</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:19:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:19:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">misc</a>.</p>
+<p>tags: <a href="/tags/shell/">Shell</a> </p>
+</footer><!-- /.post-info -->                <p>emm, 这个有点太简单了
+<img src="/images/sticker_try.webp" style="max-width: 30%"></p>
+<p><br></p>
+<p>pwd (short for "print working directory")<br>
+ls (which is short for "listing")<br>
+cd (which stands for "change directory").  </p>
+<p>cp&amp;mv, 可以指定最后一个参数为文件夹  </p>
+<p><br></p>
+<h2>Chapter 2, 'Manipulating data'.</h2>
+<h3>less</h3>
+<p>可同时打开多个文件
+:n …</p>
+                <a class="readmore" href="/blog/2019/08/Introduction-to-Shell-for-Data-Science">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/08/git" rel="bookmark"
+                           title="Permalink to Introduction to Git for Data Science">Introduction to Git for Data Science</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:19:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:19:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">misc</a>.</p>
+<p>tags: <a href="/tags/git/">Git</a> </p>
+</footer><!-- /.post-info -->                <p>这个课程我觉得还是有些用处的, 虚拟环境用起来也很方便, 很多不同的命令也可以直接实验.
+代码敲完让我从只会<code>add, commit, push</code>到知道<code>stage, checkout</code>, 冲突处理.</p>
+<p><img src="/images/sticker_hating.webp" style="max-width: 30%"></p>
+<p><br></p>
+<h3>check the state of a repository</h3>
+<div class="highlight"><pre><span></span><code>git status
+</code></pre></div>
+
+<h3>How can I tell what I have changed?</h3>
+<p><img alt="image.png" src="http://ww1.sinaimg.cn/large/dd456925ly1g6l70rjylhj20jx0a3dgl.jpg"></p>
+<p>git status shows …</p>
+                <a class="readmore" href="/blog/2019/08/git">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/08/misc-about-kaggle" rel="bookmark"
+                           title="Permalink to Winning a kaggle Competition 教你如何噶韭菜">Winning a kaggle Competition 教你如何噶韭菜</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:16:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:16:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/misc/">misc</a>.</p>
+<p>tags: <a href="/tags/kaggle/">kaggle</a> </p>
+</footer><!-- /.post-info -->                <p>我又迷信了呀....</p>
+<p><img src="/images/sticker_newthing.webp" style="max-width: 30%"></p>
+<p>看了DataCamp的<a href="https://www.datacamp.com/courses/winning-a-kaggle-competition-in-python/continue">Winning a Kaggle Competition in Python </a>, 觉得有点用的就是介绍Target encoding的那部分. 丫的压根就没教我怎么Winning.  我肯定也是被收智商税的一类人, 幸好课程是白嫖的. Visual Studio Dev Essentials 送了俩月的DataCamp订阅.</p>
+<p>唯一让我觉得新鲜的, 就是target encoding, 因为之前没看过. 其他的都是泛泛而谈.</p>
+<p>都没有银弹的么🐱‍🐉</p>
+<p><br></p>
+<h4>Target encoding</h4>
+<p>Mean target encoding</p>
+<ul>
+<li>
+<p>smoothing …</p></li></ul>
+                <a class="readmore" href="/blog/2019/08/misc-about-kaggle">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

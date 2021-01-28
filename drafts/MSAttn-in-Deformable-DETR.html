@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Deformable-DETR中的MultiScaleDeformableAttention</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/drafts/MSAttn-in-Deformable-DETR.html" rel="bookmark" title="Permalink to Deformable-DETR中的MultiScaleDeformableAttention">Deformable-DETR中的MultiScaleDeformableAttention</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-14T18:20:00+08:00">
+                Published: Thu 14 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-14T18:20:00+08:00">
+                Updated: Thu 14 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。</p>
+<h2>Deformable-DETR的大致结构</h2>
+<p>Deformable-DETR具体算法可以去看原文章<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>，这里说一下大概的结构。</p>
+<p>下图是D-DETR的框架图，MSDeformAttn是希望将deformable convolution扩展到Multi-scale Feature Maps上。原来的deformable convolution可以当成是在一个二维平面上对采样点进行偏移，这里对同一个采样位置，需要同时在多个尺度的feature map上做不同程度的偏移。
+<img style="width:95%" src="/images/2021/ddetr_arch_tiny_png.png" /></p>
+<h2>Multi-Scale-Deformable-Attention</h2>
+<h4>函数定义</h4>
+<p>reference_points</p>
+<h4>代码实现</h4>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">Function</span>
+<span class="kn">from</span> <span class="nn">torch.autograd.function</span> <span class="kn">import</span> <span class="n">once_differentiable</span>
+
+<span class="kn">import</span> <span class="nn">MultiScaleDeformableAttention</span> <span class="k">as</span> <span class="nn">MSDA</span>
+
+
+<span class="k">class</span> <span class="nc">MSDeformAttnFunction</span><span class="p">(</span><span class="n">Function</span><span class="p">):</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">value_spatial_shapes</span><span class="p">,</span> <span class="n">value_level_start_index</span><span class="p">,</span> <span class="n">sampling_locations</span><span class="p">,</span> <span class="n">attention_weights</span><span class="p">,</span> <span class="n">im2col_step</span><span class="p">):</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">im2col_step</span> <span class="o">=</span> <span class="n">im2col_step</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">MSDA</span><span class="o">.</span><span class="n">ms_deform_attn_forward</span><span class="p">(</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">value_spatial_shapes</span><span class="p">,</span> <span class="n">value_level_start_index</span><span class="p">,</span> <span class="n">sampling_locations</span><span class="p">,</span> <span class="n">attention_weights</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">im2col_step</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">save_for_backward</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">value_spatial_shapes</span><span class="p">,</span> <span class="n">value_level_start_index</span><span class="p">,</span> <span class="n">sampling_locations</span><span class="p">,</span> <span class="n">attention_weights</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="nd">@once_differentiable</span>
+    <span class="k">def</span> <span class="nf">backward</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">):</span>
+        <span class="n">value</span><span class="p">,</span> <span class="n">value_spatial_shapes</span><span class="p">,</span> <span class="n">value_level_start_index</span><span class="p">,</span> <span class="n">sampling_locations</span><span class="p">,</span> <span class="n">attention_weights</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">saved_tensors</span>
+        <span class="n">grad_value</span><span class="p">,</span> <span class="n">grad_sampling_loc</span><span class="p">,</span> <span class="n">grad_attn_weight</span> <span class="o">=</span> \
+            <span class="n">MSDA</span><span class="o">.</span><span class="n">ms_deform_attn_backward</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="n">value_spatial_shapes</span><span class="p">,</span> <span class="n">value_level_start_index</span><span class="p">,</span> <span class="n">sampling_locations</span><span class="p">,</span> <span class="n">attention_weights</span><span class="p">,</span> <span class="n">grad_output</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">im2col_step</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grad_value</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">grad_sampling_loc</span><span class="p">,</span> <span class="n">grad_attn_weight</span><span class="p">,</span> <span class="kc">None</span>
+</code></pre></div>
+
+<p>这里forward函数的几个参数</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th align="left">Shape</th>
+<th align="left">Comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>value</td>
+<td align="left">N,HW,C</td>
+<td align="left">多个尺度拉平后的Feature Map</td>
+</tr>
+<tr>
+<td>value_spatial_shapes</td>
+<td align="left">S,2</td>
+<td align="left">每个尺度的Feature Map的大小</td>
+</tr>
+<tr>
+<td>value_level_start_index</td>
+<td align="left">S,1</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td>sampling_locations</td>
+<td align="left">N, Len_q, n_heads, n_levels, n_points, 2</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td>attention_weights</td>
+<td align="left">n_heads * n_levels * n_points</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td>im2col_step</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
+<h4>CPP接口</h4>
+<p>MSDeformAttn的CPP接口是在models/src/下，实际上只实现了CUDA版本。</p>
+<p>在vision.cpp内，使用pybind11将Python和C++的方法绑定在一起。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&quot;ms_deform_attn.h&quot;</span><span class="cp"></span>
+
+<span class="n">PYBIND11_MODULE</span><span class="p">(</span><span class="n">TORCH_EXTENSION_NAME</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">m</span><span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;ms_deform_attn_forward&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ms_deform_attn_forward</span><span class="p">,</span> <span class="s">&quot;ms_deform_attn_forward&quot;</span><span class="p">);</span>
+  <span class="n">m</span><span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;ms_deform_attn_backward&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">ms_deform_attn_backward</span><span class="p">,</span> <span class="s">&quot;ms_deform_attn_backward&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在models/src/cuda下，则是具体的实现.</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;cuda/ms_deform_im2col_cuda.cuh&quot;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;ATen/ATen.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;ATen/cuda/CUDAContext.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;cuda.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;cuda_runtime.h&gt;</span><span class="cp"></span>
+
+
+<span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="n">ms_deform_attn_cuda_forward</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">,</span> 
+    <span class="k">const</span> <span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">&amp;</span><span class="n">spatial_shapes</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">&amp;</span><span class="n">level_start_index</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">&amp;</span><span class="n">sampling_loc</span><span class="p">,</span>
+    <span class="k">const</span> <span class="n">at</span><span class="o">::</span><span class="n">Tensor</span> <span class="o">&amp;</span><span class="n">attn_weight</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">im2col_step</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">is_contiguous</span><span class="p">(),</span> <span class="s">&quot;value tensor has to be contiguous&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">spatial_shapes</span><span class="p">.</span><span class="n">is_contiguous</span><span class="p">(),</span> <span class="s">&quot;spatial_shapes tensor has to be contiguous&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">level_start_index</span><span class="p">.</span><span class="n">is_contiguous</span><span class="p">(),</span> <span class="s">&quot;level_start_index tensor has to be contiguous&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">sampling_loc</span><span class="p">.</span><span class="n">is_contiguous</span><span class="p">(),</span> <span class="s">&quot;sampling_loc tensor has to be contiguous&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">attn_weight</span><span class="p">.</span><span class="n">is_contiguous</span><span class="p">(),</span> <span class="s">&quot;attn_weight tensor has to be contiguous&quot;</span><span class="p">);</span>
+
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">type</span><span class="p">().</span><span class="n">is_cuda</span><span class="p">(),</span> <span class="s">&quot;value must be a CUDA tensor&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">spatial_shapes</span><span class="p">.</span><span class="n">type</span><span class="p">().</span><span class="n">is_cuda</span><span class="p">(),</span> <span class="s">&quot;spatial_shapes must be a CUDA tensor&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">level_start_index</span><span class="p">.</span><span class="n">type</span><span class="p">().</span><span class="n">is_cuda</span><span class="p">(),</span> <span class="s">&quot;level_start_index must be a CUDA tensor&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">sampling_loc</span><span class="p">.</span><span class="n">type</span><span class="p">().</span><span class="n">is_cuda</span><span class="p">(),</span> <span class="s">&quot;sampling_loc must be a CUDA tensor&quot;</span><span class="p">);</span>
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">attn_weight</span><span class="p">.</span><span class="n">type</span><span class="p">().</span><span class="n">is_cuda</span><span class="p">(),</span> <span class="s">&quot;attn_weight must be a CUDA tensor&quot;</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">batch</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">spatial_size</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">num_heads</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">value</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">num_levels</span> <span class="o">=</span> <span class="n">spatial_shapes</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">num_query</span> <span class="o">=</span> <span class="n">sampling_loc</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">num_point</span> <span class="o">=</span> <span class="n">sampling_loc</span><span class="p">.</span><span class="n">size</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">im2col_step_</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">im2col_step</span><span class="p">);</span>
+
+    <span class="n">AT_ASSERTM</span><span class="p">(</span><span class="n">batch</span> <span class="o">%</span> <span class="n">im2col_step_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&quot;batch(%d) must divide im2col_step(%d)&quot;</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">im2col_step_</span><span class="p">);</span>
+
+    <span class="k">auto</span> <span class="n">output</span> <span class="o">=</span> <span class="n">at</span><span class="o">::</span><span class="n">zeros</span><span class="p">({</span><span class="n">batch</span><span class="p">,</span> <span class="n">num_query</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">channels</span><span class="p">},</span> <span class="n">value</span><span class="p">.</span><span class="n">options</span><span class="p">());</span>
+
+    <span class="k">const</span> <span class="kt">int</span> <span class="n">batch_n</span> <span class="o">=</span> <span class="n">im2col_step_</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">output_n</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="n">view</span><span class="p">({</span><span class="n">batch</span><span class="o">/</span><span class="n">im2col_step_</span><span class="p">,</span> <span class="n">batch_n</span><span class="p">,</span> <span class="n">num_query</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">channels</span><span class="p">});</span>
+    <span class="k">auto</span> <span class="n">per_value_size</span> <span class="o">=</span> <span class="n">spatial_size</span> <span class="o">*</span> <span class="n">num_heads</span> <span class="o">*</span> <span class="n">channels</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">per_sample_loc_size</span> <span class="o">=</span> <span class="n">num_query</span> <span class="o">*</span> <span class="n">num_heads</span> <span class="o">*</span> <span class="n">num_levels</span> <span class="o">*</span> <span class="n">num_point</span> <span class="o">*</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">per_attn_weight_size</span> <span class="o">=</span> <span class="n">num_query</span> <span class="o">*</span> <span class="n">num_heads</span> <span class="o">*</span> <span class="n">num_levels</span> <span class="o">*</span> <span class="n">num_point</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="n">batch</span><span class="o">/</span><span class="n">im2col_step_</span><span class="p">;</span> <span class="o">++</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">auto</span> <span class="n">columns</span> <span class="o">=</span> <span class="n">output_n</span><span class="p">.</span><span class="n">select</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+        <span class="n">AT_DISPATCH_FLOATING_TYPES</span><span class="p">(</span><span class="n">value</span><span class="p">.</span><span class="n">type</span><span class="p">(),</span> <span class="s">&quot;ms_deform_attn_forward_cuda&quot;</span><span class="p">,</span> <span class="p">([</span><span class="o">&amp;</span><span class="p">]</span> <span class="p">{</span>
+            <span class="n">ms_deformable_im2col_cuda</span><span class="p">(</span><span class="n">at</span><span class="o">::</span><span class="n">cuda</span><span class="o">::</span><span class="n">getCurrentCUDAStream</span><span class="p">(),</span>
+                <span class="n">value</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">im2col_step_</span> <span class="o">*</span> <span class="n">per_value_size</span><span class="p">,</span>
+                <span class="n">spatial_shapes</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">&gt;</span><span class="p">(),</span>
+                <span class="n">level_start_index</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="kt">int64_t</span><span class="o">&gt;</span><span class="p">(),</span>
+                <span class="n">sampling_loc</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">im2col_step_</span> <span class="o">*</span> <span class="n">per_sample_loc_size</span><span class="p">,</span>
+                <span class="n">attn_weight</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">im2col_step_</span> <span class="o">*</span> <span class="n">per_attn_weight_size</span><span class="p">,</span>
+                <span class="n">batch_n</span><span class="p">,</span> <span class="n">spatial_size</span><span class="p">,</span> <span class="n">num_heads</span><span class="p">,</span> <span class="n">channels</span><span class="p">,</span> <span class="n">num_levels</span><span class="p">,</span> <span class="n">num_query</span><span class="p">,</span> <span class="n">num_point</span><span class="p">,</span>
+                <span class="n">columns</span><span class="p">.</span><span class="n">data</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;</span><span class="p">());</span>
+
+        <span class="p">}));</span>
+    <span class="p">}</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">.</span><span class="n">view</span><span class="p">({</span><span class="n">batch</span><span class="p">,</span> <span class="n">num_query</span><span class="p">,</span> <span class="n">num_heads</span><span class="o">*</span><span class="n">channels</span><span class="p">});</span>
+
+    <span class="k">return</span> <span class="n">output</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://arxiv.org/abs/2010.04159&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

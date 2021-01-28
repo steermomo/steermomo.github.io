@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Hash Tables</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-Hash-Tables" rel="bookmark" title="Permalink to EPI-Hash Tables">EPI-Hash Tables</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-17T19:20:00+08:00">
+                Published: Fri 17 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-17T20:20:00+08:00">
+                Updated: Fri 17 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，没刷过Hash Tables。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Hash Tables。</p>
+<p>[TOC]</p>
+<h2>Hash Tables</h2>
+<h3>Boot camp</h3>
+<p>两个例子：哈希表的应用，哈希表class的设计</p>
+<h4>An application of hash tables</h4>
+<p>判断Anagrams</p>
+<h4>Design of a hashable class</h4>
+<p>假设有表示联络人的<code>class</code>，被存储在序列中。为了简单起见，每个联络人的信息只包含一系列string，包含相同的string set的联络人被视为同一个项目。</p>
+<p>设计一个hash function 合并重复的联络人信息。</p>
+<p>下面用到了两个未了解过的知识：</p>
+<blockquote>
+<h3>std::hash</h3>
+<p><code>c++
+template&lt; class Key &gt;
+struct hash</code></p>
+<p>The <em>enabled</em> specializations of the (since C++17) hash template defines a function object that implements a <a href="https://en.wikipedia.org/wiki/Hash_function">hash function</a>. Instances of this function object satisfy <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/named_req/Hash.html"><em>Hash</em></a>. In particular, they define an operator() const that:</p>
+<ol>
+<li>
+<p>Accepts a single parameter of type <code>Key</code>.</p>
+</li>
+<li>
+<p>Returns a value of type <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/types/size_t.html">std::size_t</a> that represents the hash value of the parameter.</p>
+</li>
+<li>
+<p>Does not throw exceptions when called.</p>
+</li>
+<li>
+<p>For two parameters <code>k1</code> and <code>k2</code> that are equal, std::hash<Key>()(k1) == std::hash<Key>()(k2).</p>
+</li>
+<li>
+<p>For two different parameters <code>k1</code> and <code>k2</code> that are not equal, the probability that std::hash<Key>()(k1) == std::hash<Key>()(k2) should be very small, approaching 1.0/<a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/types/numeric_limits.html">std::numeric_limits</a>&lt;<a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/types/size_t.html">std::size_t</a>&gt;::max().</p>
+</li>
+</ol>
+</blockquote>
+<p>unordered_set 第二个key_word指定所用的hash函数。</p>
+<blockquote>
+<h3>std::unordered_set</h3>
+<p>```c++
+template&lt;
+    class Key,
+    class Hash = std::hash<Key>,
+    class KeyEqual = std::equal_to<Key>,
+    class Allocator = std::allocator<Key></p>
+<blockquote>
+<p>class unordered_set;
+```</p>
+</blockquote>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">ContactList</span> <span class="p">{</span>
+  <span class="kt">bool</span> <span class="k">operator</span><span class="o">==</span><span class="p">(</span><span class="k">const</span> <span class="n">ContactList</span><span class="o">&amp;</span> <span class="n">that</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">names</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">names</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="o">==</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">that</span><span class="p">.</span><span class="n">names</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">that</span><span class="p">.</span><span class="n">names</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="p">}</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">name</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">HashContactList</span> <span class="p">{</span>
+  <span class="kt">size_t</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">ContactList</span><span class="o">&amp;</span> <span class="n">contacts</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+    <span class="kt">size_t</span> <span class="n">hash_code</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="nl">name</span><span class="p">:</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">contracts</span><span class="p">.</span><span class="n">names</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">contracts</span><span class="p">.</span><span class="n">names</span><span class="p">.</span><span class="n">end</span><span class="p">()))</span> <span class="p">{</span>
+      <span class="n">hash_code</span> <span class="o">^=</span> <span class="n">hash</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()(</span><span class="n">name</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">ContactList</span><span class="o">&gt;</span> <span class="n">MergeContractLists</span><span class="p">(</span><span class="n">cont</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">ContactList</span><span class="o">&gt;&amp;</span> <span class="n">contracts</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">ContactList</span><span class="p">,</span> <span class="n">HashContractList</span><span class="o">&gt;</span> <span class="n">unique_contracts</span><span class="p">(</span><span class="n">contracts</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">contracts</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+  <span class="k">return</span> <span class="p">{</span><span class="n">unique_contracts</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">unique_contracts</span><span class="p">.</span><span class="n">end</span><span class="p">()};</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>库函数</h3>
+<p>hash table</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 都不允许键重复</span>
+<span class="c1">// unordered_set 存储k</span>
+<span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>  <span class="c1">//return a pair of iterator and boolean denoting whether the insertion took place.</span>
+<span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">val</span><span class="p">);</span> <span class="c1">// </span>
+<span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">val</span><span class="p">);</span> <span class="c1">// return iterator or end()</span>
+<span class="p">.</span><span class="n">size</span><span class="p">();</span>
+<span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">val</span><span class="p">);</span> <span class="c1">//c++20</span>
+
+<span class="c1">// unordered_map 存储k-v</span>
+
+<span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">});</span>
+<span class="p">.</span><span class="n">emplace</span><span class="p">({</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">});</span>
+<span class="p">.</span><span class="n">earse</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+<span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">k</span><span class="p">);</span>
+<span class="p">.</span><span class="n">size</span><span class="p">();</span>
+
+
+<span class="c1">// functional header</span>
+<span class="n">hash</span><span class="o">&lt;</span><span class="k">typename</span><span class="o">&gt;</span><span class="p">()(</span><span class="n">val</span><span class="p">);</span>
+<span class="c1">//int, bool, string, unique_ptr, shared_ptr, etc.</span>
+</code></pre></div>
+
+<h3>FindAnagrams</h3>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">FindAnagrams</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">dictionary</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">sorted_string_to_anagrams</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="nl">s</span><span class="p">:</span> <span class="n">dictionary</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">string</span> <span class="n">sorted_s</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">sorted_s</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">sorted_s</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+      <span class="n">sorted_string_to_anagrams</span><span class="p">[</span><span class="n">sorted_s</span><span class="p">].</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">s</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">p</span><span class="p">:</span> <span class="n">sorted_string_to_anagrams</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">second</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">second</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Test for palindromic permutations</h3>
+<p>测试一个字符串能否permute成回文字符串。</p>
+<p>A palindrome is a string that reads the same forwards and backwards, e.g., "level", "rotator", and "foobaraboof".</p>
+<p>Write a program to test whether the letters forming a string can be permuted to form a palindrome. For example, "edified" can be permuted to form "deified".</p>
+<p>直接对字母计数就可以( 难以想象之前不太会用C++的counter)</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">CanFormPalindrome</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">cnt</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">s</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">cnt</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">odd_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">p</span><span class="p">:</span> <span class="n">cnt</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">second</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">odd_cnt</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">odd_cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Is an anonymous letter constructible?</h3>
+<p>Write a program which takes text for an anonymous letter and text for a magazine and determines if it is possible to write the anonymous letter using the magazine. The anonymous letter can be written using the magazine if for each character in the anonymous letter, the number of times it appears in the anonymous letter is no more than the number of times it appears in the magazine.</p>
+<p>也是计数后相减。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">IsLetterConstructibleFromMagazine</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">letter_text</span><span class="p">,</span>
+                                       <span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">magazine_text</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">cnt</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">magazine_text</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">cnt</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">letter_text</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="o">==</span> <span class="n">cnt</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="o">--</span><span class="n">cnt</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span><span class="p">[</span><span class="n">ch</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>...太天真，上面的做法虽然是对的，但是时间复杂度会高一些。如果magazine_text的内容很长，第一次遍历会消耗很多时间。改为先扫描letter_text， 这样就不用将magazine_text的内容也全部过一遍。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">IsLetterConstructibleFromMagazine</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">letter_text</span><span class="p">,</span>
+                                       <span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">magazine_text</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">cnt</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">letter_text</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">cnt</span><span class="p">[</span><span class="n">ch</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">&amp;</span> <span class="nl">ch</span><span class="p">:</span> <span class="n">magazine_text</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">ch</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">!=</span> <span class="n">cnt</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+          <span class="o">--</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">cnt</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">);</span>
+              <span class="k">if</span> <span class="p">(</span><span class="n">cnt</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+                  <span class="k">break</span><span class="p">;</span>
+              <span class="p">}</span>
+          <span class="p">}</span>
+
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">cnt</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement an ISBN cache</h3>
+<p>The International Standard Book Number (ISBN) is a unique commercial book iden- tifier. It is a string of length 10. The first 9 characters are digits; the last character is a check character. The check character is the sum of the first 9 digits, modulo 11, with 10 represented by 'X'. (Modern ISBNs use 13 digits, and the check digit is taken modulo 10; this problem is concerned with 10-digit ISBNs.)</p>
+<p>Create a cache for looking up prices of books identified by their ISBN. You implement lookup, insert, and remove methods. Use the Least Recently Used (LRU) policy for cache eviction. If an ISBN is already present, insert should not change the price, but it should update that entry to be the most recently used entry. Lookup should also update that entry to be the most recently used entry.</p>
+<p>Hint: Amortize the cost of deletion. Alternatively, use an auxiliary data structure.</p>
+<p>这个没看懂Lookup跟LRU什么关系。</p>
+<p>看了解析之后才明白这个是要干什么：缓存的大小是固定的，当插入的数量大于缓存的大小时，根据缓存策略剔除一个元素。</p>
+<p>使用list维护LRU队列，list存储isbn信息。list能够满足快速地删除，头尾插入。同时使用hashtable记录isbn在队列中的位置及price，避免对list的顺序查找。</p>
+<div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;list&gt;</span><span class="cp"></span>
+
+<span class="k">class</span> <span class="nc">LruCache</span> <span class="p">{</span>
+ <span class="k">public</span><span class="o">:</span>
+  <span class="n">LruCache</span><span class="p">(</span><span class="kt">size_t</span> <span class="n">capacity</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">-&gt;</span><span class="n">capacity</span> <span class="o">=</span> <span class="n">capacity</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">Lookup</span><span class="p">(</span><span class="kt">int</span> <span class="n">isbn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">isbn</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">==</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">ret_val</span> <span class="o">=</span> <span class="n">iter</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+    <span class="n">MoveFront</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="n">iter</span><span class="p">);</span>
+    <span class="k">return</span> <span class="n">ret_val</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">void</span> <span class="n">Insert</span><span class="p">(</span><span class="kt">int</span> <span class="n">isbn</span><span class="p">,</span> <span class="kt">int</span> <span class="n">price</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">isbn</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">==</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="c1">// 未找到</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">==</span> <span class="n">capacity</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// 需要替换一个出去</span>
+            <span class="kt">int</span> <span class="n">subs_isbn</span> <span class="o">=</span> <span class="n">lru_queue_</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+            <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">subs_isbn</span><span class="p">);</span>
+            <span class="n">lru_queue_</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+
+        <span class="p">}</span>
+        <span class="n">lru_queue_</span><span class="p">.</span><span class="n">emplace_front</span><span class="p">(</span><span class="n">isbn</span><span class="p">);</span>
+        <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="n">isbn</span><span class="p">,</span> <span class="p">{</span><span class="n">lru_queue_</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">price</span><span class="p">}});</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">MoveFront</span><span class="p">(</span><span class="n">isbn</span><span class="p">,</span> <span class="n">iter</span><span class="p">);</span> <span class="c1">//找到项目，更新lru</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="kt">bool</span> <span class="n">Erase</span><span class="p">(</span><span class="kt">int</span> <span class="n">isbn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">isbn</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">==</span> <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">lru_queue_</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+    <span class="n">isbn_price_table_</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">iterator</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">Table</span><span class="p">;</span>
+    <span class="n">Table</span> <span class="n">isbn_price_table_</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">list</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">lru_queue_</span><span class="p">;</span>
+    <span class="kt">size_t</span> <span class="n">capacity</span><span class="p">;</span>
+
+    <span class="kt">void</span> <span class="nf">MoveFront</span><span class="p">(</span><span class="kt">int</span> <span class="n">isbn</span><span class="p">,</span> <span class="k">const</span> <span class="n">Table</span><span class="o">::</span><span class="n">iterator</span><span class="o">&amp;</span> <span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">lru_queue_</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">first</span><span class="p">);</span>
+        <span class="n">lru_queue_</span><span class="p">.</span><span class="n">emplace_front</span><span class="p">(</span><span class="n">isbn</span><span class="p">);</span>
+        <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">first</span> <span class="o">=</span> <span class="n">lru_queue_</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div>
+
+<h3>Compute the LCA, optimizing for close ancestors</h3>
+<p>Problem 10.4 on Page 155 is concerned with computing the LCA in a binary tree with parent pointers in time proportional to the height of the tree. The algorithm presented in Solution 10.4 on Page 155 entails traversing all the way to the root even if the nodes whose LCA is being computed are very close to their LCA.</p>
+<p>Design an algorithm for computing the LCA of two nodes in a binary tree. The algorithm's time complexity should depend only on the distance from the nodes to the LCA.</p>
+<p>Hint: Focus on the extreme case described in the problem introduction.</p>
+<p>之前有个计算LCA的题目，即使两个结点的LCA相聚很近，仍然需要回溯到根结点计算结点的高度。 </p>
+<p>设计一个算法，其时间复杂度仅取决于目标结点与LCA的距离。</p>
+<p>之前的题目因为没法快速地查找已访问的结点，所以需要记录结点的高度。有了hashtable后，可以在<span class="math">\(O(1)\)</span>的时间内查找已访问元素.  因此在向上访问的同时记录历史信息, 用set做查找.</p>
+<div class="highlight"><pre><span></span><code><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span> <span class="n">Lca</span><span class="p">(</span><span class="k">const</span> <span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">node0</span><span class="p">,</span>
+                         <span class="k">const</span> <span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span> <span class="n">node1</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span> <span class="n">node_set</span><span class="p">;</span>
+  <span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">*</span><span class="n">p0</span> <span class="o">=</span> <span class="n">node0</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span> <span class="o">*</span><span class="n">p1</span> <span class="o">=</span> <span class="n">node1</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">p0</span> <span class="o">&amp;&amp;</span> <span class="n">p1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">!=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="o">*</span><span class="n">iter</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">node_set</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span>
+      <span class="n">p0</span> <span class="o">=</span> <span class="n">p0</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+
+      <span class="n">iter</span> <span class="o">=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">!=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="o">*</span><span class="n">iter</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">node_set</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span>
+      <span class="n">p1</span> <span class="o">=</span> <span class="n">p1</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">auto</span> <span class="o">*</span><span class="n">residual</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">?</span> <span class="nl">p1</span> <span class="p">:</span> <span class="n">p0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">residual</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">residual</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">!=</span> <span class="n">node_set</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="o">*</span><span class="n">iter</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">residual</span> <span class="o">=</span> <span class="n">residual</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="k">nullptr</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the nearest repeated entries in an array</h3>
+<p>无题</p>
+<h3>Find the smallest subarray covering all values</h3>
+<p>When you type keywords in a search engine , the search engine will return results , and each result contains a digest of the web page , i .e. , a highlighting within that page of the keywords that you searched for. For example , a search for the keywords " Union " and " save " on a page with the text of the Emancipation Proclamation should return the result shown in Figure 13.1.</p>
+<p>Write a program which takes an array of strings and a set of strings , and return the indices of the starting and ending index of a shortest subarray of the given array that " covers " the set , i .e. , contains all strings in the set.</p>
+<p>朴素的想法就是找到所有的subarray, 去比对是否满足要求, 时间复杂度应该是<span class="math">\(O(n^3)\)</span>.</p>
+<p>通过使用hashtable能够降低比对时的时间复杂度,将其降为<span class="math">\(O(n^2)\)</span>.</p>
+<p>实际上, 考虑到这个问题的特性, 时间复杂度可以更进一步降低为<span class="math">\(O(n)\)</span>. subarray内有效的长度就是keyword的数量, 查找的过程可以视为在paragraph上的一个变长滑窗查找.</p>
+<p>假设当前已经找到一个subarray, 那么接下来的查找只会向右进行, 而不必再考虑前面的组合. 比如将left idx调整到下一个关键词的位置, 将滑窗向右滑动.</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Subarray</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">Subarray</span> <span class="nf">FindSmallestSubarrayCoveringSet</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">paragraph</span><span class="p">,</span> <span class="k">const</span> <span class="n">unordered_set</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">keywords</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// 记录当前cover的关键字</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">keywords_to_cover</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">k</span><span class="p">:</span> <span class="n">keywords</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">keywords_to_cover</span><span class="p">[</span><span class="n">k</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">remain_to_cover</span> <span class="o">=</span> <span class="n">keywords_to_cover</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+
+  <span class="n">Subarray</span> <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">};</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">left</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">right</span> <span class="o">&lt;</span> <span class="n">paragraph</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">right</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">r_word</span> <span class="o">=</span> <span class="n">paragraph</span><span class="p">[</span><span class="n">right</span><span class="p">];</span>
+      <span class="c1">//keywords 中的同一个单词可能会在paragraph中出现多次</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">keywords</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">r_word</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">--</span><span class="n">keywords_to_cover</span><span class="p">[</span><span class="n">r_word</span><span class="p">]</span><span class="o">&gt;=</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">--</span><span class="n">remain_to_cover</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="c1">// remain_to_cover == 0 意味着当前已经找到一个满足条件的区间，将left右移至下一个关键词位置。</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">remain_to_cover</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">.</span><span class="n">start</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">||</span> <span class="n">right</span> <span class="o">-</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">end</span> <span class="o">-</span> <span class="n">result</span><span class="p">.</span><span class="n">start</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">};</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">keywords</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">paragraph</span><span class="p">[</span><span class="n">left</span><span class="p">])</span> <span class="o">&amp;&amp;</span> <span class="o">++</span><span class="n">keywords_to_cover</span><span class="p">[</span><span class="n">paragraph</span><span class="p">[</span><span class="n">left</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">){</span>
+              <span class="o">++</span><span class="n">remain_to_cover</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="o">++</span><span class="n">left</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find smallest subarray sequentially covering all values</h3>
+<p>In Problem 13.7 on Page 216 we did not differentiate between the order in which</p>
+<p>keywords appeared . If the digest has to include the keywords in the order in which they appear in the search textbox , we may get a different digest . For example , for the search keywords " Union " and " save " , in that order , the digest would be " Union , and is not either to save " .</p>
+<p>Write a program that takes two arrays of strings , and return the indices of the start ing and ending index of a shortest subarray of the first array ( the " paragraph " array ) that " sequentially covers " , i .e. , contains all the strings in the second array ( the " keywords " array ) , in the order in which they appear in the keywords array . You can assume all keywords are distinct. For example , let the paragraph array be ( apple , banana , cat , apple ) , and the keywords array be ( banana , apple ) . The para graph subarray starting at index 0 and ending at index 1 does not fulfill the specification , even though it contains all the keywords , since they do not appear in the specified order. On the other hand , the subarray starting at index 1 and ending at index 3 does fulfill the specification .</p>
+<p>Hint: For each index in the paragraph array , compute the shortest subarray ending at that index which fulfills the specification .</p>
+<p>感觉这个做法有点像DP，但是目前又不太能确定...</p>
+<p>跟前一题有些相似，这里多了顺序的要求。需要一个table记录keyword的坐标，用于表示其出现的顺序。还需要设计一个table用于记录某个keyword上次出现的位置及以该关键字为结尾的subarray的长度。</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Subarray</span> <span class="p">{</span>
+  <span class="c1">// Represent subarray by starting and ending indices, inclusive.</span>
+  <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">Subarray</span> <span class="nf">FindSmallestSequentiallyCoveringSubset</span><span class="p">(</span>
+    <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">paragraph</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">keywords</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="c1">// 记录keyword的位置</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">keyword_to_idx</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">keywords</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+<span class="c1">//      keyword_to_idx[keywords[i]] = i;</span>
+      <span class="n">keyword_to_idx</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">keywords</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 少打一个,  调了半天...</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">key_latest_occurrence</span><span class="p">(</span><span class="n">keywords</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">shortest_subarray</span><span class="p">(</span><span class="n">keywords</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span>
+  <span class="n">Subarray</span> <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">};</span>
+  <span class="kt">int</span> <span class="n">shortest_array_len</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">();</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">paragraph</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">keyword_to_idx</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">paragraph</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="kt">int</span> <span class="n">key_idx</span> <span class="o">=</span> <span class="n">keyword_to_idx</span><span class="p">[</span><span class="n">paragraph</span><span class="p">[</span><span class="n">i</span><span class="p">]];</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">key_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="c1">// 第一个keyword</span>
+              <span class="n">shortest_subarray</span><span class="p">[</span><span class="n">key_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">shortest_subarray</span><span class="p">[</span><span class="n">key_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">())</span> <span class="p">{</span>
+
+              <span class="n">shortest_subarray</span><span class="p">[</span><span class="n">key_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">shortest_subarray</span><span class="p">[</span><span class="n">key_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="n">key_latest_occurrence</span><span class="p">[</span><span class="n">key_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">];</span>
+          <span class="p">}</span>
+          <span class="n">key_latest_occurrence</span><span class="p">[</span><span class="n">key_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+
+          <span class="k">if</span> <span class="p">(</span><span class="n">key_idx</span> <span class="o">==</span> <span class="n">keywords</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">shortest_array_len</span> <span class="o">&gt;</span> <span class="n">shortest_subarray</span><span class="p">.</span><span class="n">back</span><span class="p">())</span> <span class="p">{</span>
+              <span class="n">shortest_array_len</span> <span class="o">=</span> <span class="n">shortest_subarray</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+              <span class="n">ret</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span> <span class="o">-</span> <span class="n">shortest_subarray</span><span class="p">.</span><span class="n">back</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">};</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the longest subarray with distinct entries</h3>
+<p>Write a program that takes an array and returns the length of a longest subarray with the property that all its elements are distinct. For example , if the array is <f,s,f,e,t,w,e,n,w,e>then a longest subarray all of whose elements are distinct is <s, f, e, t, w></p>
+<p>Hint: What should you do if the subarray from indices i to j satisfies the property , but the subarray from i to j + 1 does not?</p>
+<p>这题很像之前的Find the smallest subarray covering all values，要使用变长滑动窗口（或者说是双指针）。</p>
+<p>假设当前滑动窗口中无重复的元素，当要处理下一个元素a时，如果该元素在窗口中不存在，直接将其加入窗口。如果这个元素存在过，那么需要收缩窗口的左侧。 左侧需要向右滑动到已经出现的a的右侧，这样窗口中又不会包含重复的元素了。</p>
+<p>在这个过程中需要记录元素曾经出现过的位置。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">LongestSubarrayWithDistinctEntries</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">last_appearance</span><span class="p">;</span> <span class="c1">//记录元素上次出现的位置</span>
+  <span class="kt">int</span> <span class="n">longest_array_start_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">auto</span> <span class="n">insert_ret</span> <span class="o">=</span> <span class="n">last_appearance</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">i</span><span class="p">});</span>
+      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">insert_ret</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="p">{</span>  <span class="c1">// 插入不成功, 说明A[i]之前出现过</span>
+          <span class="kt">int</span> <span class="n">prev_idx</span> <span class="o">=</span> <span class="n">insert_ret</span><span class="p">.</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">prev_idx</span> <span class="o">&gt;=</span> <span class="n">longest_array_start_idx</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// A[i] 在滑窗内</span>
+              <span class="n">longest_array_start_idx</span> <span class="o">=</span> <span class="n">prev_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="n">insert_ret</span><span class="p">.</span><span class="n">first</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span> <span class="c1">// 更新位置</span>
+      <span class="p">}</span>
+      <span class="n">result</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">i</span> <span class="o">-</span> <span class="n">longest_array_start_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the length of a longest contained interval</h3>
+<p>Write a program which takes as input a set of integers represented by an array , and returns the size of a largest subset of integers in the array having the property that if two integers are in the subset , then so are all integers between them. For example , if the input is ( 3 , - 2 , 7 , 9, 8, 1 , 2 , 0 , - 1 , 5 , 8 ) , the largest such subset is { - 2 ,- 1 , 0 , 1 , 2 , 3 ) , so you should return 6.</p>
+<p>Hint Do you really need a total ordering on the input ?</p>
+<p>要找到一个包含连续区间内所有整数值的集合。之前的滑窗法没法直接套用到这里， 因为元素处在不同的位置并不影响最终的结果。</p>
+<p>对元素直接进行排序也是可以的，只是没太必要，这里并不需要元素的顺序信息。</p>
+<p>为了对元素进行快速查找，将元素全部保持到set中。然后每次选择一个元素，向上向下扩张，将访问过的元素从set中剔除(如果是连续区间，在扩张的过程中一定会被访问到)。</p>
+<p>这样算法的时间复杂度为<span class="math">\(O(n)\)</span>。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">LongestContainedRange</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">filter</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">A</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">filter</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">c_val</span> <span class="o">=</span> <span class="o">*</span><span class="n">filter</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+      <span class="n">filter</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">c_val</span><span class="p">);</span>
+      <span class="kt">int</span> <span class="n">c_length</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+      <span class="k">while</span><span class="p">(</span><span class="n">filter</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">c_val</span><span class="o">+</span><span class="n">bias</span><span class="p">))</span> <span class="p">{</span>
+          <span class="n">filter</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">c_val</span> <span class="o">+</span> <span class="n">bias</span><span class="p">);</span> <span class="c1">// 剔除已经访问过的元素</span>
+          <span class="o">++</span><span class="n">bias</span><span class="p">;</span>
+          <span class="o">++</span><span class="n">c_length</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">bias</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">filter</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">c_val</span> <span class="o">+</span> <span class="n">bias</span><span class="p">))</span> <span class="p">{</span>
+          <span class="n">filter</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">c_val</span> <span class="o">+</span> <span class="n">bias</span><span class="p">);</span>
+          <span class="o">--</span><span class="n">bias</span><span class="p">;</span>
+          <span class="o">++</span><span class="n">c_length</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="n">ret</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">ret</span><span class="p">,</span> <span class="n">c_length</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute all string decompositions</h3>
+<p>This concerned taking a string ( the " sentence " string ) and a set of strings ( the " words " ) , and finding the substrings of the sentence which are the concatenation of all the words ( in any order ) . For example , if the sentence string is " amanaplanacanal " and the set of words is { " can " , " apl " , " ana " }, " aplanacan " is a substring of the sentence that is the concatenation of all words.</p>
+<p>Write as a program which takes input a string ( the " sentence " ) and an array of strings ( the " words " ) , and returns the starting indices of substrings of the sentence string which are the concatenation of all the strings in the words array . Each string must appear exactly once , and their ordering is immaterial. Assume all strings in the words array have equal length . It is possible for the words array to contain duplicates .</p>
+<p>Hint: Exploit the fact that the words have the same length .</p>
+<p>要在string中找到由words任意顺序组成的substring， 返回substring的起始位置。</p>
+<p>题目中给出了words具有相同的长度，就避免了在string中试探合理的word。</p>
+<p>方法的时间复杂度为<span class="math">\(O(Nmn)\)</span>. N是string的长度, m是单词的数量,n是单词的长度.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">FindAllSubstringsHelper</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">word_cnt</span><span class="p">,</span> <span class="kt">int</span> <span class="n">st_idx</span><span class="p">,</span> <span class="kt">int</span> <span class="n">word_len</span><span class="p">,</span> <span class="kt">int</span> <span class="n">num_words</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">nb</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">st_idx</span><span class="p">;</span> <span class="n">nb</span> <span class="o">&lt;</span> <span class="n">num_words</span><span class="p">;)</span> <span class="p">{</span>
+        <span class="n">string</span> <span class="n">c_sub</span> <span class="o">=</span> <span class="n">s</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">word_len</span><span class="p">);</span>
+        <span class="k">auto</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">word_cnt</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_sub</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">iter</span> <span class="o">==</span> <span class="n">word_cnt</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">//不匹配</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">--</span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// 出现过多次</span>
+        <span class="p">}</span>
+        <span class="o">++</span><span class="n">nb</span><span class="p">;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">st_idx</span> <span class="o">+</span> <span class="n">nb</span> <span class="o">*</span> <span class="n">word_len</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">FindAllSubstrings</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&amp;</span> <span class="n">words</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">word_cnt</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span><span class="p">:</span> <span class="n">words</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">word_cnt</span><span class="p">[</span><span class="n">each</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">word_len</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">size</span><span class="p">();</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="c1">// 下面的条件是 &lt;=</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">+</span> <span class="n">word_len</span> <span class="o">*</span> <span class="n">words</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">s</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">FindAllSubstringsHelper</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">word_cnt</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">word_len</span><span class="p">,</span> <span class="n">words</span><span class="p">.</span><span class="n">size</span><span class="p">()))</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Test the Collatz conjecture</h3>
+<p>The Collatz conjecture is the following : Take any natural number. If it is odd , triple it and add one ; if it is even , halve it . Repeat the process indefinitely . No matter what number you begin with , you will eventually arrive at 1 .</p>
+<p>As an example , if we start with 11 we get the sequence 11 , 34 , 17 , 52 , 26 , 13 , 40 , 20 , 10 , 5 , 16 , 8, 4 , 2 , 1 . Despite intense efforts , the Collatz conjecture has not been proved or disproved .</p>
+<p>Suppose you were given the task of checking the Collatz conjecture for the first billion integers . A direct approach would be to compute the convergence sequence for each number in this set.</p>
+<p>Test the Collatz conjecture for the first n positive integers</p>
+<p>Hint How would you efficiently check the conjecture for n assuming it holds for all m &lt; n?</p>
+<p>之前在leetcode上见过有类似的题目，直接利用数学定理的真伪返回结果。对于这题也是类似的，既然这个定理没有被证伪，那么对于目前已知的数肯定都是对的，直接返回true就好了。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">TestCollatzConjecture</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>对于不那么抖机灵的做法，用一个set去测试生成的序列是否进入循环，同时数值类型需要改为long以避免上溢。</p>
+<p>时间复杂度自然是没法分析了💇</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span> <span class="nf">TestCollatzConjecture</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span> <span class="n">table</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">long</span> <span class="n">c_val</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">unordered_set</span><span class="o">&lt;</span><span class="kt">long</span><span class="o">&gt;</span> <span class="n">search_path</span><span class="p">;</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">c_val</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">table</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_val</span><span class="p">)</span> <span class="o">!=</span> <span class="n">table</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+              <span class="c1">// 当前序列已经存在过</span>
+              <span class="k">break</span><span class="p">;</span>
+          <span class="p">}</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">search_path</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">c_val</span><span class="p">)</span> <span class="o">!=</span> <span class="n">search_path</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
+              <span class="k">return</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// 序列进入循环， 证伪</span>
+          <span class="p">}</span>
+          <span class="n">search_path</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">c_val</span><span class="p">);</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">c_val</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">c_val</span> <span class="o">/=</span> <span class="mi">2</span><span class="p">;</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+              <span class="n">c_val</span> <span class="o">=</span> <span class="n">c_val</span> <span class="o">*</span> <span class="mi">3</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="n">table</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">search_path</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">search_path</span><span class="p">.</span><span class="n">end</span><span class="p">());</span> <span class="c1">//更新搜索序列</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}</script>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>

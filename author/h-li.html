@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - H Li</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/blog/2021/01/upgrade-gcc-in-centos">CentOS中更新GCC</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-01-28T18:20:00+08:00">
+                Published: Thu 28 January 2021
+        </abbr>
+		<br />
+        <abbr class="modified" title="2021-01-28T18:20:00+08:00">
+                Updated: Thu 28 January 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/coding/">Coding</a>.</p>
+<p>tags: <a href="/tags/centos/">CentOS</a> <a href="/tags/gcc/">GCC</a> <a href="/tags/scl/">SCL</a> </p>
+</footer><!-- /.post-info -->                    <!-- Status: draft -->
+
+<p>厂里的系统都是基于CentOS 的，就是那个</p>
+<blockquote>
+<p>One centOS 倒下了，Ten centOS 起来了</p>
+</blockquote>
+<p>的CentOS 。</p>
+<p>这玩意的问题就是它实在是太老了，我要装一下xgboost编译都不成功。</p>
+<p>看了一下目前GCC的版本还是<code>4.8.5</code>, 而GCC都出到<code>10.2</code>了<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, 真心穿越千年的爱恋。</p>
+<div class="highlight"><pre><span></span><code>$ gcc -v
+Using built-in specs.
+<span class="nv">COLLECT_GCC</span><span class="o">=</span>gcc
+<span class="nv">COLLECT_LTO_WRAPPER</span><span class="o">=</span>/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+Target: x86_64-redhat-linux
+Configured with: ../configure --prefix<span class="o">=</span>/usr --mandir<span class="o">=</span>/usr/share/man --infodir<span class="o">=</span>/usr/share/info --with-bugurl<span class="o">=</span>http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads<span class="o">=</span>posix --enable-checking<span class="o">=</span>release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style<span class="o">=</span>gnu --enable-languages<span class="o">=</span>c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl<span class="o">=</span>/root/rpmbuild/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog<span class="o">=</span>/root/rpmbuild/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune<span class="o">=</span>generic --with-arch_32<span class="o">=</span>x86-64 --build<span class="o">=</span>x86_64-redhat-linux
+Thread model: posix
+gcc version <span class="m">4</span>.8.5 <span class="m">20150623</span> <span class="o">(</span>Red Hat <span class="m">4</span>.8.5-5<span class="o">)</span> <span class="o">(</span>GCC<span class="o">)</span>
+</code></pre></div>
+
+<p>这个直接upgrade也是不成功滴，压根没有新版本可以升，系统的版本都太老了。</p>
+<div class="highlight"><pre><span></span><code>$ cat /etc/centos-release
+CentOS Linux release <span class="m">7</span>.2 <span class="o">(</span>Final<span class="o">)</span>
+</code></pre></div>
+
+<p>本着遇事不决上stackoverflow的原则，在SO上也找到了一个例子<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>，可惜的是第二个命令运行不起来。
+根据发本文时的软件状况以及本机环境，这里需要先安装Software Collections (SCL)，再安装devtoolset-8。</p>
+<div class="highlight"><pre><span></span><code>sudo yum install -y centos-release-scl
+sudo yum install -y devtoolset-8
+scl <span class="nb">enable</span> devtoolset-8 bash
+which gcc
+gcc --version
+</code></pre></div>
+
+<p>这样装完之后就能生效了，可以看到GCC的版本已经变了</p>
+<div class="highlight"><pre><span></span><code>gcc <span class="o">(</span>GCC<span class="o">)</span> <span class="m">8</span>.3.1 <span class="m">20190311</span> <span class="o">(</span>Red Hat <span class="m">8</span>.3.1-3<span class="o">)</span>
+Copyright <span class="o">(</span>C<span class="o">)</span> <span class="m">2018</span> Free Software Foundation, Inc.
+This is free software<span class="p">;</span> see the <span class="nb">source</span> <span class="k">for</span> copying conditions.  There is NO
+warranty<span class="p">;</span> not even <span class="k">for</span> MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+</code></pre></div>
+
+<p>再安装XGBoost，终于成功了。</p>
+<h3>小结</h3>
+<p>根据CentOS的wiki<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>, SCL是指软件选集(Software Collections, SCL), SCL的目的就是为老旧的CentOS提供新版的软件集, 
+安装完SCL和需要的软件集后，启动环境的命令是</p>
+<div class="highlight"><pre><span></span><code>$ scl <span class="nb">enable</span> &lt;scl-package-name&gt; &lt;command&gt;
+</code></pre></div>
+
+<p>在前面的例子中, 要在多个命令下都启动GCC的环境, 使用的就是调起bash, 在新的shell内执行.</p>
+<div class="highlight"><pre><span></span><code>$ scl <span class="nb">enable</span> devtoolset-8 bash
+</code></pre></div>
+
+<p>要检查已经安装的SCL集合，可以用</p>
+<div class="highlight"><pre><span></span><code>$ scl --list
+</code></pre></div>
+
+<p>更多的信息可以看SCL的QuickStart指引<sup id="fnref:4"><a class="footnote-ref" href="#fn:4">4</a></sup>以及Xmodulo的介绍<sup id="fnref:5"><a class="footnote-ref" href="#fn:5">5</a></sup>。</p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://gcc.gnu.org/&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>https://stackoverflow.com/questions/36327805/how-to-install-gcc-5-3-with-yum-on-centos-7-2&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>https://wiki.centos.org/zh/AdditionalResources/Repositories/SCL&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p>https://www.softwarecollections.org/en/docs/&#160;<a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:5">
+<p>https://www.xmodulo.com/enable-software-collections-centos.html&#160;<a class="footnote-backref" href="#fnref:5" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+                    <!--  -->
+                </article>
+            </aside><!-- /#featured -->
+            <!--                 <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+ -->
+        
+
+
+
+
+
+
+
+
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

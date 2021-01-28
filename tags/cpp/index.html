@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - cpp</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2020/04/epi-BST" rel="bookmark"
+                               title="Permalink to EPI-BST">EPI-BST</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-20T19:20:00+08:00">
+                Published: Mon 20 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-20T20:20:00+08:00">
+                Updated: Mon 20 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                    <p>很久很久以前，有人刷题不做记录。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过BST。</p>
+<p>[TOC]</p>
+<h2>BST</h2>
+<h3>库函数</h3>
+<p>C++中的<code>set</code>和<code>map</code>是BST-based.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 与unordered_set 和unordered_map有些不同的api</span>
+
+<span class="c1">// set</span>
+<span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">//返回的迭代器按key递增的顺序</span>
+<span class="o">*</span><span class="n">begin</span><span class="p">();</span> <span class="o">/</span> <span class="o">*</span><span class="n">rbegin</span><span class="p">();</span> <span class="c1">//返回BST中的最大最小元素</span>
+
+<span class="n">lower_bound</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span><span class="o">/</span><span class="n">upper_bound</span><span class="p">(</span><span class="mi">3 …</span></code></pre></div>
+                    <a class="readmore" href="/blog/2020/04/epi-BST">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/04/epi-Sorting" rel="bookmark"
+                           title="Permalink to EPI-Sorting">EPI-Sorting</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-19T19:20:00+08:00">
+                Published: Sun 19 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-19T20:20:00+08:00">
+                Updated: Sun 19 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>很久很久以前，有人刷题不做记录，没刷过Sorting。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Sorting。</p>
+<p>[TOC]</p>
+<h2>Sorting</h2>
+<p>对于小型数组（10-），插入排序更容易实现，速度更快。</p>
+<p>如果是一小部分不同的元素，(如0-255), 计数排序更适合.</p>
+<p>如果有大量重复的元素,可以将其串到BST中.</p>
+<p>大多数排序是不稳定的, 精心实现的归并排序可以实现稳定排序.</p>
+<p>大多数排序都基于元素的两两比较.</p>
+<h3>库函数</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">//sort() 数组排序</span>
+<span class="c1">//list::sort() 链表排序 …</span></code></pre></div>
+                <a class="readmore" href="/blog/2020/04/epi-Sorting">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/04/epi-Hash-Tables" rel="bookmark"
+                           title="Permalink to EPI-Hash Tables">EPI-Hash Tables</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-17T19:20:00+08:00">
+                Published: Fri 17 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-17T20:20:00+08:00">
+                Updated: Fri 17 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>很久很久以前，有人刷题不做记录，没刷过Hash Tables。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Hash Tables。</p>
+<p>[TOC]</p>
+<h2>Hash Tables</h2>
+<h3>Boot camp</h3>
+<p>两个例子：哈希表的应用，哈希表class的设计</p>
+<h4>An application of hash tables</h4>
+<p>判断Anagrams</p>
+<h4>Design of a hashable …</h4>
+                <a class="readmore" href="/blog/2020/04/epi-Hash-Tables">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/04/epi-Searching" rel="bookmark"
+                           title="Permalink to EPI-Searching">EPI-Searching</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-10T19:20:00+08:00">
+                Published: Fri 10 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-10T20:20:00+08:00">
+                Updated: Fri 10 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>很久很久以前，有人刷题不做记录，没刷过Searching。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Searching。</p>
+<p>[TOC]</p>
+<h2>Searching</h2>
+<p>这里主要考虑有序存储在数组中的静态数据。</p>
+<h3>Binary search</h3>
+<p>Binary search看起来比较简单，实现起来还是容易产生bug的，比如下面这个(我压根没注意过数值问题)</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="nf">bsearch</span><span class="p">(</span><span class="kt">int</span> <span class="n">t</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">L …</span></code></pre></div>
+                <a class="readmore" href="/blog/2020/04/epi-Searching">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/04/epi-Heaps" rel="bookmark"
+                           title="Permalink to EPI-Heaps">EPI-Heaps</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-07T19:20:00+08:00">
+                Published: Tue 07 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-07T20:20:00+08:00">
+                Updated: Tue 07 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>很久很久以前，有人刷题不做记录，没刷过Heaps。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Heaps。</p>
+<p>[TOC]</p>
+<h2>Heaps</h2>
+<p>Heaps又可以称为优先队列，是一个特化的二叉树(完全二叉树)。</p>
+<p>Heap中一个结点的键值需要大于等于其子树中的键值。</p>
+<p>一个最大堆插入时间复杂度为 <span class="math">\(O(\log n)\)</span>，查找最大值为<span class="math">\(O(1)\)</span>, 删除最大值为<span class="math">\(O(\log n)\)</span>.</p>
+<h3>Tips</h3>
+<ul>
+<li>当需要操心最大值,最小值且不需要快速查找删除时 …</li></ul>
+                <a class="readmore" href="/blog/2020/04/epi-Heaps">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/04/epi-Binary-Trees" rel="bookmark"
+                           title="Permalink to EPI-Binary Trees">EPI-Binary Trees</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-05T19:20:00+08:00">
+                Published: Sun 05 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-05T20:20:00+08:00">
+                Updated: Sun 05 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>很久很久以前，有人刷题不做记录，从Array刷到二叉树，刷了几年还是在刷二叉树。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷二叉树。</p>
+<p>[TOC]</p>
+<h2>Binary Trees</h2>
+<h3>结构定义</h3>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">BinaryTreeNode</span> <span class="p">{</span>
+  <span class="n">T</span> <span class="n">data</span><span class="p">;</span>
+  <span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>EPI这部分的定义，跟我之前数据结构学得有点点区别...假书害人 …</p>
+                <a class="readmore" href="/blog/2020/04/epi-Binary-Trees">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/03/epi-stacks-and-queues" rel="bookmark"
+                           title="Permalink to EPI-Stacks and Queues">EPI-Stacks and Queues</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-31T18:20:00+08:00">
+                Published: Tue 31 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-05T18:20:00+08:00">
+                Updated: Sun 05 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>[TOC]</p>
+<p>很久很久以前，有人刷题不做记录，从Array刷到Stacks and Queues，刷了几年还是在刷Stacks and Queues。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷Stacks and Queues。</p>
+<h2>Stacks</h2>
+<h3>基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+<span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="p">.</span><span class="n">pop</span><span class="p">();</span> <span class="c1">// does not return</span>
+<span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+</code></pre></div>
+
+<h3>Implement a …</h3>
+                <a class="readmore" href="/blog/2020/03/epi-stacks-and-queues">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/03/epi-code-linked-lists" rel="bookmark"
+                           title="Permalink to EPI-Linked-Lists">EPI-Linked-Lists</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-27T18:20:00+08:00">
+                Published: Fri 27 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-03-27T18:20:00+08:00">
+                Updated: Fri 27 March 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>[TOC]</p>
+<p>很久很久以前，有人刷题不做记录，从Array刷到Linked-Lists，刷了几年还是在刷Linked-Lists。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷Linked-Lists。</p>
+<h2>Linked-Lists</h2>
+<p>EPI的代码都在用<code>shared_ptr</code>, 跟之前写的风格完全不一样...</p>
+<h3>结构定义</h3>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">ListNode</span> <span class="p">{</span>
+    <span class="n">T</span> <span class="n">data</span><span class="p">;</span>
+  <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="n">next</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>有两种类型的链表题目</p>
+<ul>
+<li>自己实现链表 …</li></ul>
+                <a class="readmore" href="/blog/2020/03/epi-code-linked-lists">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/03/epi-code-string" rel="bookmark"
+                           title="Permalink to EPI-String">EPI-String</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-03-27T18:20:00+08:00">
+                Published: Fri 27 March 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-03-27T18:20:00+08:00">
+                Updated: Fri 27 March 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->                <p>[TOC]</p>
+<p>很久很久以前，有人刷题不做记录，从Array刷到String，刷了几年还是在刷String。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷String。</p>
+<h2>String</h2>
+<h3>String 的基本语法</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">//</span>
+<span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="err">&#39;&#39;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+<span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">begin</span><span class="p">()</span> <span class="o">+</span> <span class="n">shift</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">);</span>
+<span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">len</span><span class="p">);</span>
+<span class="p">.</span><span class="n">compare</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">);</span>
+
+<span class="c1">//</span>
+</code></pre></div>
+
+<h3>Interconvert strings and integers</h3>
+<p>虽然这题的意思是要手动转换 …</p>
+                <a class="readmore" href="/blog/2020/03/epi-code-string">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+<p class="paginator">
+    Page 1 / 2
+        <a href="/tags/cpp/index2.html">&raquo;</a>
+        <a href="/tags/cpp/index2.html">&#8649;</a>
+</p>
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

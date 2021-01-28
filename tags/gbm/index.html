@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - GBM</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2019/08/misc-about-xgboost" rel="bookmark"
+                               title="Permalink to XGBoost 调参">XGBoost 调参</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2019-08-26T18:15:00+08:00">
+                Published: Mon 26 August 2019
+        </abbr>
+		<br />
+        <abbr class="modified" title="2019-08-26T18:15:00+08:00">
+                Updated: Mon 26 August 2019
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/xgboost/">XGBoost</a>.</p>
+<p>tags: <a href="/tags/xgboost/">XGBoost</a> <a href="/tags/gbm/">GBM</a> <a href="/tags/machine-learning/">Machine Learning</a> </p>
+</footer><!-- /.post-info -->                    <p>对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是<a href="https://github.com/fmfn/BayesianOptimization">BayesianOptimization</a> 跑出来的参数跟别人的效果差了老多.</p>
+<p>XGBoost是在GBDT的基础上改进的, 首先要看GBM的参数是什么意思<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
+<p><br></p>
+<h2>GBM参数</h2>
+<p><br></p>
+<p>GBM的参数分为3种:</p>
+<ol>
+<li>决策树参数: 影响决策树的构建   </li>
+<li>提升方法(Boosting)参数: 影响提升方法的过程   </li>
+<li>杂项: 控制其他部分   </li>
+</ol>
+<p>下图介绍了一部分参数的含义<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup></p>
+<p><img src="/images/tree-infographic.webp" style="max-width: 100%"></p>
+<p><br></p>
+<h3>与决策树相关的参数 - <strong>Tree-Specific Parameters</strong></h3>
+<ol>
+<li><code>min_samples_split</code>  <ul>
+<li>控制结点可划分时的最少样本数, 样本数少于该值时, 结点不会继续划分.</li>
+<li>用于控制过拟合, 这个值太大了又会导致欠拟合( 考虑决策树的剪枝过程 …</li></ul></li></ol>
+                    <a class="readmore" href="/blog/2019/08/misc-about-xgboost">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+</body>
+
+</html>

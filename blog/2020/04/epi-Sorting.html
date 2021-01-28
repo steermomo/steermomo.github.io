@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Sorting</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-Sorting" rel="bookmark" title="Permalink to EPI-Sorting">EPI-Sorting</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2020-04-19T19:20:00+08:00">
+                Published: Sun 19 April 2020
+        </abbr>
+		<br />
+        <abbr class="modified" title="2020-04-19T20:20:00+08:00">
+                Updated: Sun 19 April 2020
+        </abbr>
+
+        <address class="vcard author">
+                By                         <!-- <a class="url fn" href="/author/h-li.html">H Li</a> -->
+                        <a class="url fn" href="">H Li</a>
+        </address>
+<p>In <a href="/category/leetcode/">LeetCode</a>.</p>
+<p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p>
+</footer><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，没刷过Sorting。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过Sorting。</p>
+<p>[TOC]</p>
+<h2>Sorting</h2>
+<p>对于小型数组（10-），插入排序更容易实现，速度更快。</p>
+<p>如果是一小部分不同的元素，(如0-255), 计数排序更适合.</p>
+<p>如果有大量重复的元素,可以将其串到BST中.</p>
+<p>大多数排序是不稳定的, 精心实现的归并排序可以实现稳定排序.</p>
+<p>大多数排序都基于元素的两两比较.</p>
+<h3>库函数</h3>
+<div class="highlight"><pre><span></span><code><span class="c1">//sort() 数组排序</span>
+<span class="c1">//list::sort() 链表排序</span>
+</code></pre></div>
+
+<ul>
+<li><code>sort()</code>和<code>list::sort()</code>都需要实现运算符重载<code>operator&lt;()</code>或指定比较函数</li>
+</ul>
+<p>排序问题有两种:</p>
+<ul>
+<li>使用排序使后续的算法更简单</li>
+<li>使用库函数即可</li>
+<li>实现自定义的排序要求</li>
+<li>使用BST, heap,索引数组等.</li>
+</ul>
+<h3>Compute the intersection of two sorted arrays</h3>
+<p>A natural implementation for a search engine is to retrieve documents that match the set of words in a query by maintaining an inverted index. Each page is assigned an integer identifier , its document - ID . An inverted index is a mapping that takes a word w and returns a sorted array of page - ids which contain zv the sort order could be , for example , the page rank in descending order. When a query contains multiple words , the search engine finds the sorted array for each word and then computes the intersection of these arrays these are the pages containing all the words in the query . The most computationally intensive step of doing this is finding the intersection of the sorted arrays .</p>
+<p>Write a program which takes as input two sorted arrays , and returns a new array containing elements that are present in both of the input arrays . The input arrays may have duplicate entries , but the returned array should be free of duplicates . For example , the input is ( 2 , 3 , 3 , 5 , 5 , 6 , 7 , 7 , 8 , 12 ) and ( 5 , 5 , 6 , 8, 8, 9, 10 , 10 ) , your output should be ( 5 , 6, 8 ) .</p>
+<p>倒排索引中的交叉项查找。</p>
+<p>这个就类似之前的有序链表的归并。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">IntersectTwoSortedArrays</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span>
+                                     <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">a_st</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b_st</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">a_st</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">b_st</span> <span class="o">&lt;</span> <span class="n">B</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">a_st</span><span class="p">]</span> <span class="o">==</span> <span class="n">B</span><span class="p">[</span><span class="n">b_st</span><span class="p">]</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span> <span class="o">||</span> <span class="n">ret</span><span class="p">.</span><span class="n">back</span><span class="p">()</span> <span class="o">!=</span> <span class="n">A</span><span class="p">[</span><span class="n">a_st</span><span class="p">]))</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">a_st</span><span class="p">]);</span>
+          <span class="o">++</span><span class="n">a_st</span><span class="p">,</span> <span class="o">++</span><span class="n">b_st</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">a_st</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">B</span><span class="p">[</span><span class="n">b_st</span><span class="p">])</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">a_st</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">b_st</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Merge two sorted arrays</h3>
+<p>这个就是上一题的翻版，假设A的尾部有足够的空间容纳B中的元素， 将有序数组AB合并到A中。</p>
+<p>首先将A的元素都搬移到A的尾部，留出头部的操作空间。(如果从尾部先排序大元素的话,这一步可以避免)</p>
+<p>时间复杂度为<span class="math">\(O(m+n)\)</span></p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">MergeTwoSortedArrays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">st</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ed</span> <span class="o">=</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">st</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">ed</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">st</span><span class="o">--</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="c1">//ed 指向空位置</span>
+  <span class="kt">int</span> <span class="n">A_st</span> <span class="o">=</span> <span class="n">ed</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">B_st</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">A_curr</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">A_st</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&amp;&amp;</span> <span class="n">B_st</span> <span class="o">&lt;</span> <span class="n">B</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">A_st</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="p">])</span> <span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">A_st</span><span class="o">++</span><span class="p">];</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="o">++</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">A_st</span> <span class="o">&lt;</span> <span class="n">A</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">A_st</span><span class="o">++</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">B_st</span> <span class="o">&lt;</span> <span class="n">B</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="o">++</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>从尾部开始合并，可以避免刚开始时对A数组的搬移操作</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">MergeTwoSortedArrays</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">,</span> <span class="kt">int</span> <span class="n">m</span><span class="p">,</span> <span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">B</span><span class="p">,</span> <span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="kt">int</span> <span class="n">A_curr</span> <span class="o">=</span> <span class="n">m</span> <span class="o">+</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">A_st</span> <span class="o">=</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">B_st</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">A_st</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">B_st</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">A_st</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="p">])</span> <span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="n">A</span><span class="p">[</span><span class="n">A_st</span><span class="o">--</span><span class="p">];</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="o">--</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">B_st</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">A</span><span class="p">[</span><span class="n">A_curr</span><span class="o">--</span><span class="p">]</span> <span class="o">=</span> <span class="n">B</span><span class="p">[</span><span class="n">B_st</span><span class="o">--</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Computing the h-index</h3>
+<p>无题</p>
+<h3>Remove first-name duplicates</h3>
+<p>Design an efficient algorithm for removing all first - name duplicates from an array . For example , if the input is ( ( Ian , Botham ) , ( David , Gower ) , ( Ian , Bell ) , ( Ian , Chappell ) ) , one result could be (( Ian , Bell ), ( David , Gower ) ) ; ( ( David , Gower ), ( Ian , Botham ) ) would also be acceptable .</p>
+<p>Hint: Bring equal items close together .</p>
+<p>跟之前的合并也是类似的，先做排序后剔除相同的项目。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">EliminateDuplicate</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Name</span><span class="o">&gt;*</span> <span class="n">names</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Name</span><span class="o">&gt;&amp;</span> <span class="n">name_ref</span> <span class="o">=</span> <span class="o">*</span><span class="n">names</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">name_ref</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">name_ref</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="kt">int</span> <span class="n">l_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r_idx</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">r_idx</span> <span class="o">&lt;</span> <span class="n">name_ref</span><span class="p">.</span><span class="n">size</span><span class="p">())</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">name_ref</span><span class="p">[</span><span class="n">r_idx</span><span class="p">].</span><span class="n">first_name</span> <span class="o">==</span> <span class="n">name_ref</span><span class="p">[</span><span class="n">l_idx</span><span class="p">].</span><span class="n">first_name</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">r_idx</span><span class="p">;</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">name_ref</span><span class="p">[</span><span class="o">++</span><span class="n">l_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">name_ref</span><span class="p">[</span><span class="n">r_idx</span><span class="o">++</span><span class="p">];</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">l_idx</span> <span class="o">==</span> <span class="n">name_ref</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">residual</span> <span class="o">=</span> <span class="n">name_ref</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">l_idx</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">residual</span><span class="o">--</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">name_ref</span><span class="p">.</span><span class="n">pop_back</span><span class="p">();</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>EPI给了一个用<code>std::unique</code>去重的方法. 根据文档的说明, 这是C++17及C++20才支持的功能. 我用的Clion目前只配置了C++11, 就不折腾了.</p>
+<blockquote>
+<p>Eliminates all but the first element from every consecutive group of equivalent elements from the range <code>[first, last)</code> and returns a past-the-end iterator for the new <em>logical</em>end of the range.</p>
+<p>Removing is done by shifting the elements in the range in such a way that elements to be erased are overwritten. Relative order of the elements that remain is preserved and the <em>physical</em> size of the container is unchanged. Iterators pointing to an element between the new <em>logical</em> end and the <em>physical</em> end of the range are still dereferenceable, but the elements themselves have unspecified values. A call to <code>unique</code> is typically followed by a call to a container's <code>erase</code> method, which erases the unspecified values and reduces the <em>physical</em> size of the container to match its new <em>logical</em> size.</p>
+</blockquote>
+<h3>Render a calendar</h3>
+<p>Consider the problem of designing an online calendaring application . One compo nent of the design is to render the calendar , i .e. , display it visually .</p>
+<p>Suppose each day consists of a number of events , where an event is specified as a start time and a finish time. Individual events for a day are to be rendered as nonoverlapping rectangular regions whose sides are parallel to the X - and Y - axes. Let the X - axis correspond to time. If an event starts at time b and ends at time e , the upper and lower sides of its corresponding rectangle must be at b and e , respectively . Figure 14.1 represents a set of events.</p>
+<p>Write a program that takes a set of events , and determines the maximum number of events that take place concurrently .</p>
+<p>找出日程安排中最多同时发生的事件数量。</p>
+<p>~~我不太知道怎么处理这个问题。~~</p>
+<p>看了解析之后，知道是没有分析好问题，老是想着要把时间堆叠成示意图中的方式。</p>
+<p>恰当的方法是把时间的start和finish两个时间节点拆分开，然后按照时间点排序，同时start事件排在finish事件前。这样遇到一个start就将计数加1，遇到一个finish就将计数减1.</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Event</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">start</span><span class="p">,</span> <span class="n">finish</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">EndPoint</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span> <span class="n">EndPoint</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="k">const</span><span class="p">{</span>
+        <span class="c1">// 将时间靠前的拍在前面 如果时间相同 将start 排在 end 前面</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">time</span> <span class="o">!=</span> <span class="n">e</span><span class="p">.</span><span class="n">time</span> <span class="o">?</span> <span class="k">this</span><span class="o">-&gt;</span><span class="n">time</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">.</span><span class="nl">time</span> <span class="p">:</span> <span class="p">(</span><span class="k">this</span><span class="o">-&gt;</span><span class="n">isStart</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">e</span><span class="p">.</span><span class="n">isStart</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">time</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">isStart</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="kt">int</span> <span class="nf">FindMaxSimultaneousEvents</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Event</span><span class="o">&gt;&amp;</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">EndPoint</span><span class="o">&gt;</span> <span class="n">E</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">A</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">start</span><span class="p">,</span> <span class="nb">true</span><span class="p">});</span>
+      <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">finish</span><span class="p">,</span> <span class="nb">false</span><span class="p">});</span>
+  <span class="p">}</span>
+  <span class="c1">//按照时间排序</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">E</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+  <span class="kt">int</span> <span class="n">max_event_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">event_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">E</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">each</span><span class="p">.</span><span class="n">isStart</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">event_cnt</span><span class="p">;</span>
+          <span class="n">max_event_cnt</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">event_cnt</span><span class="p">,</span> <span class="n">max_event_cnt</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="o">--</span><span class="n">event_cnt</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">max_event_cnt</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Merging intervals</h3>
+<p>Suppose the time during the day that a person is busy is stored as a set of disjoint time intervals. If an event is added to the person ' s calendar , the set of busy times may need to be updated .</p>
+<p>In the abstract , we want a way to add an interval to a set of disjoint intervals and represent the new set as a set of disjoint intervals. For example , if the initial set of intervals is [ - 4 , - 1 ] , [ 0 , 2 ] , [ 3 , 6 ] , [ 7 , 9 ] , [ 11 , 12 ] , [ 14 , 17 ] , and the added interval is [ 1 , 8 ] , the result is [ - 4 , - 1 ] , [ 0 , 9 ] , [ 11 , 12 ] , [ 14 , 17 ] .</p>
+<p>Write a program which takes as input an array of disjoint closed intervals with integer endpoints , sorted by increasing order of left endpoint , and an interval to be added , and returns the union of the intervals in the array and the added interval. Your result should be expressed as a union of disjoint intervals sorted by left endpoint .</p>
+<p>Hint What is the union of two closed intervals?</p>
+<p>在不相交的区间集合中插入一个新的区间，计算出合并后的区间。</p>
+<p>这个有点像上一题的日程安排。将区间的两个端点拆开排序，然后从左到右遍历。</p>
+<p>在遍历的过程中有些像括号的匹配：</p>
+<ul>
+<li>如果是单个区间，那么遇到一个left后就会遇到right，提取出一个区间</li>
+<li>如果是多个区间有交叉，对left的个数进行计数，只有left的个数等于right的个数，才算是一个完整的区间。</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Interval</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">struct</span> <span class="n">EndPoint</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span> <span class="n">EndPoint</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">point</span> <span class="o">!=</span> <span class="n">e</span><span class="p">.</span><span class="n">point</span> <span class="o">?</span> <span class="n">point</span> <span class="o">&lt;</span> <span class="n">e</span><span class="p">.</span><span class="nl">point</span> <span class="p">:</span> <span class="p">(</span><span class="n">isLeft</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">e</span><span class="p">.</span><span class="n">isLeft</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">point</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">isLeft</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;</span> <span class="n">AddInterval</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;&amp;</span> <span class="n">disjoint_intervals</span><span class="p">,</span>
+                             <span class="n">Interval</span> <span class="n">new_interval</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">EndPoint</span><span class="o">&gt;</span> <span class="n">E</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span><span class="p">:</span> <span class="n">disjoint_intervals</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">left</span><span class="p">,</span> <span class="nb">true</span><span class="p">});</span>
+      <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">right</span><span class="p">,</span> <span class="nb">false</span><span class="p">});</span>
+  <span class="p">}</span>
+  <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">new_interval</span><span class="p">.</span><span class="n">left</span><span class="p">,</span> <span class="nb">true</span><span class="p">});</span>
+  <span class="n">E</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">new_interval</span><span class="p">.</span><span class="n">right</span><span class="p">,</span> <span class="nb">false</span><span class="p">});</span>
+
+  <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">E</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">E</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+  <span class="kt">bool</span> <span class="n">is_new_interval</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">st</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">left_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">E</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">each</span><span class="p">.</span><span class="n">isLeft</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">left_cnt</span><span class="p">;</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">is_new_interval</span><span class="p">)</span> <span class="p">{</span>
+              <span class="n">st</span> <span class="o">=</span> <span class="n">each</span><span class="p">.</span><span class="n">point</span><span class="p">;</span>
+              <span class="n">is_new_interval</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+          <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="o">--</span><span class="n">left_cnt</span><span class="p">;</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">left_cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">st</span><span class="p">,</span> <span class="n">each</span><span class="p">.</span><span class="n">point</span><span class="p">});</span>
+          <span class="n">is_new_interval</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>.... 我这个时间复杂度是<span class="math">\(O(n\log n)\)</span>, 如果输入的区间已经是有序排列, 可以将时间复杂度降低到<span class="math">\(O(n)\)</span>.</p>
+<h3>Compute the union of intervals</h3>
+<p>In this problem we consider sets of intervals with integer endpoints ; the intervals may be open or closed at either end. We want to compute the union of the intervals in such sets.</p>
+<p>这题又涉及到区间开闭的问题。</p>
+<p>在解决方法上可以照搬上一题的代码，也是将区间的端点拆开排序。因为有区间开闭的问题， 需要根据情况讨论排序条件。</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">Interval</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">Endpoint</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="n">is_closed</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+  <span class="p">};</span>
+
+  <span class="n">Endpoint</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">Point</span> <span class="p">{</span>
+    <span class="kt">bool</span> <span class="k">operator</span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span> <span class="n">Point</span><span class="o">&amp;</span> <span class="n">p</span><span class="p">)</span> <span class="k">const</span> <span class="p">{</span>
+<span class="c1">//        return val != p.val ? val &lt; p.val : (is_left &amp;&amp; !p.is_left);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">val</span> <span class="o">!=</span> <span class="n">p</span><span class="p">.</span><span class="n">val</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="n">p</span><span class="p">.</span><span class="n">val</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// 元素相等 两个都是开区间</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_closed</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">p</span><span class="p">.</span><span class="n">is_closed</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// 一前一后 将right 放在left前</span>
+            <span class="k">return</span> <span class="o">!</span><span class="n">is_left</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="p">.</span><span class="n">is_left</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 元素相等 一开一闭 都是right 开区间放前</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">is_left</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">p</span><span class="p">.</span><span class="n">is_left</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="o">!</span><span class="n">is_closed</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="p">.</span><span class="n">is_closed</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// 元素相等 一开一闭 都是left 闭区间放前</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">is_left</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="p">.</span><span class="n">is_left</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">is_closed</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">p</span><span class="p">.</span><span class="n">is_closed</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// 元素相等 一开一闭 left放在right前</span>
+        <span class="k">return</span> <span class="n">is_left</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">p</span><span class="p">.</span><span class="n">is_left</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">is_left</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">is_closed</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;</span> <span class="n">UnionOfIntervals</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;</span> <span class="n">intervals</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Point</span><span class="o">&gt;</span> <span class="n">P</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">intervals</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">P</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">left</span><span class="p">.</span><span class="n">val</span><span class="p">,</span> <span class="nb">true</span><span class="p">,</span> <span class="n">each</span><span class="p">.</span><span class="n">left</span><span class="p">.</span><span class="n">is_closed</span><span class="p">});</span>
+      <span class="n">P</span><span class="p">.</span><span class="n">push_back</span><span class="p">({</span><span class="n">each</span><span class="p">.</span><span class="n">right</span><span class="p">.</span><span class="n">val</span><span class="p">,</span> <span class="nb">false</span><span class="p">,</span> <span class="n">each</span><span class="p">.</span><span class="n">right</span><span class="p">.</span><span class="n">is_closed</span><span class="p">});</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">P</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Interval</span><span class="o">&gt;</span> <span class="n">ret</span><span class="p">;</span>
+
+  <span class="kt">bool</span> <span class="n">is_new_intervals</span> <span class="o">=</span> <span class="nb">true</span><span class="p">,</span> <span class="n">left_closed</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">left_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">left_cnt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">P</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">each</span><span class="p">.</span><span class="n">is_left</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">++</span><span class="n">left_cnt</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">is_new_intervals</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">left_idx</span> <span class="o">=</span> <span class="n">each</span><span class="p">.</span><span class="n">val</span><span class="p">;</span>
+            <span class="n">left_closed</span> <span class="o">=</span> <span class="n">each</span><span class="p">.</span><span class="n">is_closed</span><span class="p">;</span>
+            <span class="n">is_new_intervals</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="o">--</span><span class="n">left_cnt</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">left_cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">({{</span><span class="n">left_closed</span><span class="p">,</span> <span class="n">left_idx</span><span class="p">},{</span><span class="n">each</span><span class="p">.</span><span class="n">is_closed</span><span class="p">,</span> <span class="n">each</span><span class="p">.</span><span class="n">val</span><span class="p">}});</span>
+        <span class="n">is_new_intervals</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Partitioning and sorting an array with many repeated entries</h3>
+<p>Suppose you need to reorder the elements of a very large array so that equal elements appear together . For example , if the array is ( b , a , c , b , d , a , b , d ) then ( a , a , b , b , b , c , d , d ) is an acceptable reordering , as is ( d, d , c , a,a , b , b , b ) .</p>
+<p>If the entries are integers , this reordering can be achieved by sorting the array . If the number of distinct integers is very small relative to the size of the array , an efficient approach to sorting the array is to count the number of occurrences of each distinct integer and write the appropriate number of each integer , in sorted order , to the array . When array entries are objects , with multiple fields , only one of which is to be used as a key , the problem is harder to solve.</p>
+<p>You are given an array of student objects . Each student has an integer - valued age field that is to be treated as a key . Rearrange the elements of the array so that students of equal age appear together . The order in which different ages appear is not important . How would your solution change if ages have to appear in sorted order?</p>
+<p>Hint Count the number of students for each age .</p>
+<p>将学生对象按照年龄进行聚类。</p>
+<p>因为年龄集中在某个区间内，对全部的学生进行排序需要<span class="math">\(O(n\log n)\)</span>的时间复杂度. 排序的信息也不是必要的.</p>
+<p>下面的做法是<span class="math">\(O(n)\)</span>的时间复杂度, 但是也用了<span class="math">\(O(n)\)</span>的空间.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">GroupByAge</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;*</span> <span class="n">people</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;&amp;</span> <span class="n">p_ref</span> <span class="o">=</span> <span class="o">*</span><span class="n">people</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;&gt;</span> <span class="n">age_to_name</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span><span class="p">:</span> <span class="n">p_ref</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">age_to_name</span><span class="p">[</span><span class="n">each</span><span class="p">.</span><span class="n">age</span><span class="p">].</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">each</span><span class="p">.</span><span class="n">name</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="kt">int</span> <span class="n">c_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">age_to_name</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">name</span><span class="p">:</span> <span class="n">each</span><span class="p">.</span><span class="n">second</span><span class="p">)</span> <span class="p">{</span>
+          <span class="n">p_ref</span><span class="p">[</span><span class="n">c_idx</span><span class="o">++</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">each</span><span class="p">.</span><span class="n">first</span><span class="p">,</span> <span class="n">name</span><span class="p">};</span>
+      <span class="p">}</span>
+
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>为了将操作改为原地置换，需要另外一个table记录每个age的offset。这样每次找到一个年龄的对象，将其置换到指定的offset上去。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span> <span class="nf">GroupByAge</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;*</span> <span class="n">people</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here</span>
+  <span class="n">vector</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;&amp;</span> <span class="n">p_ref</span> <span class="o">=</span> <span class="o">*</span><span class="n">people</span><span class="p">;</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">age_to_cnt</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span><span class="p">:</span> <span class="n">p_ref</span><span class="p">)</span> <span class="p">{</span>
+      <span class="o">++</span><span class="n">age_to_cnt</span><span class="p">[</span><span class="n">each</span><span class="p">.</span><span class="n">age</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">age_to_offset</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="o">&amp;</span><span class="nl">each</span> <span class="p">:</span> <span class="n">age_to_cnt</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">age_to_offset</span><span class="p">[</span><span class="n">each</span><span class="p">.</span><span class="n">first</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span><span class="p">;</span>
+      <span class="n">offset</span> <span class="o">+=</span> <span class="n">each</span><span class="p">.</span><span class="n">second</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="kt">int</span> <span class="n">c_idx</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">age_to_offset</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// 将from 的元素替换到to</span>
+      <span class="k">auto</span> <span class="n">from</span> <span class="o">=</span> <span class="n">age_to_offset</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+      <span class="c1">// 找到from处年龄对应的offset位置的元素的年龄</span>
+      <span class="k">auto</span> <span class="n">to</span> <span class="o">=</span> <span class="n">age_to_offset</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="n">p_ref</span><span class="p">[</span><span class="n">from</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">].</span><span class="n">age</span><span class="p">);</span>
+      <span class="c1">// 上一步找到两个年龄的offset, 将from替换到to， 此时to位置的元素处于正确的位置， 而from未必</span>
+      <span class="n">std</span><span class="o">::</span><span class="n">swap</span><span class="p">(</span><span class="n">p_ref</span><span class="p">[</span><span class="n">from</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">],</span> <span class="n">p_ref</span><span class="p">[</span><span class="n">to</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">]);</span>
+
+      <span class="o">--</span><span class="n">age_to_cnt</span><span class="p">[</span><span class="n">to</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">age_to_cnt</span><span class="p">[</span><span class="n">to</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="o">++</span><span class="n">age_to_offset</span><span class="p">[</span><span class="n">to</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">];</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+          <span class="n">age_to_offset</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">to</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">);</span>
+      <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Team photo day---1</h3>
+<p>You are a photographer for a soccer meet. You will be taking pictures of pairs of opposing teams. All teams have the same number of players . A team photo consists of a front row of players and a back row of players . A player in the back row must be taller than the player in front of him , as illustrated in Figure 14.3. All players in a row must be from the same team.</p>
+<p>Design an algorithm that takes as input two teams and the heights of the players in the teams and checks if it is possible to place players to take the photo subject to the placement constraint.</p>
+<p>~~这个题不允许排序...虽然可以开新空间复制元素后排序。~~</p>
+<p>.....</p>
+<p>居然就是复制后排序...</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<div class="highlight"><pre><span></span><code>  <span class="c1">// Checks if team0 can be placed in front of team1.</span>
+  <span class="k">static</span> <span class="kt">bool</span> <span class="nf">ValidPlacementExists</span><span class="p">(</span><span class="k">const</span> <span class="n">Team</span><span class="o">&amp;</span> <span class="n">team0</span><span class="p">,</span> <span class="k">const</span> <span class="n">Team</span><span class="o">&amp;</span> <span class="n">team1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// TODO - you fill in here.</span>
+    <span class="k">auto</span> <span class="n">team0_sort</span><span class="p">(</span><span class="n">team0</span><span class="p">.</span><span class="n">players_</span><span class="p">);</span>
+    <span class="k">auto</span> <span class="n">team1_sort</span><span class="p">(</span><span class="n">team1</span><span class="p">.</span><span class="n">players_</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">team0_sort</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">team0_sort</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">team1_sort</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">team1_sort</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">team0_sort</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="n">team0_sort</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">team1_sort</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+  <span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement a fast sorting algorithm for lists</h3>
+<p>Implement a routine which sorts lists efficiently . It should be a stable sort , i .e. , the relative positions of equal elements must remain unchanged .</p>
+<p>Hint: In what respects are lists superior to arrays ?</p>
+<p>快排可以原地操作，但不是稳定排序。归并排序是稳定排序，但需要额外的空间。对于数组来说，这两个条件不能同时满足。</p>
+<p>对于链表来说，可以使用归并排序来保证稳定性，同时对链表的合并可以原地操作。</p>
+<div class="highlight"><pre><span></span><code><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">MergeTwoSortList</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">L0</span><span class="p">,</span> <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">L1</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">auto</span> <span class="n">dummy_head</span> <span class="o">=</span> <span class="n">make_shared</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">});</span>
+
+    <span class="k">auto</span> <span class="n">ptr</span> <span class="o">=</span> <span class="n">dummy_head</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">L0</span> <span class="o">&amp;&amp;</span> <span class="n">L1</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">L0</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">&lt;</span> <span class="n">L1</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">L0</span><span class="p">;</span>
+            <span class="n">L0</span> <span class="o">=</span> <span class="n">L0</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">L1</span><span class="p">;</span>
+            <span class="n">L1</span> <span class="o">=</span> <span class="n">L1</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">ptr</span> <span class="o">=</span> <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">L0</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">L1</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">ptr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">L0</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">dummy_head</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">StableSortList</span><span class="p">(</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">L</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">L</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">||</span> <span class="n">L</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="n">L</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// 用快慢指针找到链表中点</span>
+  <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">ListNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">pre_slow</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">,</span> <span class="n">slow</span> <span class="o">=</span> <span class="n">L</span><span class="p">,</span> <span class="n">fast</span> <span class="o">=</span> <span class="n">L</span><span class="p">;</span>
+  <span class="k">while</span> <span class="p">(</span><span class="n">fast</span> <span class="o">&amp;&amp;</span> <span class="n">fast</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">pre_slow</span> <span class="o">=</span> <span class="n">slow</span><span class="p">;</span>
+      <span class="n">fast</span> <span class="o">=</span> <span class="n">fast</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+      <span class="n">slow</span> <span class="o">=</span> <span class="n">slow</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="c1">// 断开链表</span>
+  <span class="n">pre_slow</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">;</span>
+  <span class="c1">// 递归归并排序</span>
+  <span class="k">return</span> <span class="nf">MergeTwoSortList</span><span class="p">(</span><span class="n">StableSortList</span><span class="p">(</span><span class="n">L</span><span class="p">),</span> <span class="n">StableSortList</span><span class="p">(</span><span class="n">slow</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute a salary threshold</h3>
+<p>You are working in the finance office for ABC corporation . ABC needs to cut payroll expenses to a specified target . The chief executive officer wants to do this by putting a cap on last year ' s salaries. Every employee who earned more than the cap last year will be paid the cap this year ; employees who earned no more than the cap will see no change in their salary .</p>
+<p>For example , if there were five employees with salaries last year were \<span class="math">\( 90 ,\\)</span> 30 , \<span class="math">\( 100 , \\)</span> 40 , and \<span class="math">\( 20 , and the target payroll this year is \\)</span> 210 , then 60 is a suitable salary cap , since 60 + 30 + 60 + 40 + 20 = 210.</p>
+<p>公司要扣钱了，计划从薪水比较高的人中收割，凡是薪水高于cap的，只发cap，为了使总支出达到target_payroll。</p>
+<p>我本来是用了一个table去记录高于xx的薪水有多少人，然后让cap从0到maximum迭代。</p>
+<p>在实际操作上，一个是&gt;多少在hash table中不可操作,另一是cap是浮点数, 没法迭代.</p>
+<p>恰当的方式是对salary排序后, 每次让cap跳一个层级.</p>
+<div class="highlight"><pre><span></span><code><span class="kt">double</span> <span class="nf">FindSalaryCap</span><span class="p">(</span><span class="kt">int</span> <span class="n">target_payroll</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">current_salaries</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// TODO - you fill in here.</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">current_salaries</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">current_salaries</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+  <span class="c1">// 当前cap下的薪水和</span>
+  <span class="kt">double</span> <span class="n">unadjusted_salary_sum</span> <span class="o">=</span> <span class="mf">0.</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">current_salaries</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// cap以上的薪水和</span>
+      <span class="k">const</span> <span class="kt">double</span> <span class="n">adjusted_salary_sum</span> <span class="o">=</span> <span class="n">current_salaries</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">current_salaries</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">i</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">unadjusted_salary_sum</span> <span class="o">+</span> <span class="n">adjusted_salary_sum</span> <span class="o">&gt;=</span> <span class="n">target_payroll</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">target_payroll</span> <span class="o">-</span> <span class="n">unadjusted_salary_sum</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">current_salaries</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="n">i</span><span class="p">);</span>
+      <span class="p">}</span>
+      <span class="n">unadjusted_salary_sum</span> <span class="o">+=</span> <span class="n">current_salaries</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}</script>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2021
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+</body>
+
+</html>
