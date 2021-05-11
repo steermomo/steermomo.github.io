@@ -83,17 +83,17 @@ github:
 	git commit -m 'commit by script'
 	git push origin origin:origin
 
-ghpage:
-	cd output
-	git init
-	git add -A
-	git remote add deploy "https://github.com/steermomo/steermomo.github.io.git"
-	git checkout gh-pages || git checkout --orphan gh-pages
-	echo -n 'Files to Commit:' && ls -l | wc -l
-	timestamp=$(date +%s%3N)
-	git commit -m "[ci skip] Automated deployment to GitHub Pages on $timestamp"
-	git push deploy gh-pages --force
-	rm -fr .git
-	cd ../
+ghpage: clean html
+	cd output && \
+	git init && \
+	git add -A && \
+	git remote add deploy "https://github.com/steermomo/steermomo.github.io.git" && \
+	git checkout gh-pages || git checkout --orphan gh-pages && \
+	echo -n 'Files to Commit:' && ls -l | wc -l && \
+	timestamp=$(date +%s%3N) && \
+	git commit -m "[ci skip] Automated deployment to GitHub Pages on $timestamp" && \
+	git push deploy gh-pages --force && \
+	rm -fr .git && \
+	cd ../ && \
 	echo '=================== Done  ==================='
 .PHONY: html help clean regenerate serve serve-global devserver stopserver publish github
