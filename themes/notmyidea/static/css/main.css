@@ -36,8 +36,8 @@ body {
     text-align: left;
 }
 code {
-    font-family: 'Fira Code Light';
-    font-size: 0.70rem;
+    font-family: 'Fira Code';
+    font-size: 0.75rem;
 }
 
 /* Headings */
@@ -116,6 +116,10 @@ a:link, a:visited {
 
 a:hover, a:active {
     color: #0FA0CE;
+}
+
+.footnote-ref {
+    vertical-align: text-bottom;
 }
 
 h1 a:hover {
@@ -948,3 +952,4 @@ li:last-child .hentry, #content .blog-archive-content>.hentry {
 #add-comment * {
     margin-bottom: .5em;
 }
+

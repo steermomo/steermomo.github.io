@@ -17,7 +17,7 @@ PATH = 'content'
 
 
 PLUGIN_PATHS = ["./pelican-plugins"]
-PLUGINS = ["render_math", "read_more_link", "pin_to_top", "change_archive_period","sitemap", "own_gallery", "extract_toc"]
+PLUGINS = ["render_math", "change_archive_period", "read_more_link", "pin_to_top","sitemap", "own_gallery", "extract_toc"]
 MATH_JAX = {'Math Renderer':'Common HTML'}
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 30
