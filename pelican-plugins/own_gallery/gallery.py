@@ -648,7 +648,7 @@ class Gallery:
         self.settings = settings
         self.logger = logging.getLogger(__name__)
         self.stats = defaultdict(int)
-        self.init_pool(ncpu=None)
+        self.init_pool(ncpu=1)
         self.context = context
         self.path = path
         self.theme = theme
