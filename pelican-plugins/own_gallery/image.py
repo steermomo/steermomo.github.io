@@ -146,7 +146,7 @@ def process_image(filepath, outpath, settings):
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
 
-    print(f'p img: {filepath} => {outpath}, {outname}')
+    print(f'Process one image: {filepath} => {outpath}, {outname}')
 
     if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
         options = settings['JPG_OPT']
