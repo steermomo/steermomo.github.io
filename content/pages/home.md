@@ -4,7 +4,7 @@ save_as: index.html
 
 This is H Li.
 
-I'm a master's stuednt at [XMU](). I majored in CS.
+I'm a Shachiku now. 🤣
 
 My current research is about `Deep Learning, Medical Image Analysis`.
 
@@ -21,13 +21,24 @@ My current research is about `Deep Learning, Medical Image Analysis`.
 <table style="width:80%;text-align: left; float: left;">
 <tr >
 <td>
+ByteDance Ltd
+</td>
+<td>
+Algorithm Engineer
+</td>
+<td>
+July 2020 - Now
+</td>
+</tr>
+<tr >
+<td>
 Tencent AI Lab
 </td>
 <td>
 Algorithm Engineer Intern
 </td>
 <td>
-May 2020 - Now
+May 2020 - May 2021
 </td>
 </tr>
 <tr >
