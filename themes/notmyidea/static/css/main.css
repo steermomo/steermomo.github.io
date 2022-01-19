@@ -88,7 +88,7 @@ h1, h2, h3, h4, h5, h6 {
 h2, h3, h4, h5, h6 {
     margin-top: 2rem;
     /* text-shadow: 0.1em 0.1em 0.2em gray */
-    text-shadow: 0px 0px 1px #333;
+    text-shadow: 0px 0px 0px #333;
 }
 
 hr {
