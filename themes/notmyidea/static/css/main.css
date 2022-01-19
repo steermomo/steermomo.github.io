@@ -159,17 +159,38 @@ li {
 }
 
 .post-info {
-    float: right;
-    margin: 10px;
+    /* float: right; */
+    margin: 5px;
     padding: 5px;
 }
 
-@media screen and (max-width: 633px) {
+.post-meta {
+    /* color: #939da3; */
+    font-size: 90%;
+    display: block;
+    text-align: center;
+    margin-bottom: 50px;
+  }
+.post-meta span {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: inline-block;
+    /* text-transform: uppercase; */
+}
+.post-meta a {
+    text-decoration: none;
+}
+
+.published {
+	font-size: medium;
+}
+
+/* @media screen and (max-width: 633px) {
     .post-info {
         visibility: hidden;
         display: none !important;
     }
-}
+} */
 
 
 .post-info p {

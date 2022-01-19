@@ -21,7 +21,7 @@ My current research is about `Deep Learning, Medical Image Analysis`.
 <table style="width:80%;text-align: left; float: left;">
 <tr >
 <td>
-ByteDance Ltd
+ByteDance Ltd.
 </td>
 <td>
 Algorithm Engineer

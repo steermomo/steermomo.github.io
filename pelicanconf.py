@@ -15,7 +15,7 @@ DIRECT_TEMPLATES = ['index', 'categories', 'archives']
 
 PATH = 'content'
 
-
+DEFAULT_DATE_FORMAT = '%Y-%m-%d %a'
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = ["render_math", "change_archive_period", "read_more_link", "pin_to_top","sitemap", "own_gallery", "extract_toc"]
 MATH_JAX = {'Math Renderer':'Common HTML'}
