@@ -98,7 +98,7 @@ void ms_deformable_im2col_cuda(cudaStream_t stream,
         raise NotImplementedError('Cuda is not availabel')
 ```
 
-P40上也没有FP16的支持，遂将`-DCUDA_HAS_FP16=1`改成了`-DCUDA_HAS_FP16=1`。
+P40上也没有FP16的支持，遂将`-DCUDA_HAS_FP16=1`改成了`-DCUDA_HAS_FP16=0`。
 然后删除build文件重新编译一遍，运行就都正常了。
 
 
