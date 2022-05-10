@@ -27,7 +27,7 @@ ByteDance Ltd.
 Algorithm Engineer
 </td>
 <td>
-July 2020 - Now
+July 2021 - Now
 </td>
 </tr>
 <tr >
