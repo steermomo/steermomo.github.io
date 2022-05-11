@@ -2,7 +2,7 @@ Title: Magisk Patch boot.img 后无法启动(循环卡米)
 Date: 2021-09-05 12:20
 Tags:  Android, Magisk
 Category: MISC
-Slug: after-patching-the-boot-img-with-magisk-stuck-in-the-loop-boot
+Slug: magisk-boot-loop
 
 记录一下MIUI12 刷入Magisk后关闭校验。
 
