@@ -22,6 +22,7 @@ body {
     /* background: #F5F4EF; */
     /* background-image: url(/extras/bkg.jpg); */
     background: url(/extras/Negociation.webp) no-repeat right top;
+    /* background: url(/extras/dapeng_ocean.jpg) no-repeat right top; */
     background-size: auto 100%;
     background-attachment: fixed;
     background-color: #f5f7f9;
@@ -557,7 +558,7 @@ archive body
     padding-left: 4.5rem;
     padding-bottom: .7rem;
     position: relative;
-    color: #B5BFC5;
+    color: #8b9397;
 }
 
 #blog-archive-content article time {
@@ -571,11 +572,11 @@ archive body
 }
 
 #blog-archive-content h2 {
-    margin-bottom: .3rem;
+    padding-bottom: .5rem;
     font-size: 2rem;
-    color: #B5BFC5;
+    color: #767e83;
     margin-top: 1em;
-    border-bottom: 1px dotted #CCC;
+    border-bottom: 1px dashed #adafb0;
 }
 
 #blog-archive-content h1 {

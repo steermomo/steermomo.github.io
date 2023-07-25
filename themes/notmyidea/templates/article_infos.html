@@ -1,8 +1,8 @@
 <div class="post-meta">
-        <span >
-               📅 {{ article.locale_date }}
+        Date: <span >
+               {{ article.locale_date }}
         </span>
-<span>🎫 <a href="{{ SITEURL }}/{{ article.category.url }}">{{ article.category }}</a></span>
+<span>Category: <a href="{{ SITEURL }}/{{ article.category.url }}">{{ article.category }}</a></span>
 <!-- {% include 'taglist.html' %} -->
 {% import 'translations.html' as translations with context %}
 {{ translations.translations_for(article) }}
