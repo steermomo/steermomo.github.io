@@ -12,10 +12,10 @@
 
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
         <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
-        
+
 
         <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
-        
+
         {% if FEED_ALL_ATOM %}
         <link href="{{ FEED_DOMAIN }}/{% if FEED_ALL_ATOM_URL %}{{ FEED_ALL_ATOM_URL }}{% else %}{{ FEED_ALL_ATOM }}{% endif %}"
                 type="application/atom+xml" rel="alternate" title="{{ SITENAME }} Atom Feed" />

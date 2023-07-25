@@ -36,6 +36,7 @@ body {
     padding: 0;
     text-align: left;
 }
+
 code {
     font-family: 'Fira Code';
     font-size: 0.75rem;
@@ -77,7 +78,12 @@ h6 {
 
 /* 14px */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-weight: 400;
     line-height: 1.1;
     margin-bottom: .8rem;
@@ -86,7 +92,11 @@ h1, h2, h3, h4, h5, h6 {
     /* color: #ff0000 */
 }
 
-h2, h3, h4, h5, h6 {
+h2,
+h3,
+h4,
+h5,
+h6 {
     margin-top: 2rem;
     /* text-shadow: 0.1em 0.1em 0.2em gray */
     text-shadow: 0px 0px 0px #333;
@@ -111,11 +121,13 @@ a img {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 
-a:link, a:visited {
+a:link,
+a:visited {
     color: #1EAEDB;
 }
 
-a:hover, a:active {
+a:hover,
+a:active {
     color: #0FA0CE;
 }
 
@@ -129,16 +141,19 @@ h1 a:hover {
 
 /* Paragraphs */
 
-div.line-block, p {
+div.line-block,
+p {
     margin-top: 1em;
     margin-bottom: 1em;
 }
 
-strong, b {
+strong,
+b {
     font-weight: bold;
 }
 
-em, i {
+em,
+i {
     font-style: italic;
 }
 
@@ -171,19 +186,21 @@ li {
     display: block;
     text-align: center;
     margin-bottom: 50px;
-  }
+}
+
 .post-meta span {
     margin-left: 10px;
     margin-right: 10px;
     display: inline-block;
     /* text-transform: uppercase; */
 }
+
 .post-meta a {
     text-decoration: none;
 }
 
 .published {
-	font-size: medium;
+    font-size: medium;
 }
 
 /* @media screen and (max-width: 633px) {
@@ -277,7 +294,13 @@ tfoot td {}
 
 /* HTML5 tags */
 
-header, section, footer, aside, nav, article, figure {
+header,
+section,
+footer,
+aside,
+nav,
+article,
+figure {
     display: block;
 }
 
@@ -290,12 +313,14 @@ header, section, footer, aside, nav, article, figure {
     width: 80%;
 }
 
-img.right, figure.right {
+img.right,
+figure.right {
     float: right;
     margin: 0 0 2em 2em;
 }
 
-img.left, figure.left {
+img.left,
+figure.left {
     float: left;
     margin: 0 2em 2em 0;
 }
@@ -321,7 +346,8 @@ img.left, figure.left {
     /* line-height: 0; */
 }
 
-#banner h1 a:link, #banner h1 a:visited {
+#banner h1 a:link,
+#banner h1 a:visited {
     color: #000305;
     display: block;
     font-weight: bold;
@@ -329,7 +355,8 @@ img.left, figure.left {
     text-decoration: none;
 }
 
-#banner h1 a:hover, #banner h1 a:active {
+#banner h1 a:hover,
+#banner h1 a:active {
     background: none;
     color: #C74350;
     text-shadow: none;
@@ -377,28 +404,7 @@ img.left, figure.left {
 }
 
 #banner #navName {
-    border-left: 1px solid #999;
-    /* color: #000305; */
-    color: white;
-    display: inline-block;
-    background-color: rgba(102, 51, 153, 0.822);
-    ;
-    /* height: 30px; */
-    height: 2rem;
-    line-height: 1.5rem;
-    padding: 0.25rem 1.5rem;
-    text-decoration: none;
-    border-top-right-radius: 5px;
-    -moz-border-radius-topright: 5px;
-    -webkit-border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    -moz-border-radius-bottomright: 5px;
-    -webkit-border-bottom-right-radius: 5px;
-}
-
-/* #banner nav  */
-
-#banner nav a:link, #banner nav a:visited {
+    border-left: 1px dashed #999;
     color: white;
     display: inline-block;
     background-color: rgba(102, 51, 153, 0.822);
@@ -407,13 +413,27 @@ img.left, figure.left {
     text-decoration: none;
 }
 
-#banner nav a:hover, #banner nav a:active {
+/* #banner nav  */
+
+#banner nav a,
+#banner nav a:visited {
+    color: white;
+    display: inline-block;
+    background-color: rgba(102, 51, 153, 0.822);
+    height: 30px;
+    padding: 5px 1.5em;
+    text-decoration: none;
+}
+
+#banner nav a:hover,
+#banner nav a:active {
     background: #c7435000;
     background-color: rgba(102, 51, 153, 0.822);
     text-decoration: underline;
 }
 
-#banner nav .active a:link, #banner nav .active a:visited {
+#banner nav .active a:link,
+#banner nav .active a:visited {
     background: #c7435000;
     color: #fff;
     text-decoration: none;
@@ -482,12 +502,14 @@ img.left, figure.left {
     margin-bottom: .5em;
 }
 
-#featured h3 a:link, #featured h3 a:visited {
+#featured h3 a:link,
+#featured h3 a:visited {
     color: #000305;
     text-decoration: none;
 }
 
-#featured h3 a:hover, #featured h3 a:active {
+#featured h3 a:hover,
+#featured h3 a:active {
     color: #fff;
 }
 
@@ -615,7 +637,8 @@ archive body
     padding: 0 3px;
 }
 
-#extras a:link, #extras a:visited {
+#extras a:link,
+#extras a:visited {
     color: #444;
     display: block;
     border-bottom: 1px solid #F4E3E3;
@@ -623,7 +646,8 @@ archive body
     padding: .3em .25em;
 }
 
-#extras a:hover, #extras a:active {
+#extras a:hover,
+#extras a:active {
     color: #fff;
 }
 
@@ -679,7 +703,8 @@ archive body
     background-image: url('../images/icons/gitorious.png');
 }
 
-.social a[href*='github.com'], .social a[href*='git.io'] {
+.social a[href*='github.com'],
+.social a[href*='git.io'] {
     background-image: url('../images/icons/github.png');
     background-size: 16px 16px;
 }
@@ -696,11 +721,13 @@ archive body
     background-image: url('../images/icons/google-groups.png');
 }
 
-.social a[href*='news.ycombinator.com'], .social a[href*='hackernewsers.com'] {
+.social a[href*='news.ycombinator.com'],
+.social a[href*='hackernewsers.com'] {
     background-image: url('../images/icons/hackernews.png');
 }
 
-.social a[href*='last.fm'], .social a[href*='lastfm.'] {
+.social a[href*='last.fm'],
+.social a[href*='lastfm.'] {
     background-image: url('../images/icons/lastfm.png');
 }
 
@@ -712,7 +739,8 @@ archive body
     background-image: url('../images/icons/reddit.png');
 }
 
-.social a[type$='atom+xml'], .social a[type$='rss+xml'] {
+.social a[type$='atom+xml'],
+.social a[type$='rss+xml'] {
     background-image: url('../images/icons/rss.png');
 }
 
@@ -775,7 +803,8 @@ archive body
     margin: 5px 20px;
 }
 
-#about .url:link, #about .url:visited {
+#about .url:link,
+#about .url:visited {
     text-decoration: none;
 }
 
@@ -806,7 +835,8 @@ archive body
     padding: 1.5em 0;
 }
 
-li:last-child .hentry, #content .blog-archive-content>.hentry {
+li:last-child .hentry,
+#content .blog-archive-content>.hentry {
     border: 0;
     margin: 0;
 }
@@ -824,7 +854,8 @@ li:last-child .hentry, #content .blog-archive-content>.hentry {
     text-align: center;
 }
 
-.entry-title a:link, .entry-title a:visited {
+.entry-title a:link,
+.entry-title a:visited {
     text-decoration: none;
     color: #333;
 }
@@ -949,7 +980,9 @@ li:last-child .hentry, #content .blog-archive-content>.hentry {
     width: 150px;
 }
 
-#add-comment input[type='text'], #add-comment input[type='email'], #add-comment input[type='url'] {
+#add-comment input[type='text'],
+#add-comment input[type='email'],
+#add-comment input[type='url'] {
     float: left;
     width: 200px;
 }
@@ -974,4 +1007,3 @@ li:last-child .hentry, #content .blog-archive-content>.hentry {
 #add-comment * {
     margin-bottom: .5em;
 }
-
