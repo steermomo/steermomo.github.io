@@ -52,7 +52,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 def _has_exif_tags(img):
-    return hasattr(img, 'info') and 'exif' in img.info
+    return hasattr(img, "info") and "exif" in img.info
 
 
 def _read_image(file_path):
@@ -62,11 +62,9 @@ def _read_image(file_path):
     for warning in caught_warnings:
         if warning.category == PILImage.DecompressionBombWarning:
             logger = logging.getLogger(__name__)
-            logger.info('PILImage reported a possible DecompressionBomb'
-                        ' for file {}'.format(file_path))
+            logger.info("PILImage reported a possible DecompressionBomb" " for file {}".format(file_path))
         else:
-            warnings.showwarning(warning.message, warning.category,
-                                 warning.filename, warning.lineno)
+            warnings.showwarning(warning.message, warning.category, warning.filename, warning.lineno)
     return im
 
 
@@ -79,32 +77,28 @@ def generate_image(source, outname, settings, options=None):
     :param options: dict with PIL options (quality, optimize, progressive)
 
     """
-    print(f'{source} => {outname}')
+    print(f"{source} => {outname}")
 
     logger = logging.getLogger(__name__)
 
-    if settings['USE_ORIG'] or source.endswith('.gif'):
-        utils.copy(source, outname, symlink=settings['ORIG_LINK'])
+    if settings["USE_ORIG"] or source.endswith(".gif"):
+        utils.copy(source, outname, symlink=settings["ORIG_LINK"])
         return
     # print(f'read image {source}')
     img = _read_image(source)
-    
+
     original_format = img.format
 
-    if settings['COPY_EXIF_DATA'] and settings['autorotate_images']:
-        logger.warning("The 'autorotate_images' and 'COPY_EXIF_DATA' settings "
-                       "are not compatible because Sigal can't save the "
-                       "modified Orientation tag.")
+    if settings["COPY_EXIF_DATA"] and settings["autorotate_images"]:
+        logger.warning("The 'autorotate_images' and 'COPY_EXIF_DATA' settings " "are not compatible because Sigal can't save the " "modified Orientation tag.")
 
     # Preserve EXIF data
-    if settings['COPY_EXIF_DATA'] and _has_exif_tags(img):
+    if settings["COPY_EXIF_DATA"] and _has_exif_tags(img):
         if options is not None:
             options = deepcopy(options)
         else:
             options = {}
-        options['exif'] = img.info['exif']
-
-
+        options["exif"] = img.info["exif"]
 
     # signal.send() does not work here as plugins can modify the image, so we
     # iterate other the receivers to call them with the image.
@@ -113,13 +107,12 @@ def generate_image(source, outname, settings, options=None):
 
     # first, use hard-coded output format, or PIL format, or original image
     # format, or fall back to JPEG
-    outformat = settings.get('IMG_FORMAT') or img.format or original_format or 'JPEG'
-    logger.debug('Save resized image to %s (%s)', outname, outformat)
+    outformat = settings.get("IMG_FORMAT") or img.format or original_format or "JPEG"
+    logger.debug("Save resized image to %s (%s)", outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None,
-                       thumb_fit_centering=(0.5, 0.5)):
+def generate_thumbnail(source, outname, box, fit=True, options=None, thumb_fit_centering=(0.5, 0.5)):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
@@ -127,30 +120,29 @@ def generate_thumbnail(source, outname, box, fit=True, options=None,
     original_format = img.format
 
     if fit:
-        img = ImageOps.fit(img, box, PILImage.LANCZOS,
-                           centering=thumb_fit_centering)
+        img = ImageOps.fit(img, box, PILImage.LANCZOS, centering=thumb_fit_centering)
     else:
         img.thumbnail(box, PILImage.LANCZOS)
 
-    outformat = img.format or original_format or 'JPEG'
-    logger.debug('Save thumnail image: %s (%s)', outname, outformat)
+    outformat = img.format or original_format or "JPEG"
+    logger.debug("Save thumnail image: %s (%s)", outname, outformat)
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
 def process_image(filepath, outpath, settings):
     """Process one image: resize, create thumbnail."""
-    
+
     logger = logging.getLogger(__name__)
-    logger.debug('Processing %s', filepath)
+    logger.debug("Processing %s", filepath)
     filename = os.path.split(filepath)[1]
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
 
-    print(f'Process one image: {filepath} => {outpath}, {outname}')
+    print(f"Process one image: {filepath} => {outpath}, {outname}")
 
-    if ext in ('.jpg', '.jpeg', '.JPG', '.JPEG'):
-        options = settings['JPG_OPT']
-    elif ext == '.png':
+    if ext in (".jpg", ".jpeg", ".JPG", ".JPEG"):
+        options = settings["JPG_OPT"]
+    elif ext == ".png":
         # options = {'optimize': True}
         options = {}
     else:
@@ -158,15 +150,14 @@ def process_image(filepath, outpath, settings):
 
     try:
         generate_image(filepath, outname, settings, options=options)
-        print(f'successful generate_image')
-        if settings.get('make_thumbs', True):
+        print(f"successful generate_image")
+        if settings.get("make_thumbs", True):
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(
-                outname, thumb_name, settings['THUMB_SIZE'],
-                fit=settings['THUMB_FIT'], options=options,
-                thumb_fit_centering=settings["THUMB_FIT_CENTERING"])
+                outname, thumb_name, settings["THUMB_SIZE"], fit=settings["THUMB_FIT"], options=options, thumb_fit_centering=settings["THUMB_FIT_CENTERING"]
+            )
     except Exception as e:
-        logger.info('Failed to process: %r', e)
+        logger.info("Failed to process: %r", e)
         if logger.getEffectiveLevel() == logging.DEBUG:
             raise
         else:
@@ -184,10 +175,7 @@ def get_size(file_path):
         logger.error("Could not read size of %s due to %r", file_path, e)
     else:
         width, height = im.size
-        return {
-            'width': width,
-            'height': height
-        }
+        return {"width": width, "height": height}
 
 
 def get_exif_data(filename):
@@ -200,19 +188,18 @@ def get_exif_data(filename):
     try:
         exif = img._getexif() or {}
     except ZeroDivisionError:
-        logger.warning('Failed to read EXIF data.')
+        logger.warning("Failed to read EXIF data.")
         return None
 
     data = {TAGS.get(tag, tag): value for tag, value in exif.items()}
 
-    if 'GPSInfo' in data:
+    if "GPSInfo" in data:
         try:
-            data['GPSInfo'] = {GPSTAGS.get(tag, tag): value
-                               for tag, value in data['GPSInfo'].items()}
+            data["GPSInfo"] = {GPSTAGS.get(tag, tag): value for tag, value in data["GPSInfo"].items()}
         except AttributeError:
             logger = logging.getLogger(__name__)
-            logger.info('Failed to get GPS Info')
-            del data['GPSInfo']
+            logger.info("Failed to get GPS Info")
+            del data["GPSInfo"]
     return data
 
 
@@ -231,23 +218,21 @@ def get_iptc_data(filename):
         img = _read_image(filename)
         raw_iptc = IptcImagePlugin.getiptcinfo(img)
     except SyntaxError:
-        logger.info('IPTC Error in %s', filename)
+        logger.info("IPTC Error in %s", filename)
 
     # IPTC fields are catalogued in:
     # https://www.iptc.org/std/photometadata/specification/IPTC-PhotoMetadata
     # 2:05 is the IPTC title property
     if raw_iptc and (2, 5) in raw_iptc:
-        iptc_data["title"] = raw_iptc[(2, 5)].decode('utf-8', errors='replace')
+        iptc_data["title"] = raw_iptc[(2, 5)].decode("utf-8", errors="replace")
 
     # 2:120 is the IPTC description property
     if raw_iptc and (2, 120) in raw_iptc:
-        iptc_data["description"] = raw_iptc[(2, 120)].decode('utf-8',
-                                                             errors='replace')
+        iptc_data["description"] = raw_iptc[(2, 120)].decode("utf-8", errors="replace")
 
     # 2:105 is the IPTC headline property
     if raw_iptc and (2, 105) in raw_iptc:
-        iptc_data["headline"] = raw_iptc[(2, 105)].decode('utf-8',
-                                                          errors='replace')
+        iptc_data["headline"] = raw_iptc[(2, 105)].decode("utf-8", errors="replace")
 
     return iptc_data
 
@@ -261,77 +246,75 @@ def dms_to_degrees(v):
     return d + (m / 60.0) + (s / 3600.0)
 
 
-def get_exif_tags(data, datetime_format='%c'):
+def get_exif_tags(data, datetime_format="%c"):
     """Make a simplified version with common tags from raw EXIF data."""
 
     logger = logging.getLogger(__name__)
     simple = {}
 
-    for tag in ('Model', 'Make', 'LensModel'):
+    for tag in ("Model", "Make", "LensModel"):
         if tag in data:
             if isinstance(data[tag], tuple):
                 simple[tag] = data[tag][0].strip()
             else:
                 simple[tag] = data[tag].strip()
 
-    if 'FNumber' in data:
-        fnumber = data['FNumber']
+    if "FNumber" in data:
+        fnumber = data["FNumber"]
         try:
-            simple['fstop'] = float(fnumber[0]) / fnumber[1]
+            simple["fstop"] = float(fnumber[0]) / fnumber[1]
         except Exception:
-            logger.debug('Skipped invalid FNumber: %r', fnumber, exc_info=True)
+            logger.debug("Skipped invalid FNumber: %r", fnumber, exc_info=True)
 
-    if 'FocalLength' in data:
-        focal = data['FocalLength']
+    if "FocalLength" in data:
+        focal = data["FocalLength"]
         try:
-            simple['focal'] = round(float(focal[0]) / focal[1])
+            simple["focal"] = round(float(focal[0]) / focal[1])
         except Exception:
-            logger.debug('Skipped invalid FocalLength: %r', focal,
-                         exc_info=True)
+            logger.debug("Skipped invalid FocalLength: %r", focal, exc_info=True)
 
-    if 'ExposureTime' in data:
-        exptime = data['ExposureTime']
+    if "ExposureTime" in data:
+        exptime = data["ExposureTime"]
         if isinstance(exptime, tuple):
             try:
-                simple['exposure'] = str(fractions.Fraction(exptime[0],
-                                                            exptime[1]))
+                simple["exposure"] = str(fractions.Fraction(exptime[0], exptime[1]))
             except ZeroDivisionError:
-                logger.info('Invalid ExposureTime: %r', exptime)
+                logger.info("Invalid ExposureTime: %r", exptime)
         elif isinstance(exptime, int):
-            simple['exposure'] = str(exptime)
+            simple["exposure"] = str(exptime)
         else:
-            logger.info('Unknown format for ExposureTime: %r', exptime)
+            logger.info("Unknown format for ExposureTime: %r", exptime)
 
-    if data.get('ISOSpeedRatings'):
-        simple['iso'] = data['ISOSpeedRatings']
+    if data.get("ISOSpeedRatings"):
+        simple["iso"] = data["ISOSpeedRatings"]
 
-    if 'DateTimeOriginal' in data:
+    if "DateTimeOriginal" in data:
         # Remove null bytes at the end if necessary
-        date = data['DateTimeOriginal'].rsplit('\x00')[0]
+        date = data["DateTimeOriginal"].rsplit("\x00")[0]
 
         try:
-            simple['dateobj'] = datetime.strptime(date, '%Y:%m:%d %H:%M:%S')
-            simple['datetime'] = simple['dateobj'].strftime(datetime_format)
+            simple["dateobj"] = datetime.strptime(date, "%Y:%m:%d %H:%M:%S")
+            simple["datetime"] = simple["dateobj"].strftime(datetime_format)
         except (ValueError, TypeError) as e:
-            logger.info('Could not parse DateTimeOriginal: %s', e)
+            logger.info("Could not parse DateTimeOriginal: %s", e)
 
-    if 'GPSInfo' in data:
-        info = data['GPSInfo']
-        lat_info = info.get('GPSLatitude')
-        lon_info = info.get('GPSLongitude')
-        lat_ref_info = info.get('GPSLatitudeRef')
-        lon_ref_info = info.get('GPSLongitudeRef')
+    if "GPSInfo" in data:
+        info = data["GPSInfo"]
+        lat_info = info.get("GPSLatitude")
+        lon_info = info.get("GPSLongitude")
+        lat_ref_info = info.get("GPSLatitudeRef")
+        lon_ref_info = info.get("GPSLongitudeRef")
 
         if lat_info and lon_info and lat_ref_info and lon_ref_info:
             try:
                 lat = dms_to_degrees(lat_info)
                 lon = dms_to_degrees(lon_info)
             except (ZeroDivisionError, ValueError, TypeError):
-                logger.info('Failed to read GPS info')
+                logger.info("Failed to read GPS info")
             else:
-                simple['gps'] = {
-                    'lat': - lat if lat_ref_info != 'N' else lat,
-                    'lon': - lon if lon_ref_info != 'E' else lon,
+                simple["gps"] = {
+                    "lat": -lat if lat_ref_info != "N" else lat,
+                    "lon": -lon if lon_ref_info != "E" else lon,
                 }
 
     return simple
