@@ -10,7 +10,7 @@ import os
 
 LOG = logging.getLogger(__name__)
 
-INCLUDE_TYPES = ['html']
+INCLUDE_TYPES = ["html"]
 
 
 def validate_files(pelican):
@@ -18,7 +18,7 @@ def validate_files(pelican):
     Validate a generated HTML file
     :param pelican: pelican object
     """
-    for dirpath, _, filenames in os.walk(pelican.settings['OUTPUT_PATH']):
+    for dirpath, _, filenames in os.walk(pelican.settings["OUTPUT_PATH"]):
         for name in filenames:
             if should_validate(name):
                 filepath = os.path.join(dirpath, name)
@@ -43,13 +43,9 @@ def validate(filename):
 
     # display errors and warning
     for err in vld.errors:
-        LOG.error(u'line: {0}; col: {1}; message: {2}'.
-                  format(err['line'], err['col'], h.unescape(err['message']))
-                  )
+        LOG.error("line: {0}; col: {1}; message: {2}".format(err["line"], err["col"], h.unescape(err["message"])))
     for err in vld.warnings:
-        LOG.warning(u'line: {0}; col: {1}; message: {2}'.
-                    format(err['line'], err['col'], h.unescape(err['message']))
-                    )
+        LOG.warning("line: {0}; col: {1}; message: {2}".format(err["line"], err["col"], h.unescape(err["message"])))
 
 
 def should_validate(filename):

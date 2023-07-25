@@ -6,25 +6,24 @@ from jinja2.utils import generate_lorem_ipsum
 from pelican.contents import Article
 
 # Generate content with image
-TEST_CONTENT_IMAGE_URL = 'https://testimage.com/test.jpg'
-TEST_CONTENT = str(generate_lorem_ipsum(n=3, html=True)) + '<img src="' + TEST_CONTENT_IMAGE_URL + '"/>'+ str(generate_lorem_ipsum(n=2,html=True))  # noqa
-TEST_SUMMARY_IMAGE_URL = 'https://testimage.com/summary.jpg'
+TEST_CONTENT_IMAGE_URL = "https://testimage.com/test.jpg"
+TEST_CONTENT = str(generate_lorem_ipsum(n=3, html=True)) + '<img src="' + TEST_CONTENT_IMAGE_URL + '"/>' + str(generate_lorem_ipsum(n=2, html=True))  # noqa
+TEST_SUMMARY_IMAGE_URL = "https://testimage.com/summary.jpg"
 TEST_SUMMARY_WITHOUTIMAGE = str(generate_lorem_ipsum(n=1, html=True))
 TEST_SUMMARY_WITHIMAGE = TEST_SUMMARY_WITHOUTIMAGE + '<img src="' + TEST_SUMMARY_IMAGE_URL + '"/>'  # noqa
-TEST_CUSTOM_IMAGE_URL = 'https://testimage.com/custom.jpg'
+TEST_CUSTOM_IMAGE_URL = "https://testimage.com/custom.jpg"
 
 
 class TestRepresentativeImage(unittest.TestCase):
-
     def setUp(self):
         super(TestRepresentativeImage, self).setUp()
         representative_image.register()
 
     def test_extract_image_from_content(self):
         args = {
-            'content': TEST_CONTENT,
-            'metadata': {
-                'summary': TEST_SUMMARY_WITHOUTIMAGE,
+            "content": TEST_CONTENT,
+            "metadata": {
+                "summary": TEST_SUMMARY_WITHOUTIMAGE,
             },
         }
 
@@ -33,9 +32,9 @@ class TestRepresentativeImage(unittest.TestCase):
 
     def test_extract_image_from_summary(self):
         args = {
-            'content': TEST_CONTENT,
-            'metadata': {
-                'summary': TEST_SUMMARY_WITHIMAGE,
+            "content": TEST_CONTENT,
+            "metadata": {
+                "summary": TEST_SUMMARY_WITHIMAGE,
             },
         }
 
@@ -45,10 +44,10 @@ class TestRepresentativeImage(unittest.TestCase):
 
     def test_extract_image_from_summary_with_custom_image(self):
         args = {
-            'content': TEST_CONTENT,
-            'metadata': {
-                'summary': TEST_SUMMARY_WITHIMAGE,
-                'image': TEST_CUSTOM_IMAGE_URL,
+            "content": TEST_CONTENT,
+            "metadata": {
+                "summary": TEST_SUMMARY_WITHIMAGE,
+                "image": TEST_CUSTOM_IMAGE_URL,
             },
         }
 
@@ -57,5 +56,5 @@ class TestRepresentativeImage(unittest.TestCase):
         self.assertEqual(article.summary, TEST_SUMMARY_WITHOUTIMAGE)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

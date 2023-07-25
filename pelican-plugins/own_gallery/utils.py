@@ -26,9 +26,7 @@ from urllib.parse import quote
 from markdown import Markdown
 from markupsafe import Markup
 
-VIDEO_MIMES = {'.mp4': 'video/mp4',
-               '.webm': 'video/webm',
-               '.ogv': 'video/ogg'}
+VIDEO_MIMES = {".mp4": "video/mp4", ".webm": "video/webm", ".ogv": "video/ogg"}
 
 MD = None
 
@@ -70,13 +68,15 @@ def check_or_create_dir(path):
 def url_from_path(path):
     """Transform path to url, converting backslashes to slashes if needed."""
 
-    if os.sep != '/':
-        path = '/'.join(path.split(os.sep))
+    if os.sep != "/":
+        path = "/".join(path.split(os.sep))
     return quote(path)
+
 
 def read_json(filename):
     import json
-    with open(filename, encoding='utf-8-sig') as f:
+
+    with open(filename, encoding="utf-8-sig") as f:
         out = json.load(f)
     return out
 
@@ -89,13 +89,11 @@ def read_markdown(filename):
     # Use utf-8-sig codec to remove BOM if it is present. This is only possible
     # this way prior to feeding the text to the markdown parser (which would
     # also default to pure utf-8)
-    with open(filename, encoding='utf-8-sig') as f:
+    with open(filename, encoding="utf-8-sig") as f:
         text = f.read()
 
     if MD is None:
-        MD = Markdown(extensions=['markdown.extensions.meta',
-                                  'markdown.extensions.tables'],
-                      output_format='html5')
+        MD = Markdown(extensions=["markdown.extensions.meta", "markdown.extensions.tables"], output_format="html5")
     else:
         MD.reset()
         # When https://github.com/Python-Markdown/markdown/pull/672
@@ -103,16 +101,16 @@ def read_markdown(filename):
         MD.Meta = {}
 
     # Mark HTML with Markup to prevent jinja2 autoescaping
-    output = {'description': Markup(MD.convert(text))}
+    output = {"description": Markup(MD.convert(text))}
 
     try:
         meta = MD.Meta.copy()
     except AttributeError:
         pass
     else:
-        output['meta'] = meta
+        output["meta"] = meta
         try:
-            output['title'] = MD.Meta['title'][0]
+            output["title"] = MD.Meta["title"][0]
         except KeyError:
             pass
 
@@ -130,7 +128,7 @@ def get_mime(ext):
 
 
 class cached_property:
-    """ A property that is only computed once per instance and then replaces
+    """A property that is only computed once per instance and then replaces
     itself with an ordinary attribute. Deleting the attribute resets the
     property.
     Source:
@@ -140,7 +138,7 @@ class cached_property:
     """
 
     def __init__(self, func):
-        self.__doc__ = getattr(func, '__doc__')
+        self.__doc__ = getattr(func, "__doc__")
         self.func = func
 
     def __get__(self, obj, cls):

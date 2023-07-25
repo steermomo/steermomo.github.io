@@ -97,9 +97,7 @@ class Media:
         self.src_path = join(settings["GALLERY_SOURCE"], path, filename)
         self.dst_path = join(settings["GALLERY_DEST"], path, filename)
 
-        self.thumb_name = get_thumb(
-            self.settings, self.filename
-        )  ### thumb_name 已经是完整的路径了
+        self.thumb_name = get_thumb(self.settings, self.filename)  ### thumb_name 已经是完整的路径了
         self.thumb_path = join(settings["GALLERY_DEST"], path, self.thumb_name)
 
         self.logger = logging.getLogger(__name__)
@@ -212,11 +210,7 @@ class Image(Media):
         information, see :ref:`simple-exif-data`.
         """
         datetime_format = self.settings.get("datetime_format", "%d %y")
-        return (
-            get_exif_tags(self.raw_exif, datetime_format=datetime_format)
-            if self.raw_exif and self.ext in (".jpg", ".jpeg")
-            else None
-        )
+        return get_exif_tags(self.raw_exif, datetime_format=datetime_format) if self.raw_exif and self.ext in (".jpg", ".jpeg") else None
 
     def _get_metadata(self):
         super()._get_metadata()
@@ -229,9 +223,7 @@ class Image(Media):
         try:
             iptc_data = get_iptc_data(self.src_path)
         except Exception as e:
-            self.logger.warning(
-                "Could not read IPTC data from %s: %s", self.src_path, e
-            )
+            self.logger.warning("Could not read IPTC data from %s: %s", self.src_path, e)
         else:
             if not self.title and iptc_data.get("title"):
                 self.title = iptc_data["title"]
@@ -242,13 +234,9 @@ class Image(Media):
     def raw_exif(self):
         """If not `None`, contains the raw EXIF tags."""
         try:
-            return (
-                get_exif_data(self.src_path) if self.ext in (".jpg", ".jpeg") else None
-            )
+            return get_exif_data(self.src_path) if self.ext in (".jpg", ".jpeg") else None
         except Exception as e:
-            self.logger.warning(
-                "Could not read EXIF data from %s: %s", self.src_path, e
-            )
+            self.logger.warning("Could not read EXIF data from %s: %s", self.src_path, e)
 
     @cached_property
     def size(self):
@@ -329,11 +317,7 @@ class Album:
         # optionally add index.html to the URLs
         self.url_ext = self.output_file if settings["INDEX_IN_URL"] else ""
 
-        self.index_url = (
-            url_from_path(os.path.relpath(settings["GALLERY_DEST"], self.dst_path))
-            + "/"
-            + self.url_ext
-        )
+        self.index_url = url_from_path(os.path.relpath(settings["GALLERY_DEST"], self.dst_path)) + "/" + self.url_ext
 
         #: List of all medias in the album (:class:`~sigal.gallery.Image` and
         #: :class:`~sigal.gallery.Video`).
@@ -353,14 +337,10 @@ class Album:
             medias.append(media)
 
     def __repr__(self):
-        return "<{}>(path={!r}, title={!r})".format(
-            self.__class__.__name__, self.path, self.title
-        )
+        return "<{}>(path={!r}, title={!r})".format(self.__class__.__name__, self.path, self.title)
 
     def __str__(self):
-        return f"{self.path} : " + ", ".join(
-            f"{count} {_type}s" for _type, count in self.medias_count.items()
-        )
+        return f"{self.path} : " + ", ".join(f"{count} {_type}s" for _type, count in self.medias_count.items())
 
     def __len__(self):
         return len(self.medias)
@@ -408,17 +388,9 @@ class Album:
                 root_path = self.path if self.path != "." else ""
                 if ALBUMS_SORT_ATTR.startswith("meta."):
                     meta_key = ALBUMS_SORT_ATTR.split(".", 1)[1]
-                    key = lambda s: locale.strxfrm(
-                        self.gallery.albums[join(root_path, s)].meta.get(
-                            meta_key, [""]
-                        )[0]
-                    )
+                    key = lambda s: locale.strxfrm(self.gallery.albums[join(root_path, s)].meta.get(meta_key, [""])[0])
                 else:
-                    key = lambda s: locale.strxfrm(
-                        getattr(
-                            self.gallery.albums[join(root_path, s)], ALBUMS_SORT_ATTR
-                        )
-                    )
+                    key = lambda s: locale.strxfrm(getattr(self.gallery.albums[join(root_path, s)], ALBUMS_SORT_ATTR))
             else:
                 key = locale.strxfrm
 
@@ -481,7 +453,6 @@ class Album:
 
     @property
     def thumbnail_at_toplevel(self):
-
         """Path to the thumbnail of the album."""
 
         if self._thumbnail:
@@ -516,15 +487,9 @@ class Album:
                         # self._thumbnail = (url_quote(self.name) + '/' +
                         #                    f.thumbnail)
                         # self._thumbnail = f.thumbnail
-                        thumb_name = get_thumb(
-                            self.settings, f.filename
-                        )  ### thumb_name 已经是完整的路径了
-                        thumb_path = join(
-                            self.settings["GALLERY_DEST"], self.path, thumb_name
-                        )
-                        self._thumbnail = os.path.relpath(
-                            thumb_path, self.settings["OUTPUT_PATH"]
-                        )
+                        thumb_name = get_thumb(self.settings, f.filename)  ### thumb_name 已经是完整的路径了
+                        thumb_path = join(self.settings["GALLERY_DEST"], self.path, thumb_name)
+                        self._thumbnail = os.path.relpath(thumb_path, self.settings["OUTPUT_PATH"])
                         self.logger.debug(
                             "Use 1st landscape image as thumbnail for %r : %s",
                             self,
@@ -536,23 +501,15 @@ class Album:
             if not self._thumbnail and self.medias:
                 self.logger.debug(f"Medias: {self.medias}, {len(self.medias)}")
                 for media in self.medias:
-                    thumb_name = get_thumb(
-                        self.settings, media.filename
-                    )  ### thumb_name 已经是完整的路径了
-                    thumb_path = join(
-                        self.settings["GALLERY_DEST"], self.path, thumb_name
-                    )
-                    self._thumbnail = os.path.relpath(
-                        thumb_path, self.settings["OUTPUT_PATH"]
-                    )
+                    thumb_name = get_thumb(self.settings, media.filename)  ### thumb_name 已经是完整的路径了
+                    thumb_path = join(self.settings["GALLERY_DEST"], self.path, thumb_name)
+                    self._thumbnail = os.path.relpath(thumb_path, self.settings["OUTPUT_PATH"])
                     break
                 else:
                     self.logger.debug("No thumbnail found for %r", self)
                     return None
 
-                self.logger.debug(
-                    "Use the 1st image as thumbnail for %r : %s", self, self._thumbnail
-                )
+                self.logger.debug("Use the 1st image as thumbnail for %r : %s", self, self._thumbnail)
                 return self._thumbnail
 
             # use the thumbnail of their sub-directories
@@ -620,9 +577,7 @@ class Album:
                     self.logger.warning("No thumbnail found for %r", self)
                     return None
 
-                self.logger.debug(
-                    "Use the 1st image as thumbnail for %r : %s", self, self._thumbnail
-                )
+                self.logger.debug("Use the 1st image as thumbnail for %r : %s", self, self._thumbnail)
                 return self._thumbnail
 
             # use the thumbnail of their sub-directories
@@ -683,9 +638,7 @@ class Album:
 
 
 def get_out_path(pelican):
-    base_out_path = os.path.join(
-        pelican.settings["OUTPUT_PATH"], pelican.settings.get("GALLERY_DEST")
-    )
+    base_out_path = os.path.join(pelican.settings["OUTPUT_PATH"], pelican.settings.get("GALLERY_DEST"))
     # logger.debug("Processing thumbnail {0}=>{1}".format(in_filename, name))
     return base_out_path
 
@@ -721,27 +674,21 @@ class Gallery:
         theme_loader = FileSystemLoader(theme_templates_path)
 
         simple_theme_path = os.path.dirname(os.path.abspath(__file__))
-        simple_loader = FileSystemLoader(
-            os.path.join(simple_theme_path, "themes", "simple", "templates")
-        )
+        simple_loader = FileSystemLoader(os.path.join(simple_theme_path, "themes", "simple", "templates"))
 
         self.env = Environment(
             loader=ChoiceLoader(
                 [
                     FileSystemLoader(self._templates_path),
                     simple_loader,  # implicit inheritance
-                    PrefixLoader(
-                        {"!simple": simple_loader, "!theme": theme_loader}
-                    ),  # explicit ones
+                    PrefixLoader({"!simple": simple_loader, "!theme": theme_loader}),  # explicit ones
                 ]
             ),
             **self.settings["JINJA_ENVIRONMENT"],
         )
         # 修正输出位置
         print(self.settings["OUTPUT_PATH"], self.settings.get("GALLERY_DEST"))
-        dst_path = os.path.join(
-            self.settings["OUTPUT_PATH"], self.settings["GALLERY_DEST"]
-        )
+        dst_path = os.path.join(self.settings["OUTPUT_PATH"], self.settings["GALLERY_DEST"])
         settings["GALLERY_DEST"] = dst_path
         self.settings["GALLERY_DEST"] = dst_path
         check_or_create_dir(settings["GALLERY_DEST"])
@@ -754,11 +701,7 @@ class Gallery:
         ignore_files = settings["GALLERY_IGNORE_FILES"]
 
         progressChars = cycle(["/", "-", "\\", "|"])
-        show_progress = (
-            not quiet
-            and self.logger.getEffectiveLevel() >= logging.WARNING
-            and os.isatty(sys.stdout.fileno())
-        )
+        show_progress = not quiet and self.logger.getEffectiveLevel() >= logging.WARNING and os.isatty(sys.stdout.fileno())
         self.progressbar_target = None if show_progress else Devnull()
 
         print(f"looking for {os.path.abspath(src_path)}")
@@ -772,9 +715,7 @@ class Gallery:
             # print(relpath)
 
             # Test if the directory match the ignore_dirs settings
-            if ignore_dirs and any(
-                fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs
-            ):
+            if ignore_dirs and any(fnmatch.fnmatch(relpath, ignore) for ignore in ignore_dirs):
                 self.logger.info("Ignoring %s", relpath)
                 continue
 
@@ -887,9 +828,7 @@ class Gallery:
                 show_eta=False,
                 file=self.progressbar_target,
             ) as albums:
-                media_list = [
-                    f for album in albums for f in self.process_dir(album, force=force)
-                ]
+                media_list = [f for album in albums for f in self.process_dir(album, force=force)]
         except KeyboardInterrupt:
             sys.exit("Interrupted")
 
@@ -937,9 +876,7 @@ class Gallery:
             if album.albums:
                 if album.medias:
                     self.logger.warning(
-                        "Album %s contains sub-albums and images. "
-                        "Please move images to their own sub-album. "
-                        "Images in album %s will not be visible.",
+                        "Album %s contains sub-albums and images. " "Please move images to their own sub-album. " "Images in album %s will not be visible.",
                         album.title,
                         album.title,
                     )
@@ -953,9 +890,7 @@ class Gallery:
                     },
                     relative_urls=False,
                     override_output=False,
-                    url=url_from_path(
-                        os.path.relpath(self.output_path, album.dst_path)
-                    ),
+                    url=url_from_path(os.path.relpath(self.output_path, album.dst_path)),
                     settings=self.settings,
                 )
             else:
@@ -970,9 +905,7 @@ class Gallery:
                     },
                     relative_urls=False,
                     override_output=False,
-                    url=url_from_path(
-                        os.path.relpath(self.output_path, album.dst_path)
-                    ),
+                    url=url_from_path(os.path.relpath(self.output_path, album.dst_path)),
                     settings=self.settings,
                 )
         print("")
@@ -1015,10 +948,7 @@ class Gallery:
                     self.stats[f.type + "_failed"] += 1
                     album.medias.remove(f)
                     break
-        self.logger.error(
-            'You can run "sigal build" in verbose (--verbose) or'
-            " debug (--debug) mode to get more details."
-        )
+        self.logger.error('You can run "sigal build" in verbose (--verbose) or' " debug (--debug) mode to get more details.")
 
     def process_dir(self, album, force=False):
         """Process a list of images in a directory."""
