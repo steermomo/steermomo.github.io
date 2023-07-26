@@ -919,17 +919,7 @@ files = [
     {file = "wcwidth-0.2.6.tar.gz", hash = "sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"},
 ]
 
-[[package]]
-name = "yuicompressor"
-version = "66.0.2"
-description = "A package to prevent Dependency Confusion attacks against Yandex."
-optional = false
-python-versions = "*"
-files = [
-    {file = "yuicompressor-66.0.2.tar.gz", hash = "sha256:fbb122b2b1b642e8455f22982e352c3074648db41985179b2ff43bd74a1e045e"},
-]
-
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "be69e942c07255d4a5f31c2618f789595ed5528e1f4995aae0452c5fc722cccc"
+content-hash = "29ea448a8f687120cd2e83bc04534e3e9fc43a8b037df9814925b4802ed86343"
