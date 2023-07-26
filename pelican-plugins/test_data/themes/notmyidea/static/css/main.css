@@ -227,8 +227,9 @@ img.left, figure.left {float: left; margin: 0 2em 2em 0;}
 	background: #fff;
 	margin-bottom: 2em;
 	overflow: hidden;
-	padding: 20px;
-	width: 760px;
+	padding: 20px 20px;
+    width: 80%;
+    max-width: 60rem;
 	
 	border-radius: 10px;
 	-moz-border-radius: 10px;
