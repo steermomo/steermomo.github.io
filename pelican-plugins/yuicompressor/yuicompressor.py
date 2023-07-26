@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from pelican import signals
-from subprocess import check_call
 import logging
 import os
+from subprocess import check_call
+
+from pelican import signals
 
 logger = logging.getLogger(__name__)
 

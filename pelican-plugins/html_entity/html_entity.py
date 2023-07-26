@@ -10,10 +10,11 @@ Usage:
 :html_entity:`#149`
 """
 from __future__ import unicode_literals
+
+import six
 from docutils import nodes, utils
 from docutils.parsers.rst import roles
 from pelican.readers import PelicanHTMLTranslator
-import six
 
 
 class html_entity(nodes.Inline, nodes.Node):

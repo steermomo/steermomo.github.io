@@ -11,15 +11,15 @@ the twitter bootstrap framework.
 
 """
 
+from cgi import escape
 from uuid import uuid1
 
-from cgi import escape
-from docutils import nodes, utils
 import docutils
+from docutils import nodes, utils
 from docutils.parsers import rst
-from docutils.parsers.rst import directives, roles, Directive
+from docutils.parsers.rst import Directive, directives, roles
 from pelican import signals
-from pelican.readers import RstReader, PelicanHTMLTranslator
+from pelican.readers import PelicanHTMLTranslator, RstReader
 
 
 class CleanHTMLTranslator(PelicanHTMLTranslator):

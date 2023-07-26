@@ -7,10 +7,11 @@ A Pelican plugin to extract table of contents (ToC) from `article.content` and
 place it in its own `article.toc` variable for use in templates.
 """
 
-from os import path
-from bs4 import BeautifulSoup
-from pelican import signals, readers, contents
 import logging
+from os import path
+
+from bs4 import BeautifulSoup
+from pelican import contents, readers, signals
 
 logger = logging.getLogger(__name__)
 

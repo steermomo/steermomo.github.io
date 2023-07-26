@@ -6,12 +6,14 @@ try:
     from itertools import zip_longest
 except ImportError:
     from six.moves import zip_longest
+
 import logging
 import os
-from time import mktime
 from datetime import datetime
-from pelican.utils import set_date_tzinfo
+from time import mktime
+
 from git import Git, Repo
+from pelican.utils import set_date_tzinfo
 
 DEV_LOGGER = logging.getLogger(__name__)
 

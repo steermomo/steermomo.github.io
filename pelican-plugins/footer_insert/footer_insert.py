@@ -3,7 +3,7 @@ Footer Insert
 """
 
 from pelican import signals
-from pelican.contents import Content, Article
+from pelican.contents import Article, Content
 
 
 def add_footer(content):

@@ -33,7 +33,7 @@ the math.  See README for more details.
 import os
 import sys
 
-from pelican import signals, generators
+from pelican import generators, signals
 
 try:
     from bs4 import BeautifulSoup
@@ -239,8 +239,9 @@ def configure_typogrify(pelicanobj, mathjax_settings):
         return
 
     try:
-        import typogrify
         from distutils.version import LooseVersion
+
+        import typogrify
 
         if LooseVersion(typogrify.__version__) < LooseVersion("2.0.7"):
             raise TypeError("Incorrect version of Typogrify")

@@ -3,13 +3,12 @@
 
 import os
 import tempfile
-import unittest
 import time
-
+import unittest
 from contextlib import contextmanager
-from tempfile import mkdtemp
-from shutil import rmtree
 from hashlib import md5
+from shutil import rmtree
+from tempfile import mkdtemp
 
 import gzip_cache
 

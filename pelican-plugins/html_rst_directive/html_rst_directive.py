@@ -8,8 +8,9 @@ This plugin allows you to use HTML tags from within reST documents.
 """
 
 from __future__ import unicode_literals
+
 from docutils import nodes
-from docutils.parsers.rst import directives, Directive
+from docutils.parsers.rst import Directive, directives
 
 
 class RawHtml(Directive):

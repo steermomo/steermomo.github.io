@@ -9,10 +9,9 @@ TEST_CONTENT = str(generate_lorem_ipsum(n=1))
 TEST_SUMMARY = generate_lorem_ipsum(n=1, html=False)
 
 
-from pelican.contents import Page
 import pelican.settings
-
 import summary
+from pelican.contents import Page
 
 
 class TestSummary(unittest.TestCase):

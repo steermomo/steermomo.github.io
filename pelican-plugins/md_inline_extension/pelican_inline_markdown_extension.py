@@ -6,11 +6,10 @@ An extension for the Python Markdown module that enables
 the Pelican Python static site generator to add inline patterns.
 """
 
-import markdown
 import re
 
-from markdown.util import etree
-from markdown.util import AtomicString
+import markdown
+from markdown.util import AtomicString, etree
 
 
 class PelicanInlineMarkdownExtensionPattern(markdown.inlinepatterns.Pattern):

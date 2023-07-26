@@ -2,8 +2,9 @@
 
 import codecs
 import logging
-import markdown
 import os
+
+import markdown
 
 logger = logging.getLogger(__name__)
 

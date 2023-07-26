@@ -6,10 +6,10 @@ adds option to specify maximum number of images to appear in article summary
 also adds option to include an image by default if one exists in your article
 """
 
-from pelican import signals
-from pelican.contents import Content, Article
-from pelican.generators import ArticlesGenerator
 from bs4 import BeautifulSoup
+from pelican import signals
+from pelican.contents import Article, Content
+from pelican.generators import ArticlesGenerator
 from six import text_type
 
 

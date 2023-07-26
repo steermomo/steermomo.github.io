@@ -1,6 +1,5 @@
 import six
 from bs4 import BeautifulSoup
-
 from pelican import signals
 from pelican.contents import Article, Page
 from pelican.generators import ArticlesGenerator

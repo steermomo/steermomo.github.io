@@ -9,13 +9,13 @@ For more information, please visit: http://vuongnguyen.com/creating-inline-read-
 
 """
 
-from pelican import signals, contents
-from pelican.utils import truncate_html_words
+from pelican import contents, signals
 from pelican.generators import ArticlesGenerator
+from pelican.utils import truncate_html_words
 
 try:
-    from lxml.html import fragment_fromstring, fragments_fromstring, tostring
     from lxml.etree import ParserError
+    from lxml.html import fragment_fromstring, fragments_fromstring, tostring
 except ImportError:
     raise Exception("Unable to find lxml. To use READ_MORE_LINK, you need lxml")
 

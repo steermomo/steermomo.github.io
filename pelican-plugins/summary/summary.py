@@ -7,9 +7,11 @@ body of your articles.
 """
 
 from __future__ import unicode_literals
-from pelican import signals
-from pelican.generators import ArticlesGenerator, StaticGenerator, PagesGenerator
+
 import re
+
+from pelican import signals
+from pelican.generators import ArticlesGenerator, PagesGenerator, StaticGenerator
 
 
 def initialized(pelican):

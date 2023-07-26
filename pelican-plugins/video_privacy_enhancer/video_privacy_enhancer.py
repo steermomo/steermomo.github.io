@@ -13,13 +13,11 @@ For more information on this plugin, please see the attached Readme.md file.
 LIBRARIES FOR PYTHON TO USE
 """
 
-from pelican import signals  # For making this plugin work with Pelican.
-
+import logging
 import os.path  # For checking whether files are present in the filesystem.
-
 import re  # For using regular expressions.
 
-import logging
+from pelican import signals  # For making this plugin work with Pelican.
 
 logger = logging.getLogger(__name__)  # For using logger.debug() to log errors or other notes.
 

@@ -1,21 +1,23 @@
 """
-Pin to top plugin for Pelican
-================================
-Adds .pin variable to article's context and pins the article to the top
- even if it is older than the other articles
+在每个article中添加archive_month_day和archive_year属性，用于在归档页面中显示文章的月份和年份
 """
+from typing import List
+
 from pelican import signals
+from pelican.contents import Article
+from pelican.generators import ArticlesGenerator
 
 
-def add_month_date_attr(generator):
-    new_article = []
+def add_month_date_attr(generator: ArticlesGenerator):
+    new_article: List[Article] = []
     # count articles and keep the pinned ordered by date
     # prev_date = None
     prev_year = set()
+    article: Article
     for article in generator.articles:
         c_date = article.date.strftime("%b %d")
         set_str = c_date
-        setattr(article, "monthdate", set_str)
+        setattr(article, "archive_month_day", set_str)
 
         c_year_date = article.date.strftime("%Y")
         if c_year_date not in prev_year:
@@ -23,7 +25,7 @@ def add_month_date_attr(generator):
             set_str = c_year_date
         else:
             set_str = None
-        setattr(article, "yeardate", set_str)
+        setattr(article, "archive_year", set_str)
 
         new_article.append(article)
 

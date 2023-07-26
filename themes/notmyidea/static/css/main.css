@@ -527,9 +527,8 @@ figure.left {
     overflow: hidden;
     padding: 20px 0;
     width: 80%;
-    max-width: 50rem;
+    max-width: 60rem;
     margin-top: 6rem;
-    /* width: 80%; */
     border-radius: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -608,7 +607,7 @@ archive body
     overflow: hidden;
     padding: 20px 20px;
     width: 80%;
-    max-width: 50rem;
+    max-width: 60rem;
     /* width: 80%; */
     border-radius: 10px;
     -moz-border-radius: 10px;
@@ -978,14 +977,17 @@ li:last-child .hentry,
     margin: 0 auto;
     margin-bottom: 1rem;
     overflow: hidden;
-    padding: 20px 20px;
+    padding: 20px 0px;
     width: 80%;
-    max-width: 50rem;
+    max-width: 60rem;
     margin-top: 2rem;
-    /* width: 80%; */
-    border-radius: 5px;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+}
+#comments h2 {
+
+    padding-left: 10px;
 }
 
 #comments-list {
