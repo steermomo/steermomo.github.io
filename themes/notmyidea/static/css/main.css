@@ -489,10 +489,9 @@ figure.left {
 
 /* #featured figure img {display: block; float: right;} */
 
-#featured figure img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+#featured article p:has(img) {
+    margin-left: 0;
+    margin-right: 0;
     max-width: 100%;
 }
 
