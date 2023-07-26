@@ -1,22 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
+
+import logging
 from datetime import date
 
-CURRENTYEAR = date.today().year
+LOG_FILTER = [(logging.DEBUG, "Read file %s"), (logging.DEBUG, "tag: ")]
+
+CURRENT_YEAR = date.today().year
 
 AUTHOR = "H Li"
 SITENAME = "steer"
 SITEURL = ""
+TIMEZONE = "Asia/Shanghai"
 # SITEURL = 'https://i.steer.space'
 
 # disable authors
 AUTHORS_SAVE_AS = ""
 DIRECT_TEMPLATES = ["index", "categories", "archives"]
-
+DEFAULT_DATE_FORMAT = "%Y-%m-%d %a"
 PATH = "content"
 
-DEFAULT_DATE_FORMAT = "%Y-%m-%d %a"
+# === 插件设置 ===
+
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = [
     "render_math",
@@ -26,6 +32,7 @@ PLUGINS = [
     "sitemap",
     "own_gallery",
     "extract_toc",
+    # "yuicompressor"
 ]
 MATH_JAX = {"Math Renderer": "Common HTML"}
 # This settings indicates that you want to create summary at a certain length
@@ -37,8 +44,8 @@ READ_MORE_LINK = "<span>continue</span>"
 # This is the format of the read more link
 READ_MORE_LINK_FORMAT = '<a class="read-more" href="/{url}">{text}</a>'
 
-TIMEZONE = "Asia/Shanghai"
 
+# === Feed 设置 ===
 DEFAULT_LANG = "en"
 CHECK_MODIFIED_METHOD = "md5"
 # Feed generation is usually not desired when developing
@@ -88,6 +95,8 @@ DEFAULT_PAGINATION = 9
 # RELATIVE_URLS = True
 FILENAME_METADATA = r"(?P<date>\d{4}\d{2}\d{2})-(?P<slug>.*)"
 
+
+# === 顶部菜单 ===
 DISPLAY_CATEGORIES_ON_MENU = False
 DISPLAY_PAGES_ON_MENU = False
 
@@ -100,7 +109,7 @@ MENUITEMS = (
     # ('About', '/About.html'),
 )
 
-# Set URL's
+# === 文章URL ===
 TAG_URL = "tags/{slug}/"
 TAG_SAVE_AS = "tags/{slug}/index.html"
 TAGS_URL = "tags/{slug}/"
@@ -118,7 +127,7 @@ ARTICLE_SAVE_AS = "blog/{date:%Y}/{date:%m}/{slug}.html"
 INDEX_SAVE_AS = "blog/index.html"
 # ARTICLE_ORDER_BY = 'date'
 
-
+# === Archives ===
 AUTHORS_URL = ""
 AUTHORS_SAVE_AS = ""
 ARCHIVES_URL = "archives/"
@@ -130,13 +139,11 @@ MONTH_ARCHIVE_SAVE_AS = "blog/{date:%Y}/{date:%m}/index.html"
 PAGE_URL = "{slug}.html"
 PAGE_SAVE_AS = PAGE_URL
 
-# thumbnailer
+# === own gallery 插件设置 ===
 IMAGE_PATH = "pictures"
 THUMBNAIL_DIR = "thumbnailer"
 THUMBNAIL_KEEP_TREE = True
 
-
-# own gallery
 IGNORE_FILES = ["content/gallery/*"]
 GALLERY_SOURCE = "./content/gallery"
 GALLERY_DEST = "gallery"

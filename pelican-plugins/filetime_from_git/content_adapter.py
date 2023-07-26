@@ -3,7 +3,9 @@
 Wraps a content object to provide some git information
 """
 import logging
+
 from pelican.utils import memoized
+
 from .git_wrapper import git_wrapper
 
 DEV_LOGGER = logging.getLogger(__name__)

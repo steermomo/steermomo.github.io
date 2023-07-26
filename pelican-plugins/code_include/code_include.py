@@ -4,9 +4,8 @@ from __future__ import unicode_literals
 import os.path
 
 from docutils import io, nodes, statemachine, utils
-from docutils.utils.error_reporting import SafeString, ErrorString
-from docutils.parsers.rst import directives, Directive
-
+from docutils.parsers.rst import Directive, directives
+from docutils.utils.error_reporting import ErrorString, SafeString
 from pelican.rstdirectives import Pygments
 
 

@@ -9,11 +9,11 @@ Compute Date and Modified metadata from Mercurial revisions.
 """
 
 import os
-from pelican import signals, contents
-from pelican.utils import strftime, set_date_tzinfo
 from datetime import datetime
 
 import hglib
+from pelican import contents, signals
+from pelican.utils import set_date_tzinfo, strftime
 
 
 def datetime_from_timestamp(timestamp, content):

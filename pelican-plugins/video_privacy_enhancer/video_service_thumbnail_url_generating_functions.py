@@ -8,10 +8,10 @@ Each function should accept one argument (the video id from that service) and sh
 LIBRARIES
 """
 
+import json
+
 # from urllib.request import urlopen # For downloading the video thumbnails. Not as clean as, e.g., the requests module, but installed by default in many Python distributions.
 from six.moves.urllib.request import urlopen
-
-import json
 
 """
 END OF LIBRARIES

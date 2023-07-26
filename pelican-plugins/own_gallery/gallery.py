@@ -36,31 +36,17 @@ from collections import defaultdict
 from datetime import datetime
 from itertools import cycle
 from os.path import isfile, join, splitext
-from urllib.parse import quote as url_quote
-from jinja2 import (
-    BaseLoader,
-    ChoiceLoader,
-    Environment,
-    FileSystemLoader,
-    PrefixLoader,
-    TemplateNotFound,
-)
-from click import progressbar
 from shutil import get_terminal_size
+from typing import Dict, List
+from urllib.parse import quote as url_quote
+
+from click import progressbar
+from jinja2 import BaseLoader, ChoiceLoader, Environment, FileSystemLoader, PrefixLoader, TemplateNotFound
+
 from . import image
 from .image import get_exif_data, get_exif_tags, get_iptc_data, get_size, process_image
 from .settings import get_thumb
-from .utils import (
-    Devnull,
-    cached_property,
-    check_or_create_dir,
-    copy,
-    get_mime,
-    is_valid_html5_video,
-    read_markdown,
-    read_json,
-    url_from_path,
-)
+from .utils import Devnull, cached_property, check_or_create_dir, copy, get_mime, is_valid_html5_video, read_json, read_markdown, url_from_path
 
 
 class PelicanTemplateNotFound(Exception):
@@ -68,7 +54,9 @@ class PelicanTemplateNotFound(Exception):
 
 
 class Media:
-    """Base Class for media files.
+    """
+    图片 视频 基类
+    Base Class for media files.
 
     Attributes:
 
@@ -83,24 +71,30 @@ class Media:
     type = ""
     """Type of media, e.g. ``"image"`` or ``"video"``."""
 
-    def __init__(self, filename, path, settings):
+    def __init__(self, filename: str, path: str, settings: Dict):
+        """
+        Args:
+
+            filename (str): 文件名
+            path (str): 相对路径
+            settings (Dict): 全局透传参数
+        """
         self.filename = filename
         """Filename of the resized image."""
 
         self.src_filename = filename
         """Filename of the resized image."""
-
+        self.logger = logging.getLogger(__name__)
         self.path = path
         self.settings = settings
         self.ext = os.path.splitext(filename)[1].lower()
-        logging.info(f"Read media{filename}")
+        self.logger.info(f"[Plugins-Gallery] read media file={filename}")
         self.src_path = join(settings["GALLERY_SOURCE"], path, filename)
         self.dst_path = join(settings["GALLERY_DEST"], path, filename)
 
         self.thumb_name = get_thumb(self.settings, self.filename)  ### thumb_name 已经是完整的路径了
         self.thumb_path = join(settings["GALLERY_DEST"], path, self.thumb_name)
 
-        self.logger = logging.getLogger(__name__)
         self._get_metadata()
         # default: title is the filename
         if not self.title:
@@ -194,7 +188,10 @@ class Media:
 
 
 class Image(Media):
-    """Gather all informations on an image file."""
+    """
+    获取图片信息
+    Gather all informations on an image file.
+    """
 
     type = "image"
 
@@ -293,7 +290,16 @@ class Album:
     description_file = "index.md"
     description_file = "index.json"
 
-    def __init__(self, path, settings, dirnames, filenames, gallery):
+    def __init__(self, path: str, settings: Dict, dirnames: List[str], filenames: List[str], gallery: "Gallery"):
+        """生成album
+
+        Args:
+            path (str): 相对路径
+            settings (Dict): 全局透传参数
+            dirnames (List[str]): 子目录
+            filenames (List[str]): 文件
+            gallery (Gallery): gallery类实例
+        """
         self.path = path
         self.name = path.split(os.path.sep)[-1]
         self.gallery = gallery
@@ -311,7 +317,7 @@ class Album:
 
         self.logger = logging.getLogger(__name__)
 
-        # logging.getLogger().setLevel(logging.INFO)
+        logging.getLogger(__name__).setLevel(logging.INFO)
         self._get_metadata()
 
         # optionally add index.html to the URLs
@@ -349,7 +355,9 @@ class Album:
         return iter(self.medias)
 
     def _get_metadata(self):
-        """Get album metadata from `description_file` (`index.md`):
+        """
+        获取album的meta信息（title, thumbnail, description）
+        Get album metadata from `description_file` (`index.md`):
 
         -> title, thumbnail image, description
 
@@ -410,7 +418,7 @@ class Album:
 
             self.medias.sort(key=key, reverse=self.settings["MEDIAS_SORT_REVERSE"])
 
-            print(self.medias)
+            self.logger.info(f"[Plugins-Gallery] sorted medias={self.medias}")
 
         # signals.medias_sorted.send(self)
 
@@ -482,7 +490,7 @@ class Album:
                     if size is None:
                         size = get_size(f.src_path)
                     w, h = size["width"], size["height"]
-                    self.logger.debug(f"Image Size: {w} x {h}")
+                    # self.logger.debug(f"Image Size: {w} x {h}")
                     if size["width"] > size["height"]:
                         # self._thumbnail = (url_quote(self.name) + '/' +
                         #                    f.thumbnail)
@@ -687,10 +695,10 @@ class Gallery:
             **self.settings["JINJA_ENVIRONMENT"],
         )
         # 修正输出位置
-        print(self.settings["OUTPUT_PATH"], self.settings.get("GALLERY_DEST"))
+        self.logger.info(f'[Plugin-Gallery] output_path={self.settings["OUTPUT_PATH"]}, dest={self.settings.get("GALLERY_DEST")}')
         dst_path = os.path.join(self.settings["OUTPUT_PATH"], self.settings["GALLERY_DEST"])
         settings["GALLERY_DEST"] = dst_path
-        self.settings["GALLERY_DEST"] = dst_path
+        # self.settings["GALLERY_DEST"] = dst_path
         check_or_create_dir(settings["GALLERY_DEST"])
 
         # Build the list of directories with images
@@ -704,12 +712,12 @@ class Gallery:
         show_progress = not quiet and self.logger.getEffectiveLevel() >= logging.WARNING and os.isatty(sys.stdout.fileno())
         self.progressbar_target = None if show_progress else Devnull()
 
-        print(f"looking for {os.path.abspath(src_path)}")
-        print(src_path)
+        self.logger.info(f"[Plugin-Gallery] search images from -> {os.path.abspath(src_path)}")
+
         for path, dirs, files in os.walk(src_path, followlinks=True, topdown=False):
-            print(path)
+            # print(path)
             if show_progress:
-                print("\rCollecting albums " + next(progressChars), end="")
+                self.logger.info("\rCollecting albums " + next(progressChars), end="")
             relpath = os.path.relpath(path, src_path)
 
             # print(relpath)
@@ -725,9 +733,9 @@ class Gallery:
                 for ignore in ignore_files:
                     files_path -= set(fnmatch.filter(files_path, ignore))
 
-                self.logger.debug("Files before filtering: %r", files)
+                # self.logger.debug("Files before filtering: %r", files)
                 files = [os.path.split(f)[1] for f in files_path]
-                self.logger.debug("Files after filtering: %r", files)
+                # self.logger.debug("Files after filtering: %r", files)
 
             # Remove sub-directories that have been ignored in a previous
             # iteration (as topdown=False, sub-directories are processed before
@@ -738,18 +746,17 @@ class Gallery:
                     dirs.remove(d)
 
             # 生成album
-            logging.info("Album")
-            logging.info(f"make album {relpath}, {dirs}, {files}")
+            self.logger.info(f"[Plugin-Gallery] make album, relpath={relpath}, dirs={dirs}, files={files}")
             album = Album(relpath, settings, dirs, files, self)
 
             if not album.medias and not album.albums:
-                self.logger.info("Skip empty album: %r", album)
+                self.logger.info("[Plugin-Gallery] Skip empty album: %r", album)
             else:
                 album.create_output_directories()
                 albums[relpath] = album
 
         if show_progress:
-            logging.info("\rCollecting albums, done.")
+            self.logger.info("\rCollecting albums, done.")
 
         # album 排序
         with progressbar(
@@ -768,7 +775,7 @@ class Gallery:
             for album in progress_albums:
                 album.sort_medias(settings["MEDIAS_SORT_ATTR"])
 
-        self.logger.debug("Albums:\n%r", albums.values())
+        self.logger.info(f"[Plugin-Gallery] Albums={albums.values()}")
 
     @property
     def title(self):

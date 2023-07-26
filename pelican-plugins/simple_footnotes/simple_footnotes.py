@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 
-from pelican import signals
 import html5lib
 import six
+from pelican import signals
 
 RAW_FOOTNOTE_CONTAINERS = ["code"]
 

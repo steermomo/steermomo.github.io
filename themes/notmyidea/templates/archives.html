@@ -6,13 +6,13 @@
     <dl>
         {% for article in dates %}
         <!-- <dt>{{ article.locale_date }}</dt> -->
-        {% if article.yeardate is not none %}
-        <h2>{{ article.yeardate}}</h2>
+        {% if article.archive_year is not none %}
+        <h2>{{ article.archive_year}}</h2>
 
         {%endif %}
         <article>
             <h1><a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a></h1>
-            <time>{{article.monthdate}}</time>
+            <time>{{article.archive_month_day}}</time>
             <footer>
                 <span class="categories">posted in <a href="{{ SITEURL }}/{{article.category.url}}">{{article.category}}</a>
                     {% if article.tags|length > 0 %}
@@ -40,7 +40,7 @@
 {% block footpage %}
 <footer id="contentinfo" class="body">
     <address id="about" class="vcard body">
-        Copyright © {{ CURRENTYEAR }} steer
+        Copyright © {{ CURRENT_YEAR }} steer
         </br>
         Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
             href="http://python.org">Python</a>.

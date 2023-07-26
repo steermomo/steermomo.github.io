@@ -77,7 +77,8 @@ def generate_image(source, outname, settings, options=None):
     :param options: dict with PIL options (quality, optimize, progressive)
 
     """
-    print(f"{source} => {outname}")
+    # print(f"{source} => {outname}")
+    logging.info(f"[Plugin-Gallery-Image] copy {source} => {outname}")
 
     logger = logging.getLogger(__name__)
 
@@ -138,7 +139,7 @@ def process_image(filepath, outpath, settings):
     outname = os.path.join(outpath, filename)
     ext = os.path.splitext(filename)[1]
 
-    print(f"Process one image: {filepath} => {outpath}, {outname}")
+    # print(f"Process one image: {filepath} => {outpath}, {outname}")
 
     if ext in (".jpg", ".jpeg", ".JPG", ".JPEG"):
         options = settings["JPG_OPT"]
@@ -150,7 +151,7 @@ def process_image(filepath, outpath, settings):
 
     try:
         generate_image(filepath, outname, settings, options=options)
-        print(f"successful generate_image")
+        # print(f"successful generate_image")
         if settings.get("make_thumbs", True):
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(

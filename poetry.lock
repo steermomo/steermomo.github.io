@@ -819,6 +819,16 @@ files = [
 ]
 
 [[package]]
+name = "smartypants"
+version = "2.0.1"
+description = "Python with the SmartyPants"
+optional = false
+python-versions = "*"
+files = [
+    {file = "smartypants-2.0.1-py2.py3-none-any.whl", hash = "sha256:8db97f7cbdf08d15b158a86037cd9e116b4cf37703d24e0419a0d64ca5808f0d"},
+]
+
+[[package]]
 name = "soupsieve"
 version = "2.4.1"
 description = "A modern CSS selector implementation for Beautiful Soup."
@@ -875,6 +885,19 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=2.0)", "pre-commit", "pytest", "pytest-mock"]
 
 [[package]]
+name = "typogrify"
+version = "2.0.7"
+description = "Filters to enhance web typography, including support for Django & Jinja templates"
+optional = false
+python-versions = "*"
+files = [
+    {file = "typogrify-2.0.7.tar.gz", hash = "sha256:8be4668cda434163ce229d87ca273a11922cb1614cb359970b7dc96eed13cb38"},
+]
+
+[package.dependencies]
+smartypants = ">=1.8.3"
+
+[[package]]
 name = "unidecode"
 version = "1.3.6"
 description = "ASCII transliterations of Unicode text"
@@ -896,7 +919,17 @@ files = [
     {file = "wcwidth-0.2.6.tar.gz", hash = "sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0"},
 ]
 
+[[package]]
+name = "yuicompressor"
+version = "66.0.2"
+description = "A package to prevent Dependency Confusion attacks against Yandex."
+optional = false
+python-versions = "*"
+files = [
+    {file = "yuicompressor-66.0.2.tar.gz", hash = "sha256:fbb122b2b1b642e8455f22982e352c3074648db41985179b2ff43bd74a1e045e"},
+]
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "a9d17aacad646ebe781872da39674a911f6db5c4dc8b92f22c9d76ccf180b333"
+content-hash = "be69e942c07255d4a5f31c2618f789595ed5528e1f4995aae0452c5fc722cccc"

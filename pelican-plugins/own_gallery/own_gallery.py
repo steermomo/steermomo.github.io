@@ -1,4 +1,5 @@
 from pelican import signals
+
 from .gallery import Gallery
 
 

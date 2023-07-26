@@ -10,8 +10,7 @@ import os.path
 
 from pelican import signals
 from pelican.generators import Generator
-from pelican.utils import clean_output_dir
-from pelican.utils import mkdir_p
+from pelican.utils import clean_output_dir, mkdir_p
 
 logger = logging.getLogger(__name__)
 

@@ -4,9 +4,10 @@ W3C HTML Validator plugin for genrated content.
 """
 
 
-from pelican import signals
 import logging
 import os
+
+from pelican import signals
 
 LOG = logging.getLogger(__name__)
 

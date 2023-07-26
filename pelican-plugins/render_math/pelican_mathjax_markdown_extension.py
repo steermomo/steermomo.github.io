@@ -9,9 +9,7 @@ citizen" of the blog
 """
 
 import markdown
-
-from markdown.util import etree
-from markdown.util import AtomicString
+from markdown.util import AtomicString, etree
 
 
 class PelicanMathJaxPattern(markdown.inlinepatterns.Pattern):

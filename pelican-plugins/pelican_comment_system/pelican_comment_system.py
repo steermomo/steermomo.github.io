@@ -8,20 +8,21 @@ A Pelican plugin, which allows you to add comments to your articles.
 Author: Bernhard Scheirle
 """
 from __future__ import unicode_literals
+
+import copy
 import logging
 import os
-import copy
 
 logger = logging.getLogger(__name__)
 
 from itertools import chain
+
 from pelican import signals
 from pelican.readers import Readers
 from pelican.writers import Writer
 
-from .comment import Comment
 from . import avatars
-
+from .comment import Comment
 
 __version__ = "1.3.0"
 

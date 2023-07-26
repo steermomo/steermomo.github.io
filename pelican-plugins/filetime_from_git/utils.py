@@ -2,8 +2,9 @@
 """
 Utility functions
 """
-from datetime import datetime
 import logging
+from datetime import datetime
+
 from pelican.utils import set_date_tzinfo
 
 DEV_LOGGER = logging.getLogger(__name__)

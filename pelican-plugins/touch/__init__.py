@@ -1,9 +1,8 @@
-from pelican import signals
-
 import logging
 import os
 import time
 
+from pelican import signals
 
 logger = logging.getLogger(__name__)
 

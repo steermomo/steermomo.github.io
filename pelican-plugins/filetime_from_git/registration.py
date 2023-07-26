@@ -3,9 +3,11 @@
 Handle registration and setup for plugin
 """
 import logging
+
 from blinker import signal
-from .content_adapter import GitContentAdapter
 from pelican import signals
+
+from .content_adapter import GitContentAdapter
 
 DEV_LOGGER = logging.getLogger(__name__)
 

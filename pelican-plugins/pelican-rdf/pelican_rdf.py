@@ -1,12 +1,13 @@
-from pelican.readers import BaseReader
-from pelican.generators import CachingGenerator
-from pelican.contents import Page, is_valid_content
-from pelican import signals
 import logging
-from blinker import signal
-import requests
 from os import listdir
 from os.path import isfile, join
+
+import requests
+from blinker import signal
+from pelican import signals
+from pelican.contents import Page, is_valid_content
+from pelican.generators import CachingGenerator
+from pelican.readers import BaseReader
 
 """
 pelican-rdf

@@ -1,6 +1,6 @@
+import logging
 import os
 from os.path import join
-import logging
 
 
 def get_thumb(settings, filename):
@@ -19,7 +19,7 @@ def get_thumb(settings, filename):
     """
 
     path, filename = os.path.split(filename)
-    logging.info(f"Path & filename is {path} & {filename}")
+    # logging.info(f"Path & filename is {path} & {filename}")
     name, ext = os.path.splitext(filename)
 
     if ext.lower() in settings["GALLERY_V_EXT"]:

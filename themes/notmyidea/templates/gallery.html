@@ -7,7 +7,7 @@
 {% for article in dates %}
     <!-- <dt>{{ article.locale_date }}</dt> -->
     
-    <dt>{{ article.monthdate}}</dt>
+    <dt>{{ article.archive_month_day}}</dt>
     <dd><a href="{{ SITEURL }}/{{ article.url }}">{{ article.title }}</a></dd>
 {% endfor %}
 </dl>

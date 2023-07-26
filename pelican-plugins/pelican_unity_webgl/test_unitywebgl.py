@@ -1,7 +1,7 @@
 from unittest import TestCase
+
 from docutils.core import publish_string
 from docutils.parsers.rst import directives
-
 from unitywebgl import config
 from unitywebgl.UnityGameDirective import UnityWebgl
 

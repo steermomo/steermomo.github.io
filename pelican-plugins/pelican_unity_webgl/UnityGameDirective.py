@@ -21,12 +21,12 @@
 
 from __future__ import unicode_literals
 
+import os
+
 from docutils import nodes
-from docutils.parsers.rst import directives, Directive
+from docutils.parsers.rst import Directive, directives
 
 from . import config
-
-import os
 
 
 class UnityWebgl(Directive):
