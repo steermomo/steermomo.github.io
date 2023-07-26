@@ -819,7 +819,7 @@ archive body
     font-style: normal;
     margin-bottom: 1rem;
     width: 80%;
-    max-width: 50rem;
+    max-width: 60rem;
     overflow: hidden;
     padding: 20px;
     text-align: center;
@@ -977,7 +977,7 @@ li:last-child .hentry,
     margin: 0 auto;
     margin-bottom: 1rem;
     overflow: hidden;
-    padding: 20px 0px;
+    padding: 20px 20px;
     width: 80%;
     max-width: 60rem;
     margin-top: 2rem;
