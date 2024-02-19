@@ -1,4 +1,4 @@
-# i.steer.space |build-status| |pypi-version| |downloads| |repology|
+# i.steer.space
 
 ================
 
