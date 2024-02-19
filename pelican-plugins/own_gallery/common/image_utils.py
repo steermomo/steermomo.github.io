@@ -32,20 +32,17 @@
 import fractions
 import logging
 import os
-import sys
 import warnings
 from copy import deepcopy
 from datetime import datetime
 
-import pilkit.processors
 from PIL import Image as PILImage
 from PIL import ImageFile, ImageOps, IptcImagePlugin
 from PIL.ExifTags import GPSTAGS, TAGS
-from pilkit.processors import Transpose
 from pilkit.utils import save_image
 
 from . import utils
-from .settings import Status, get_thumb
+from .const import Status, get_thumb
 
 # Force loading of truncated files
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -62,9 +59,15 @@ def _read_image(file_path):
     for warning in caught_warnings:
         if warning.category == PILImage.DecompressionBombWarning:
             logger = logging.getLogger(__name__)
-            logger.info("PILImage reported a possible DecompressionBomb" " for file {}".format(file_path))
+            logger.info(
+                "PILImage reported a possible DecompressionBomb" " for file {}".format(
+                    file_path
+                )
+            )
         else:
-            warnings.showwarning(warning.message, warning.category, warning.filename, warning.lineno)
+            warnings.showwarning(
+                warning.message, warning.category, warning.filename, warning.lineno
+            )
     return im
 
 
@@ -78,7 +81,7 @@ def generate_image(source, outname, settings, options=None):
 
     """
     # print(f"{source} => {outname}")
-    logging.info(f"[Plugin-Gallery-Image] copy {source} => {outname}")
+    # logging.info(f"[Plugin-Gallery-Image] copy {source} => {outname}")
 
     logger = logging.getLogger(__name__)
 
@@ -91,7 +94,11 @@ def generate_image(source, outname, settings, options=None):
     original_format = img.format
 
     if settings["COPY_EXIF_DATA"] and settings["autorotate_images"]:
-        logger.warning("The 'autorotate_images' and 'COPY_EXIF_DATA' settings " "are not compatible because Sigal can't save the " "modified Orientation tag.")
+        logger.warning(
+            "The 'autorotate_images' and 'COPY_EXIF_DATA' settings "
+            "are not compatible because Sigal can't save the "
+            "modified Orientation tag."
+        )
 
     # Preserve EXIF data
     if settings["COPY_EXIF_DATA"] and _has_exif_tags(img):
@@ -113,7 +120,9 @@ def generate_image(source, outname, settings, options=None):
     save_image(img, outname, outformat, options=options, autoconvert=True)
 
 
-def generate_thumbnail(source, outname, box, fit=True, options=None, thumb_fit_centering=(0.5, 0.5)):
+def generate_thumbnail(
+    source, outname, box, fit=True, options=None, thumb_fit_centering=(0.5, 0.5)
+):
     """Create a thumbnail image."""
 
     logger = logging.getLogger(__name__)
@@ -155,7 +164,12 @@ def process_image(filepath, outpath, settings):
         if settings.get("make_thumbs", True):
             thumb_name = os.path.join(outpath, get_thumb(settings, filename))
             generate_thumbnail(
-                outname, thumb_name, settings["THUMB_SIZE"], fit=settings["THUMB_FIT"], options=options, thumb_fit_centering=settings["THUMB_FIT_CENTERING"]
+                outname,
+                thumb_name,
+                settings["THUMB_SIZE"],
+                fit=settings["THUMB_FIT"],
+                options=options,
+                thumb_fit_centering=settings["THUMB_FIT_CENTERING"],
             )
     except Exception as e:
         logger.info("Failed to process: %r", e)
@@ -196,7 +210,9 @@ def get_exif_data(filename):
 
     if "GPSInfo" in data:
         try:
-            data["GPSInfo"] = {GPSTAGS.get(tag, tag): value for tag, value in data["GPSInfo"].items()}
+            data["GPSInfo"] = {
+                GPSTAGS.get(tag, tag): value for tag, value in data["GPSInfo"].items()
+            }
         except AttributeError:
             logger = logging.getLogger(__name__)
             logger.info("Failed to get GPS Info")

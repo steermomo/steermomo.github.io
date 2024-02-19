@@ -1,1 +1,1 @@
-from .own_gallery import *
+from .register import *

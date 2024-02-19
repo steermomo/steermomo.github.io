@@ -1,11 +1,11 @@
 from pelican import signals
 
-from .gallery import Gallery
+from .gallery import StaticGalleryGenerator
 
 
 def get_generators(pelican_object):
     # define a new generator here if you need to
-    return Gallery
+    return StaticGalleryGenerator
 
 
 def register():

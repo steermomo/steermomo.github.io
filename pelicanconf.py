@@ -5,7 +5,7 @@ from __future__ import unicode_literals
 import logging
 from datetime import date
 
-LOG_FILTER = [(logging.DEBUG, "Read file %s"), (logging.DEBUG, "tag: ")]
+# LOG_FILTER = [(logging.DEBUG, "Read file %s"), (logging.DEBUG, "tag: ")]
 
 CURRENT_YEAR = date.today().year
 
@@ -22,7 +22,6 @@ DEFAULT_DATE_FORMAT = "%Y-%m-%d %a"
 PATH = "content"
 
 # === 插件设置 ===
-
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = [
     "render_math",
@@ -104,7 +103,7 @@ MENUITEMS = (
     ("🦉", "/"),
     ("Blog", "/blog"),
     ("Archives", "/archives"),
-    ("Gallery", "/gallery")
+    ("Gallery", "/gallery"),
     # ('Tags', '/tags.html'),
     # ('About', '/About.html'),
 )
@@ -143,10 +142,11 @@ PAGE_SAVE_AS = PAGE_URL
 IMAGE_PATH = "pictures"
 THUMBNAIL_DIR = "thumbnailer"
 THUMBNAIL_KEEP_TREE = True
-
 IGNORE_FILES = ["content/gallery/*"]
-GALLERY_SOURCE = "./content/gallery"
-GALLERY_DEST = "gallery"
+
+
+GALLERY_SOURCE = "./content/gallery"  # 相册源目录
+GALLERY_DEST = "gallery"  # 相册输出目录
 GALLERY_IGNORE_DIRS = []
 GALLERY_IGNORE_FILES = []
 GALLERY_OUTPUT_FILENAME = "gallery_index.html"
@@ -157,7 +157,7 @@ GALLERY_THUMB_DIR = "thumb"
 GALLERY_THUMB_PREFIX = ""
 GALLERY_THUMB_SUFFIX = ""
 KEEP_ORIG = False
-ALBUMS_SORT_ATTR = "name"
+ALBUMS_SORT_ATTR = "name"  # 相册排序属性
 ALBUMS_SORT_REVERSE = False
 
 MEDIAS_SORT_ATTR = "filename"
@@ -170,6 +170,8 @@ THUMB_FIT = True
 THUMB_FIT_CENTERING = (0.5, 0.5)
 # Reverse sort for medias
 MEDIAS_SORT_REVERSE = False
+
+
 piwik = ({"tracker_url": "", "site_id": 0},)
 
 JPG_OPT = {"quality": 95, "optimize": True, "progressive": True}
