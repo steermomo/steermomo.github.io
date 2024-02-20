@@ -7,6 +7,8 @@ from datetime import date
 
 # LOG_FILTER = [(logging.DEBUG, "Read file %s"), (logging.DEBUG, "tag: ")]
 
+
+# === 🍵🍵🍵基本设置🍵🍵🍵 ===
 CURRENT_YEAR = date.today().year
 
 AUTHOR = "H Li"
@@ -21,7 +23,20 @@ DIRECT_TEMPLATES = ["index", "categories", "archives"]
 DEFAULT_DATE_FORMAT = "%Y-%m-%d %a"
 PATH = "content"
 
-# === 插件设置 ===
+# === 🍵🍵🍵主题设置🍵🍵🍵 ===
+THEME = "themes/notmyidea"
+
+STATIC_PATHS = ["images", "_css", "extras"]
+
+EXTRA_PATH_METADATA = {
+    "extras/CNAME": {"path": "CNAME"},
+    "extras/favicon.ico": {"path": "favicon.ico"},
+}
+
+DEFAULT_PAGINATION = 9  # 一页显示的文章数量
+FILENAME_METADATA = r"(?P<date>\d{4}\d{2}\d{2})-(?P<slug>.*)"
+
+# === 🍵🍵🍵插件设置🍵🍵🍵 ===
 PLUGIN_PATHS = ["./pelican-plugins"]
 PLUGINS = [
     "render_math",
@@ -29,20 +44,54 @@ PLUGINS = [
     "read_more_link",
     "pin_to_top",
     "sitemap",
-    "own_gallery",
+    "static_gallery",
     "extract_toc",
     # "yuicompressor"
 ]
 MATH_JAX = {"Math Renderer": "Common HTML"}
+
+
+# === [插件]Read More Link 设置 ===
 # This settings indicates that you want to create summary at a certain length
 SUMMARY_MAX_LENGTH = 30
-
 # This indicates what goes inside the read more link
 READ_MORE_LINK = "<span>continue</span>"
-
 # This is the format of the read more link
 READ_MORE_LINK_FORMAT = '<a class="read-more" href="/{url}">{text}</a>'
 
+# === [插件]static gallery 插件设置 ===
+IMAGE_PATH = "pictures"
+THUMBNAIL_DIR = "thumbnailer"
+THUMBNAIL_KEEP_TREE = True
+IGNORE_FILES = ["content/gallery/*"]
+
+
+GALLERY_SOURCE = "./content/gallery"  # 相册源目录
+GALLERY_DEST = "gallery"  # 相册输出目录
+GALLERY_IGNORE_DIRS = []
+GALLERY_IGNORE_FILES = []
+GALLERY_OUTPUT_FILENAME = "gallery_index.html"
+INDEX_IN_URL = False
+GALLERY_IMG_EXT = [".jpg", ".jpeg", ".png", ".gif"]
+GALLERY_V_EXT = []
+GALLERY_THUMB_DIR = "thumb"
+GALLERY_THUMB_PREFIX = ""
+GALLERY_THUMB_SUFFIX = ""
+KEEP_ORIG = False
+ALBUMS_SORT_ATTR = "name"  # 相册排序属性
+ALBUMS_SORT_REVERSE = False
+
+MEDIAS_SORT_ATTR = "filename"
+USE_ORIG = False
+ORIG_LINK = False
+COPY_EXIF_DATA = False
+IMG_FORMAT = "JPEG"
+THUMB_SIZE = (280, 210)
+THUMB_FIT = True
+THUMB_FIT_CENTERING = (0.5, 0.5)
+# Reverse sort for medias
+MEDIAS_SORT_REVERSE = False
+JPG_OPT = {"quality": 95, "optimize": True, "progressive": True}
 
 # === Feed 设置 ===
 DEFAULT_LANG = "en"
@@ -56,14 +105,7 @@ AUTHOR_FEED_RSS = None
 
 SITEMAP = {"exclude": [], "format": "xml"}
 
-THEME = "themes/notmyidea"
 
-STATIC_PATHS = ["images", "_css", "extras"]
-
-EXTRA_PATH_METADATA = {
-    "extras/CNAME": {"path": "CNAME"},
-    "extras/favicon.ico": {"path": "favicon.ico"},
-}
 # MARKDOWN = (['toc'])
 MARKDOWN = {
     "extension_configs": {
@@ -88,11 +130,10 @@ MARKDOWN = {
 # SOCIAL = (('You can add links in your config file', '#'),
 #           ('Another social link', '#'),)
 
-DEFAULT_PAGINATION = 9
 
 # Uncomment following line if you want document-relative URLs when developing
 # RELATIVE_URLS = True
-FILENAME_METADATA = r"(?P<date>\d{4}\d{2}\d{2})-(?P<slug>.*)"
+
 
 
 # === 顶部菜单 ===
@@ -138,40 +179,7 @@ MONTH_ARCHIVE_SAVE_AS = "blog/{date:%Y}/{date:%m}/index.html"
 PAGE_URL = "{slug}.html"
 PAGE_SAVE_AS = PAGE_URL
 
-# === own gallery 插件设置 ===
-IMAGE_PATH = "pictures"
-THUMBNAIL_DIR = "thumbnailer"
-THUMBNAIL_KEEP_TREE = True
-IGNORE_FILES = ["content/gallery/*"]
-
-
-GALLERY_SOURCE = "./content/gallery"  # 相册源目录
-GALLERY_DEST = "gallery"  # 相册输出目录
-GALLERY_IGNORE_DIRS = []
-GALLERY_IGNORE_FILES = []
-GALLERY_OUTPUT_FILENAME = "gallery_index.html"
-INDEX_IN_URL = False
-GALLERY_IMG_EXT = [".jpg", ".jpeg", ".png", ".gif"]
-GALLERY_V_EXT = []
-GALLERY_THUMB_DIR = "thumb"
-GALLERY_THUMB_PREFIX = ""
-GALLERY_THUMB_SUFFIX = ""
-KEEP_ORIG = False
-ALBUMS_SORT_ATTR = "name"  # 相册排序属性
-ALBUMS_SORT_REVERSE = False
-
-MEDIAS_SORT_ATTR = "filename"
-USE_ORIG = False
-ORIG_LINK = False
-COPY_EXIF_DATA = False
-IMG_FORMAT = "JPEG"
-THUMB_SIZE = (280, 210)
-THUMB_FIT = True
-THUMB_FIT_CENTERING = (0.5, 0.5)
-# Reverse sort for medias
-MEDIAS_SORT_REVERSE = False
-
 
 piwik = ({"tracker_url": "", "site_id": 0},)
 
-JPG_OPT = {"quality": 95, "optimize": True, "progressive": True}
+
