@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>在Pelican中添加Gitalk</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/12/add-gitalk-for-pelican" rel="bookmark" title="Permalink to 在Pelican中添加Gitalk">在Pelican中添加Gitalk</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-12-29 Tue
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/pelican/">Pelican</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>静态博客因为是静态的，所以评论系统啥的都得靠第三方的服务。</p>
+<p>最开始用过多说，后来没了，煎蛋有段时间就是要从多说迁移出来，colt一直在说“快了”。
+多说挂了之后就转到Disqus，现在又被墙了。</p>
+<p>所以现在又开始白嫖Github的服务，加上<a href="https://github.com/gitalk/gitalk">Gitalk</a>之后整个网站都挂在Github上了（编译、托管、评论服务）。</p>
+<blockquote>
+<p>Gitalk is a modern comment component based on GitHub Issue and Preact.</p>
+</blockquote>
+<p>要在Pelican的系统上加上Gitalk也十分简单，Pelican的页面生成本来就是使用Jinja2模块化的，我目前的主题也是在Pelican原始的模板文件上魔改过来的。</p>
+<p>下面的过程基本上都是参考Gitalk的文档指引完成的，添加了部分css用于跟正文部分的风格进行匹配。</p>
+<h2>申请GitHub Application</h2>
+<p>申请GitHub Application用于读写Github Issue，所有的评论内容都是写入到issue内。</p>
+<h2>修改base.html</h2>
+<p>根据Gitalk的文档，首先需要在页面内引入资源。 在Pelican中就是需要修改base.html文件，保证所有的页面都能引用到资源文件。
+在base.html的head中加入</p>
+<div class="highlight"><pre><span></span><code>  <span class="p">&lt;</span><span class="nt">link</span> <span class="na">rel</span><span class="o">=</span><span class="s">&quot;stylesheet&quot;</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<h2>修改日志页面，加入评论框</h2>
+<p>只需要在文章详情页加入评论系统，在Pelican内是修改article.html，在正文的后方加入</p>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;comments&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">h2</span> <span class="na">style</span><span class="o">=</span><span class="s">&quot;margin-top: 0.1rem;&quot;</span><span class="p">&gt;</span>Comments !<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;gitalk-container&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">gitalk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Gitalk</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">clientID</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;4df********634&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">clientSecret</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;4c7*****&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">repo</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;steermomo.github.io&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">owner</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;steermomo&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">admin</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;steermomo&#39;</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="nx">location</span><span class="p">.</span><span class="nx">pathname</span><span class="p">,</span><span class="w">      </span><span class="c1">// Ensure uniqueness and length less than 50</span>
+<span class="w">    </span><span class="nx">distractionFreeMode</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">  </span><span class="c1">// Facebook-like distraction free mode</span>
+<span class="w">    </span><span class="nx">createIssueManually</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="w">  </span><span class="nx">gitalk</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s1">&#39;gitalk-container&#39;</span><span class="p">)</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+</code></pre></div>
+
+<p>上面的代码直接在文章的末尾添加了评论框容器，外层的comments容器用于控制评论框的风格。script内的配置字段参考Gitalk的文档说明填写就好。</p>
+<h2>修改main.css，风格适配</h2>
+<p>刚加入评论框的时候，视觉效果还是十分惨烈的，这里用我主文档部分的css进行了一下修饰，完工后就毫无违和感了。</p>
+<div class="highlight"><pre><span></span><code><span class="p">#</span><span class="nn">comments</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="mh">#fff</span><span class="p">;</span>
+<span class="w">    </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="kc">auto</span><span class="p">;</span>
+<span class="w">    </span><span class="k">margin-bottom</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">    </span><span class="k">overflow</span><span class="p">:</span><span class="w"> </span><span class="kc">hidden</span><span class="p">;</span>
+<span class="w">    </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="kt">px</span><span class="w"> </span><span class="mi">20</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">    </span><span class="k">width</span><span class="p">:</span><span class="w"> </span><span class="mi">80</span><span class="kt">%</span><span class="p">;</span>
+<span class="w">    </span><span class="k">max-width</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">    </span><span class="k">margin-top</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">    </span><span class="c">/* width: 80%; */</span>
+<span class="w">    </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">    </span><span class="kp">-moz-</span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">    </span><span class="kp">-webkit-</span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="kt">px</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Dang! 生成评论框 ↓↓↓↓↓</h2>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

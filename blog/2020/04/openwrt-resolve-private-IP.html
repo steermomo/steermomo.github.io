@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>OpenWrt不能解析内网地址</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/openwrt-resolve-private-IP" rel="bookmark" title="Permalink to OpenWrt不能解析内网地址">OpenWrt不能解析内网地址</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-04-10 Fri
+        </span>
+<span>Category: <a href="/category/linux/">Linux</a></span>
+<!-- <p>tags: <a href="/tags/linux/">Linux</a> <a href="/tags/dns/">DNS</a> <a href="/tags/openwrt/">OpenWrt</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>目前在不同的网络环境下有多台设备，我是用zerotier-one把他们组到一个虚拟局域网内，并用子域名管理这些内网地址。</p>
+<p>前几天将家里光猫改成桥接，拨号放到了一台OpenWrt设备上，发现在这个网络下无法解析内网地址.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>nslookup<span class="w"> </span>whatever.steer.space
+Server:<span class="w">     </span><span class="m">2409</span>:8a30:ac5b:64f0::1
+Address:<span class="w">    </span><span class="m">2409</span>:8a30:ac5b:64f0::1#53
+
+Non-authoritative<span class="w"> </span>answer:
+***<span class="w"> </span>Can<span class="err">&#39;</span>t<span class="w"> </span>find<span class="w"> </span>whatever.steer.space:<span class="w"> </span>No<span class="w"> </span>answer
+</code></pre></div>
+
+<p>在指定解析服务器时，结果是正常的</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>nslookup<span class="w"> </span>whatever.steer.space<span class="w"> </span><span class="m">208</span>.67.222.222
+Server:<span class="w">     </span><span class="m">208</span>.67.222.222
+Address:<span class="w">    </span><span class="m">208</span>.67.222.222#53
+
+Non-authoritative<span class="w"> </span>answer:
+Name:<span class="w">   </span>whatever.steer.space
+Address:<span class="w"> </span><span class="m">172</span>.26.48.92
+</code></pre></div>
+
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>Update...</p>
+<h3>2020-12-22更新</h3>
+<p>忘记有这么个事情了。
+这个问题是DNSmasq中的rebind_protection造成的，在<a href="https://openwrt.org/docs/guide-user/base-system/dhcp">Openwrt的文档</a>中可以看到关于rebind_protection的说明。</p>
+<blockquote>
+<p>rebind_protection</p>
+<p>--stop-dns-rebind</p>
+<p>Enables DNS rebind attack protection by discarding upstream RFC1918 responses</p>
+</blockquote>
+<p>而RFC1918指的是私有网络地址分配，这里遇到的问题就是zerotier-one分配的地址是私有IP，而我把一个域名解析到这个私有IP上了，在DNSmasq这一层会把它当作DNS重新绑定攻击，直接把这个请求给抛弃掉了，导致在内网中解析出现问题。
+解决方法就是关闭rebind_protection。</p>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

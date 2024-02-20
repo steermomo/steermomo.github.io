@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>steer - Pytorch</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+            <aside id="featured" class="body">
+                <article class="hentry">
+                    <header>
+                        <h1><a href="/blog/2021/01/Build-MSAttn-in-Deformable-DETR" rel="bookmark"
+                               title="Permalink to Deformable-Conv编译后运行报错及解决">Deformable-Conv编译后运行报错及解决</a></h1>
+                    </header>
+    
+                    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2021-01-27 Wed
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p> -->
+
+</div><!-- /.post-info -->                    <!-- Status: draft -->
+
+<p>最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块 …</p>
+                    <a class="readmore" href="/blog/2021/01/Build-MSAttn-in-Deformable-DETR">read more</a>
+                    </div><!-- /.entry-content -->
+                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2021/01/pytorch-dist-nccl-backend-allgather-stuck" rel="bookmark"
+                           title="Permalink to 在NCCL后端下Pytorch的distributed.all_gather卡死排查">在NCCL后端下Pytorch的distributed.all_gather卡死排查</a></h1>
+                </header>
+
+                <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2021-01-05 Tue
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/pytorch/">PyTorch</a> <a href="/tags/python/">Python</a> </p> -->
+
+</div><!-- /.post-info -->                <p>用了Github上一个<a href="https://github.com/Spijkervet/SimCLR">SimCLR的PyTorch实现</a>，但是在训练过程中遇到了一些问题。</p>
+<p>原repo要用DDP训练的方式有点质朴，需要手动启动N的进程进行训练，那8张卡岂不是要操作八次 …</p>
+                <a class="readmore" href="/blog/2021/01/pytorch-dist-nccl-backend-allgather-stuck">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2020/12/pytorch-ddp-sampler-warper" rel="bookmark"
+                           title="Permalink to 在PyTorch DistributedSampler中封装其他Sampler策略">在PyTorch DistributedSampler中封装其他Sampler策略</a></h1>
+                </header>
+
+                <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-12-23 Wed
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">PyTorch</a> </p> -->
+
+</div><!-- /.post-info -->                <p>用了PyTorch的分布式训练后，我把所有的dataloader都加上了 DistributedSampler 。</p>
+<p>现在遇到的一个问题是需要对不同类别的样本 …</p>
+                <a class="readmore" href="/blog/2020/12/pytorch-ddp-sampler-warper">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/blog/2019/09/named-modules-in-pytorch" rel="bookmark"
+                           title="Permalink to Pytorch中的named_modules是个啥-debug真难">Pytorch中的named_modules是个啥-debug真难</a></h1>
+                </header>
+
+                <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-09-05 Thu
+        </span>
+<span>Category: <a href="/category/pytorch/">Pytorch</a></span>
+<!-- <p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p> -->
+
+</div><!-- /.post-info -->                <p>Summary =&gt;  在改写deeplabv3+时, 因为需要去掉ASPP和decoder部分, 仅保留mobilenet的backbone. 但是因为误对<code>nn.Module</code>内的所有权 …</p>
+                <a class="readmore" href="/blog/2019/09/named-modules-in-pytorch">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+                </ol><!-- /#posts-list -->
+                </section><!-- /#content -->
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+
+
+
+</body>
+
+</html>

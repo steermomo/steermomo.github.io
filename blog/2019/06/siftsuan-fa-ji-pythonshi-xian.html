@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>SIFT算法及Python实现</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/06/siftsuan-fa-ji-pythonshi-xian" rel="bookmark" title="Permalink to SIFT算法及Python实现">SIFT算法及Python实现</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-06-28 Fri
+        </span>
+<span>Category: <a href="/category/coding/">coding</a></span>
+<!--  -->
+
+</div><!-- /.post-info -->
+
+      <h4>空间极值检测</h4>
+<p>SIFT算法需要在尺度空间中寻找关键点.</p>
+<p>首先需要对相同物体在不同尺度下进行定位, 因此使用特征金字塔完成这一目的.</p>
+<p>对尺度空间的搜索得到的特征能够满足尺缩不变性.</p>
+<h5>空间金字塔</h5>
+<h6>高斯核</h6>
+<p>实现尺缩变换的唯一变换核是高斯核.</p>
+<p>对于输入图像$I(x,y )$, 使用高斯核$G(x, y, \sigma)$做卷积, 形式如下.
+$$
+L(x, y, \sigma)=G(x, y, \sigma) \ast I(x, y)
+$$
+通过使用不同的$\sigma$, 相当于对图像做不同程度的高斯模糊, 即得到不同尺度的图像.</p>
+<h6>高斯差分近似归一化拉普拉斯</h6>
+<p>Mikolajczyk(2002) 发现尺度归一化的拉普拉斯高斯函数$\sigma^2\nabla^2G$的极大极小值, 相比于其他特征方法, 能够产生最稳定的图像特征.</p>
+<p>同时, 为了有效地检测稳定关键点的位置, 本文作者(Lowe, 1999)使用差分高斯DOG的尺度空间极值作为特征.   差分高斯是相邻尺度的差值, 尺度差距有常数因子$k$决定.
+$$
+D(x, y, \sigma)=\left(G(x, y, k\sigma)-G(x, y, \sigma) \right)\ast I(x, y)\
+=L(x, y, k\sigma)-L(x, y, \sigma)
+$$
+而Lindeberg(1994)发现这两种方式是近似的, 通过对$G$对$\sigma$求偏导可得,
+$$
+\frac{\partial G}{\partial \sigma}=\sigma\nabla^2G
+$$
+用差分近似微分, 可得
+$$
+\sigma\nabla^2G=\frac{\partial G}{\partial \sigma}\simeq \frac{G(x, y, k\sigma)-G(x, y,\sigma)}{k\sigma-\sigma}
+$$</p>
+<p>变换分母位置可得
+$$
+G(x, y, k\sigma)-G(x, y, \sigma)\simeq(k-1)\sigma^2\nabla^2G
+$$
+当$k$趋向于1时, 误差趋向于0.</p>
+<p>因此本文作者使用高斯差分代替归一化拉普拉斯函数进行检测.</p>
+<h6>差分高斯的构造</h6>
+<p>下图表示了如何有效地构建差分拉普拉斯.</p>
+<p><img alt="" src="https://img-my.csdn.net/uploads/201204/28/1335626876_5968.jpg"></p>
+<p>高斯金字塔有$n$层, 当高斯核的$\sigma$翻倍时, 将图像归为一组(Octave), 下一张图像将下采样一次.</p>
+<p>初始的图像使用高斯核进行卷积, 令第一张图像的高斯核参数为$\sigma_0$, 后续每张图像的高斯核参数为$k\sigma_0$, $k$为图像索引(从1开始).</p>
+<p>如果每组内有$s$张图像, 则有
+$$
+k^s=2
+$$
+因此$k=2^{1/s}$. </p>
+<p>为了在每组检测$s$个尺度的极值点(每个极值点需要跟上下层比较), 则DOG 需要$s+2$层, 高斯金字塔每组需要$s+3$层.</p>
+<h6>高斯金字塔的生成过程</h6>
+<p>之前构造差分高斯金字塔需要先构造高斯金字塔.  </p>
+<ul>
+<li>对于一幅输入图像, 首先构造高斯金字塔的第1组, 因为高斯金字塔每组需要$s+3$层, 令第一层的高斯核尺度为$\sigma_0$, 则依次使用$k^0\sigma, k\sigma, k^2\sigma, \cdots, k^s\sigma, k^{s+1}\sigma, k^{s+2}\sigma$的尺度, 生成对应尺度的图像. 其中$k=2^{1/s}$.</li>
+<li>接着构造第2组的图像, 因为第2组的第1张图像的尺度$\sigma$应该是第1组的2倍, 因为$k^s=2$, 因此选择第1组的倒数第3张, 并下采样一次, 作为第2组的第1张图像.</li>
+<li>依次构建接下来的各组, 直到打到组数要求或者下采样到指定大小.</li>
+</ul>
+<h5>局部极值检测</h5>
+<p>得到差分高斯金字塔后, 需要检测极值点. </p>
+<p>如下图所示, 每个点需要与8个临界点进行比较, 如果该点是这9个点中最大或最小的点, 则作为极值点.</p>
+<p><img alt="" src="https://img-my.csdn.net/uploads/201204/28/1335626904_5751.jpg"></p>
+<p>这种方法的一个问题是, 尺度的采样频率会影响到极值点的检测, 当然越小的采样间隔会得到越多的极值点. 如果要检测到所有的极值点, 需要无限小的采样间隔(极值点间的距离可能十分小). </p>
+<p>无限小的采样间距是不实际的, 这里需要在检测效果和采样频率之间做平衡.</p>
+<h6>尺度采样频率</h6>
+<p>对于高斯金字塔, 已经明确了, 相邻组间的尺度差距是2倍, 但是组内的图片数量并没有确定.</p>
+<p>论文通过实验确定组内的图片数量, 通过比较$s=1,2,3,\cdots,8$ 的结果, 结果显示检测效果在$s=3$时达到最佳, 随后会略微下降. </p>
+<p>虽然更大的$s$会检测出更多的极值点, 但这些点可能会不稳定, 因此导致了检测效果的下降.</p>
+<h6>空间采样频率</h6>
+<p>高斯金字塔中另一个未确定的参数是第1张图像的尺度$\sigma_0$,  通过类似的实验, 选择$\sigma_0$为1.6.</p>
+<p>但是这样相当于直接丢掉了最高空域的采样率.  原始图像的$\sigma_{-1}$为0.5,  对其使用双线性插值将尺寸扩大一倍, 相当于$\sigma_{-1}=1.0$, 通过扩大原始图片尺寸的方式生成第-1组.</p>
+<p>将尺寸扩大一倍, 可使得关键点的数量变为原来的4倍. 但是扩大更大的倍数不再能显著增加关键点的数量.</p>
+<h4>关键点精确定位</h4>
+<p>局部极值检测中, 是对离散值的检测. 下一步需要做定位, 确定尺度和主曲率, 用于剔除低对比度(噪声敏感)或者是不稳定边缘响应.</p>
+<h5>泰勒展开拟合</h5>
+<p>(Brown and Lowe, 2002) 提出了3D二次函数对极值点位置进行插值, 实验表明这种方法提升了匹配效果和稳定性.</p>
+<p>使用DOG函数在尺度空间的泰勒展开式, 令样本点为原点, 有
+$$
+D(x)=D+\frac{\partial D^T}{\partial x}X + \frac{1}{2}X^T\frac{\partial^2D}{\partial x^2}X
+$$
+其中$X=(x, y, \sigma)^T$是离样本点的偏移. 将上式对X求偏导, 令结果为0, 可得极值点的位置偏移量.
+$$
+\hat{X}=-\frac{\partial^2D^{-1}}{\partial X^2}\frac{\partial D}{\partial X}
+$$
+如果$\hat{X}$大于0.5, 则极值点偏移到临近点上, 需要改变样本点的位置, 并在新的位置上重复这一计算, 直到收敛. 当超过迭代次数或超出图像范围时, 需要删除该点.</p>
+<h5>消除低对比度点</h5>
+<p>对于上一步中求得的$\hat{X}$, 带入原式可得
+$$
+D(\hat{X})=D+\frac{1}{2}\frac{\partial D^T}{\partial X} \hat{X}
+$$
+为了消除低对比度的点, 文中剔除了$|D(\hat{X}|$小于0.03的点.</p>
+<h5>消除边缘响应</h5>
+<p>为了稳定性, 只剔除低对比度点是不够的. DOG算子对边缘有较强的响应, 即使该边缘并不显著.</p>
+<p>有些极值点的位置是在图像的边缘位置的，因为图像的边缘点很难定位，同时也容易受到噪声的干扰.</p>
+<p>物体边缘位置的一个方向的主曲率会比较高, 而良好的边缘(比如泡泡), 两个方向的曲率都比较高. </p>
+<p>论文中使用海森矩阵对曲率进行判断.对于二维图像的某点的hessian矩阵，其最大特征值和其对应的特征向量对应其邻域二维曲线最大曲率的强度和方向，即山坡陡的那面；最小特征值对应的特征向量对应与其垂直的方向，即平缓的方向。
+$$
+H=\left[\begin{array}{2}D_{xx} &amp; D_{xy} \ D_{xy} &amp; D_{yy} \end{array}\right]
+$$
+令$\alpha$和$\beta$分别为$H$的最大最小特征值, 即x和y方向的梯度, 则
+$$
+Tr(H)=\alpha + \beta \
+Det(H)=\alpha\beta
+$$
+令$\alpha=r\beta$, 则
+$$
+\frac{Tr(H)^2}{Det(H)}=\frac{(\alpha+\beta)^2}{\alpha\beta}=\frac{(r+1)^2}{r}
+$$
+上式越大, 说明一个方向的梯度越大, 另一个方向的梯度越小, 对于这样的点需要进行剔除. </p>
+<p>在文中, 取阈值$r=10$. </p>
+<h4>方向匹配</h4>
+<p>为使得提取的特征对旋转具有不变性, 需要为每个关键点分配一个基准方向. </p>
+<p>该方向是根据关键点的局部特征计算出来的. </p>
+<p>对于关键的邻域, 使用如下方法计算每个点的梯度模值和方向.
+$$
+m(x,y) =\sqrt{(L(x+1,y)-L(x-1, y))^2 + (L(x, y+1)-L(x, y-1))^2}\
+\theta(x,y)=\tan^{-1}\frac{L(x, y+1)-L(x, y-1)}{L(x+1, y)-L(x-1, y)}
+$$
+其中邻域大小为$r=3\times1.5\sigma_c$, $\sigma_c$为当前层的图像尺度.</p>
+<p>计算后, 需要先对模值进行加权, 权值为$\sigma_m=1.5\sigma_c$的高斯函数,</p>
+<p>对加权后的模值, 使用直方图统计邻域内的像素梯度和方向. 直方图将360度分为36个bin, 每个bin的值为该方向加权后模值的和.</p>
+<p>取直方图最高柱作为该关键点的主方向, 满足最高值的80%作为辅助方向.</p>
+<h4>关键点特征描述</h4>
+<p>上一步获取了SIFT关键点, 及其尺度和方向. 接下来为每个关键点建立描述符. 用一组向量描述关键点.</p>
+<ul>
+<li>将关键点的邻域划分为$d\times d$个区域, 文章中取$d=4$. 计算8个方向的梯度信息, 共$4\times 4\times 8=128$维.</li>
+<li>每个区域的边长为$\sigma_c$, 实际计算时使用双线性插值, 取边长为$3\sigma_c\times(d+1)$.</li>
+<li>
+<p>为了保证关键点的方向不变性,需要对特征点邻域进行旋转, 旋转角度为特征点角度. 为使得旋转区域包含正方形, 实际上得边长为$\frac{3\sigma_c(d+1)\sqrt2}{2}$.</p>
+</li>
+<li>
+<p>然后需要将关键点及其邻域的坐标轴(x)旋转到关键点的主方向</p>
+</li>
+<li>旋转后的采样点坐标为$$\left(\begin{array}{1}x' \ y'\end{array}\right)=\left(\begin{array}{2} \cos\theta &amp; -\sin\theta \\sin\theta &amp; \cos\theta \end{array}\right)$$</li>
+<li>将邻域分配到对于的子区域内</li>
+<li>计算梯度值和角度, 生成直方图</li>
+<li>类似方向匹配, 也需要模值的加权<ul>
+<li>第一次加权, 根据像素点与关键点的距离, 使用$\sigma=\frac{d^2}{2}$的高斯核加权</li>
+<li>第二次加权, 根据像素点与子区域中心的距离, 使用高斯加权</li>
+</ul>
+</li>
+<li>将加权后的模值分配到8个方向上, 获取直方图</li>
+<li>对直方图进行归一化处理</li>
+<li>消除均匀光照的影响</li>
+<li>使用阈值(0.2)对归一化后的直方图,设定上限</li>
+<li>消除非均匀光照的影响</li>
+</ul>
+<h3>代码实现</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sa">r</span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">File: c:\Users\lomom\Documents\DL2019\Assignment\code\sift.py</span>
+<span class="sd">Project: c:\Users\lomom\Documents\DL2019\Assignment\code</span>
+<span class="sd">Created Date: Monday June 24th 2019</span>
+<span class="sd">Author: Hang Li (hangli@stu.xmu.edu.cn)</span>
+<span class="sd">-----</span>
+<span class="sd">Last Modified: Monday, 24th June 2019 2:56:06 pm</span>
+<span class="sd">Modified By:  Hang Li (hangli@stu.xmu.edu.cn)</span>
+<span class="sd">-----</span>
+<span class="sd">Copyright (c) 2019 Wormhole</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">ndimage</span> <span class="k">as</span> <span class="n">ndi</span> 
+<span class="kn">import</span> <span class="nn">scipy</span> 
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">filters</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">path</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">multiprocessing.pool</span> <span class="kn">import</span> <span class="n">ThreadPool</span><span class="p">,</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">repeat</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">ImageDraw</span>
+<span class="kn">from</span> <span class="nn">skimage</span> <span class="kn">import</span> <span class="n">transform</span><span class="p">,</span> <span class="n">io</span><span class="p">,</span> <span class="n">color</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="c1"># 用于对比结果</span>
+
+
+<span class="k">class</span> <span class="nc">ScaleSpace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;图像金字塔类</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_oct</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_spo</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">img_w</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">img_h</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">sigma_min</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">delta_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[summary]</span>
+
+<span class="sd">        :param n_oct: 图像金字塔层数</span>
+<span class="sd">        :type n_oct: int</span>
+<span class="sd">        :param n_spo: 图像金字塔每层的图像数(指最终每层的极值点层数)</span>
+<span class="sd">        :type n_spo: int</span>
+<span class="sd">        :param img_w: 图像宽度</span>
+<span class="sd">        :type img_w: int</span>
+<span class="sd">        :param img_h: 图像高度</span>
+<span class="sd">        :type img_h: int</span>
+<span class="sd">        :param sigma_min: 最低层的sigma</span>
+<span class="sd">        :type sigma_min: int</span>
+<span class="sd">        :param delta_min: 最底层(放大2倍的)图像的像素间距(相对于输入图像), defaults to 0.5</span>
+<span class="sd">        :type delta_min: float, optional</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_oct</span> <span class="o">=</span> <span class="n">n_oct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_spo</span> <span class="o">=</span> <span class="n">n_spo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span> <span class="o">=</span> <span class="n">n_spo</span> <span class="o">+</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_w</span> <span class="o">=</span> <span class="n">img_w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img_h</span> <span class="o">=</span> <span class="n">img_h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma_min</span> <span class="o">=</span> <span class="n">sigma_min</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="p">[</span><span class="n">delta_min</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_w</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">img_h</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1">#记录每层的长宽， 以及像素间距， 用于定位特征在原图的位置</span>
+        <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_oct</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># 计算每层的sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_oct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">s_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_min</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span><span class="p">(</span><span class="n">o_idx</span> <span class="o">+</span> <span class="n">s_idx</span> <span class="o">/</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">))</span>
+
+        <span class="c1"># 创建金字塔存储空间</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octave</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span>
+            <span class="n">current_layer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o_idx</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_layer</span><span class="p">)</span>
+
+
+
+    <span class="k">def</span> <span class="nf">add_img_to_octave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">oct_idx</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;向图像金字塔中加入图片</span>
+
+<span class="sd">        :param oct_idx: 层索引</span>
+<span class="sd">        :type oct_idx: int</span>
+<span class="sd">        :param s_idx: 层内索引</span>
+<span class="sd">        :type s_idx: int</span>
+<span class="sd">        :param img: 加入的图像</span>
+<span class="sd">        :type img: np.ndarray</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">oct_idx</span><span class="p">][</span><span class="n">s_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">img</span>
+
+    <span class="k">def</span> <span class="nf">get_prev_octave_img</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_oct</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取上一层的倒数第三张图像, 用于计算下一层</span>
+
+<span class="sd">        :param current_oct: 当前层索引</span>
+<span class="sd">        :type current_oct: int</span>
+<span class="sd">        :return: [description]</span>
+<span class="sd">        :rtype: [type]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">current_oct</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">get_sigma</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">get_current_octave</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o_idx</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">DogSpace</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;差分高斯金字塔</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gauss_spcae</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;从高斯金字塔构建差分高斯金字塔的结构</span>
+
+<span class="sd">        :param gauss_spcae: 高斯金字塔对象</span>
+<span class="sd">        :type gauss_spcae: ScaleSpace</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_oct</span> <span class="o">=</span> <span class="n">gauss_spcae</span><span class="o">.</span><span class="n">n_oct</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span> <span class="o">=</span> <span class="n">gauss_spcae</span><span class="o">.</span><span class="n">n_sca</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">gauss_spcae</span><span class="o">.</span><span class="n">hs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ws</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">gauss_spcae</span><span class="o">.</span><span class="n">ws</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltas</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">gauss_spcae</span><span class="o">.</span><span class="n">deltas</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octave</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ws</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_oct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_oct</span><span class="p">):</span>
+            <span class="n">current_layer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">,</span> <span class="n">gauss_spcae</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o_idx</span><span class="p">],</span> <span class="n">gauss_spcae</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]))</span>
+            <span class="k">for</span> <span class="n">s_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_sca</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">gauss_spcae</span><span class="o">.</span><span class="n">get_sigma</span><span class="p">(</span><span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_current_layer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>  <span class="n">o_idx</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o_idx</span><span class="p">][:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">layer</span>
+
+<span class="k">class</span> <span class="nc">KeyPoint</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;关键点</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;        </span>
+<span class="sd">        :param o: 层索引</span>
+<span class="sd">        :param s: 层内索引</span>
+<span class="sd">        :param h: 尺度空间行索引</span>
+<span class="sd">        :type h: [type]</span>
+<span class="sd">        :param w: 尺度空间列索引</span>
+<span class="sd">        :param x: 关键点在原图中的x</span>
+<span class="sd">        :param y: 关键点在原图中的y</span>
+<span class="sd">        :param sigma: 关键点所在尺度的sigma</span>
+<span class="sd">        :param value: 关键点的值</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">o</span> <span class="o">=</span> <span class="n">o</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">s</span> <span class="o">=</span> <span class="n">s</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">init_hist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
+        <span class="c1"># self.hist = [0 for _ in range(n_bins)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">init_descr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_descr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_descr</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;读取图片, 如果是彩色图像将其转为灰度图</span>
+
+<span class="sd">    :param img_path: 图片路径</span>
+<span class="sd">    :type img_path: str</span>
+<span class="sd">    :raises ValueError: [description]</span>
+<span class="sd">    :return: [description]</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">img_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;image path not exist:</span><span class="si">{</span><span class="n">img_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1"># img = ndi.imread(img_path)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># 将彩色图像转为灰度图像</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">img</span><span class="p">[</span><span class="o">...</span><span class="p">,:</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2989</span><span class="p">,</span> <span class="mf">0.5870</span><span class="p">,</span> <span class="mf">0.1140</span><span class="p">])</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">img</span> <span class="o">/</span> <span class="mf">255.</span>
+    <span class="k">return</span> <span class="n">img</span>
+
+<span class="k">def</span> <span class="nf">subsample_by2</span><span class="p">(</span><span class="n">img_in</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;对图像下采样， 根据论文中的描述-every second pixel in each row and column</span>
+<span class="sd">    这里选取从第二个像素开始</span>
+
+<span class="sd">    :param img_in: 待下采样图像</span>
+<span class="sd">    :type img_in: np.ndarray</span>
+<span class="sd">    :return: 下采样后的图像</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="n">img_in</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+<span class="c1">#-------------- 特征金字塔-------------</span>
+<span class="k">def</span> <span class="nf">gaussian_scale_space</span><span class="p">(</span><span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">sigma_in</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">sigma_min</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">n_oct</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_spo</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;构建高斯金字塔</span>
+
+<span class="sd">    :param img: 输入图像</span>
+<span class="sd">    :type img: np.ndarray</span>
+<span class="sd">    :param sigma_in: 输入图像的sigma, defaults to 0.5</span>
+<span class="sd">    :type sigma_in: float, optional</span>
+<span class="sd">    :param sigma_min: 最底层图像的sigma, defaults to 0.8</span>
+<span class="sd">    :type sigma_min: float, optional</span>
+<span class="sd">    :param n_oct: 金字塔层数, defaults to 8</span>
+<span class="sd">    :type n_oct: int, optional</span>
+<span class="sd">    :param n_spo: 金字塔每层的图像数, defaults to 3</span>
+<span class="sd">    :type n_spo: int, optional</span>
+<span class="sd">    :return: [description]</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">delta_min</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">g_scale</span> <span class="o">=</span> <span class="n">ScaleSpace</span><span class="p">(</span><span class="n">n_oct</span><span class="o">=</span><span class="n">n_oct</span><span class="p">,</span> <span class="n">n_spo</span><span class="o">=</span><span class="n">n_spo</span><span class="p">,</span> <span class="n">img_w</span><span class="o">=</span><span class="n">w</span><span class="p">,</span> <span class="n">img_h</span><span class="o">=</span><span class="n">h</span><span class="p">,</span> <span class="n">sigma_min</span><span class="o">=</span><span class="n">sigma_min</span><span class="p">)</span>
+    <span class="c1"># k = 2 ** (1 / (n_spo + 3))</span>
+    <span class="n">nSca</span> <span class="o">=</span> <span class="n">n_spo</span> <span class="o">+</span> <span class="mi">3</span>
+    <span class="n">sigmas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_oct</span><span class="p">,</span> <span class="n">nSca</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nSca</span><span class="p">):</span>
+            <span class="n">sigmas</span><span class="p">[</span><span class="n">o</span><span class="p">,</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">sigma_min</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span><span class="p">(</span><span class="n">o</span> <span class="o">+</span> <span class="n">s</span> <span class="o">/</span><span class="p">(</span><span class="n">nSca</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">oct_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span><span class="c1"># 构建每一层</span>
+
+        <span class="k">if</span> <span class="n">oct_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># 构建第一层</span>
+            <span class="n">sigma_extra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma_in</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">sigma_in</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta_min</span> 
+            <span class="n">image_shape</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>   
+            <span class="n">resize_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="o">*</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">image_shape</span><span class="p">]</span>
+            <span class="c1"># 尺寸扩大2倍</span>
+            <span class="c1"># seed_image = scipy.misc.imresize(img, resize_shape, interp=&#39;bilinear&#39;)</span>
+            <span class="c1">#0: Nearest-neighbor</span>
+            <span class="c1">#1: Bi-linear (default)</span>
+            <span class="c1">#2: Bi-quadratic</span>
+            <span class="c1">#3: Bi-cubic</span>
+            <span class="c1">#4: Bi-quartic</span>
+            <span class="c1">#5: Bi-quintic</span>
+            <span class="n">seed_image</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">resize_shape</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">image_add_blur</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">seed_image</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_extra</span><span class="p">)</span>
+            <span class="n">current_image</span> <span class="o">=</span> <span class="n">image_add_blur</span>
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># 构建其余层的第一张</span>
+            <span class="n">img_prev</span> <span class="o">=</span> <span class="n">g_scale</span><span class="o">.</span><span class="n">get_prev_octave_img</span><span class="p">(</span><span class="n">oct_idx</span><span class="p">)</span>
+            <span class="n">current_image</span> <span class="o">=</span> <span class="n">subsample_by2</span><span class="p">(</span><span class="n">img_prev</span><span class="p">)</span>
+
+        <span class="c1"># 添加每层的第一张图像</span>
+        <span class="n">g_scale</span><span class="o">.</span><span class="n">add_img_to_octave</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="n">current_image</span><span class="p">,</span> <span class="n">oct_idx</span><span class="o">=</span><span class="n">oct_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">prev_img</span> <span class="o">=</span> <span class="n">current_image</span>
+        <span class="k">for</span> <span class="n">s_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">nSca</span><span class="p">):</span> <span class="c1"># 构建每一层的剩余图像</span>
+            <span class="n">prev_sigma</span> <span class="o">=</span> <span class="n">g_scale</span><span class="o">.</span><span class="n">get_sigma</span><span class="p">(</span><span class="n">oct_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">next_sigma</span> <span class="o">=</span> <span class="n">g_scale</span><span class="o">.</span><span class="n">get_sigma</span><span class="p">(</span><span class="n">oct_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">)</span>
+
+            <span class="n">sigma_extra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">next_sigma</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">prev_sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="n">current_image</span> <span class="o">=</span> <span class="n">filters</span><span class="o">.</span><span class="n">gaussian_filter</span><span class="p">(</span><span class="n">prev_img</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_extra</span><span class="p">)</span>
+            <span class="n">g_scale</span><span class="o">.</span><span class="n">add_img_to_octave</span><span class="p">(</span><span class="n">current_image</span><span class="p">,</span> <span class="n">oct_idx</span><span class="o">=</span><span class="n">oct_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="o">=</span><span class="n">s_idx</span><span class="p">)</span>
+            <span class="n">prev_img</span> <span class="o">=</span> <span class="n">current_image</span>
+    <span class="k">return</span> <span class="n">g_scale</span>
+
+<span class="c1">#-------------- 差分高斯金字塔-------------</span>
+<span class="k">def</span> <span class="nf">scale_space_dog</span><span class="p">(</span><span class="n">g_scale_space</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从高斯金字塔构建差分高斯金字塔</span>
+
+<span class="sd">    :param g_scale_space: 高斯金字塔对象</span>
+<span class="sd">    :type g_scale_space: ScaleSpace</span>
+<span class="sd">    :return: 差分高斯金字塔</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 从高斯金字塔对象构建差分高斯金字塔</span>
+    <span class="n">d_space</span> <span class="o">=</span> <span class="n">DogSpace</span><span class="p">(</span><span class="n">g_scale_space</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">g_scale_space</span><span class="o">.</span><span class="n">n_oct</span><span class="p">):</span>
+        <span class="n">c_octave</span> <span class="o">=</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">get_current_octave</span><span class="p">(</span><span class="n">o_idx</span><span class="p">)</span>
+        <span class="n">dif</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">c_octave</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># 计算差分</span>
+        <span class="n">d_space</span><span class="o">.</span><span class="n">set_current_layer</span><span class="p">(</span><span class="n">dif</span><span class="p">,</span> <span class="n">o_idx</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">d_space</span>
+
+<span class="c1">#-------------- 差分高斯金字塔 空间极值-------------</span>
+<span class="k">def</span> <span class="nf">is_local_maxmin</span><span class="p">(</span><span class="n">c_octave</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="n">nei_offset</span><span class="p">,):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;查找3D数组中的局部极大极小值</span>
+
+<span class="sd">    :param c_octave: 3D数组</span>
+<span class="sd">    :type c_octave: np.array</span>
+<span class="sd">    :param loc: 当前查找位置</span>
+<span class="sd">    :type loc: [type]</span>
+<span class="sd">    :param nei_offset: 相邻像素点的偏移量</span>
+<span class="sd">    :type nei_offset: [type]</span>
+<span class="sd">    :return: 是否为极大极小值</span>
+<span class="sd">    :rtype: bool</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">s_idx</span><span class="p">,</span><span class="n">h_idx</span><span class="p">,</span><span class="n">w_idx</span> <span class="o">=</span> <span class="n">loc</span>
+    <span class="n">center_value</span> <span class="o">=</span> <span class="n">c_octave</span><span class="p">[</span><span class="n">s_idx</span><span class="p">,</span><span class="n">h_idx</span><span class="p">,</span><span class="n">w_idx</span><span class="p">]</span> <span class="c1"># 当前值</span>
+    <span class="n">is_local_min</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># 查找是否为极小值</span>
+    <span class="k">for</span> <span class="n">each_offset</span> <span class="ow">in</span> <span class="n">nei_offset</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">c_octave</span><span class="p">[</span>
+            <span class="n">s_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">h_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">]</span> <span class="o">&lt;=</span> <span class="n">center_value</span><span class="p">:</span>
+            <span class="n">is_local_min</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">break</span>
+    <span class="c1"># 查找是否为极大值</span>
+    <span class="n">is_local_max</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">is_local_min</span><span class="p">:</span>
+        <span class="n">is_local_max</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">each_offset</span> <span class="ow">in</span> <span class="n">nei_offset</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">c_octave</span><span class="p">[</span>
+                <span class="n">s_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">h_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">w_idx</span><span class="o">+</span><span class="n">each_offset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                <span class="p">]</span> <span class="o">&gt;=</span> <span class="n">center_value</span><span class="p">:</span>
+                <span class="n">is_local_max</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="n">is_local_max</span> <span class="ow">or</span> <span class="n">is_local_min</span>
+
+<span class="k">def</span> <span class="nf">keypoints_find_3d_discrete_extrema</span><span class="p">(</span><span class="n">dog_space</span><span class="p">:</span> <span class="n">DogSpace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从差分高斯金字塔中查找关键点</span>
+
+<span class="sd">    :param dog_space: 高斯金字塔对象</span>
+<span class="sd">    :type dog_space: DogSpace</span>
+<span class="sd">    :return: 关键点</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_oct</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">n_oct</span>
+    <span class="n">n_sca</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">n_sca</span>
+    <span class="c1"># 创建偏移数组， 方便下一步计算</span>
+    <span class="n">nei_offset</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">s_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">h_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">w_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">s_idx</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">h_idx</span> <span class="o">!=</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">w_idx</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">nei_offset</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_idx</span><span class="p">,</span> <span class="n">h_idx</span><span class="p">,</span> <span class="n">w_idx</span><span class="p">))</span>
+
+    <span class="n">key_points</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">o_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span> <span class="c1"># 遍历金字塔的每一层</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o_idx</span><span class="p">],</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]</span>
+        <span class="n">c_octave</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o_idx</span><span class="p">]</span>
+        <span class="n">locs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">s_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_sca</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">h_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">w_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                    <span class="n">locs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">s_idx</span><span class="p">,</span><span class="n">h_idx</span><span class="p">,</span><span class="n">w_idx</span><span class="p">))</span>
+        <span class="c1"># 使用进程池计算</span>
+        <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span> <span class="k">as</span> <span class="n">tp</span><span class="p">:</span>
+        <span class="c1"># with ThreadPool(16) as tp:</span>
+            <span class="n">ret_flag</span> <span class="o">=</span> <span class="n">tp</span><span class="o">.</span><span class="n">starmap</span><span class="p">(</span><span class="n">is_local_maxmin</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">repeat</span><span class="p">(</span><span class="n">c_octave</span><span class="p">),</span> <span class="n">locs</span><span class="p">,</span> <span class="n">repeat</span><span class="p">(</span><span class="n">nei_offset</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">loc</span><span class="p">,</span> <span class="n">flag</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">locs</span><span class="p">,</span> <span class="n">ret_flag</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+                <span class="n">s_idx</span><span class="p">,</span> <span class="n">h_idx</span><span class="p">,</span> <span class="n">w_idx</span> <span class="o">=</span> <span class="n">loc</span>
+                <span class="n">key_p</span> <span class="o">=</span> <span class="n">KeyPoint</span><span class="p">(</span> <span class="n">o_idx</span><span class="p">,</span> <span class="n">s_idx</span><span class="p">,</span> <span class="n">h_idx</span><span class="p">,</span> <span class="n">w_idx</span><span class="p">,</span>
+                    <span class="n">delta</span> <span class="o">*</span> <span class="n">h_idx</span><span class="p">,</span> <span class="n">delta</span> <span class="o">*</span> <span class="n">w_idx</span><span class="p">,</span>
+                    <span class="n">dog_space</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o_idx</span><span class="p">],</span>
+                    <span class="n">c_octave</span><span class="p">[</span><span class="n">s_idx</span><span class="p">,</span> <span class="n">h_idx</span><span class="p">,</span> <span class="n">w_idx</span><span class="p">])</span>
+                <span class="n">key_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key_p</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">key_points</span>
+
+
+<span class="c1">#-------------- 差分高斯金字塔 空间极值 精确定位-------------</span>
+<span class="k">def</span> <span class="nf">keypoints_discard_with_low_response</span><span class="p">(</span><span class="n">keys</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">thresh</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;移除低对比度的点</span>
+
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: list</span>
+<span class="sd">    :param thresh: 阈值</span>
+<span class="sd">    :type thresh: float</span>
+<span class="sd">    :return: 处理后的关键点列表</span>
+<span class="sd">    :rtype: list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">each_key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">each_key</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">thresh</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">each_key</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">inverse_3D_Taylor</span><span class="p">(</span><span class="n">octave</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;泰勒展开拟合,求解(s,i,j)位置附近极值点的偏移量</span>
+<span class="sd">    计算过程由泰勒展开对X求导并令其为0,获得偏移量</span>
+<span class="sd">    需要计算一阶导数, 二阶导数及二阶导数的逆</span>
+<span class="sd">    使用有限差分法求导的方式计算该导数</span>
+<span class="sd">    有限差分法参考https://blog.csdn.net/zddblog/article/details/7521424 4.3有限差分法求导</span>
+
+<span class="sd">    :param octave: 差分高斯金字塔的一层</span>
+<span class="sd">    :type octave: np.ndarray</span>
+<span class="sd">    :param s: 层内索引</span>
+<span class="sd">    :type s: [type]</span>
+<span class="sd">    :param i: 层内行索引</span>
+<span class="sd">    :type i: [type]</span>
+<span class="sd">    :param j: 层内列索引</span>
+<span class="sd">    :type j: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 在差分近似中， 分母包含h， 因为这里h=1，所以直接省略</span>
+    <span class="c1"># 计算一阶偏导</span>
+    <span class="n">gx</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+    <span class="n">gy</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+
+    <span class="c1"># 计算二阶偏导</span>
+    <span class="n">hxx</span> <span class="o">=</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+    <span class="n">hyy</span> <span class="o">=</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+    <span class="n">hss</span> <span class="o">=</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+    <span class="n">hxy</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">hxs</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span>
+    <span class="n">hys</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+
+
+    <span class="c1"># 对二阶矩阵求逆</span>
+    <span class="c1"># 海森矩阵的形式如下(只写分母)</span>
+    <span class="c1"># | xx xy xs |</span>
+    <span class="c1"># | yx yy ys |</span>
+    <span class="c1"># | sx sy ss |</span>
+    <span class="n">det</span> <span class="o">=</span> <span class="n">hxx</span><span class="o">*</span><span class="n">hyy</span><span class="o">*</span><span class="n">hss</span> <span class="o">-</span> <span class="n">hxx</span><span class="o">*</span><span class="n">hys</span><span class="o">*</span><span class="n">hys</span> <span class="o">-</span> <span class="n">hxy</span><span class="o">*</span><span class="n">hxy</span><span class="o">*</span><span class="n">hss</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">hxy</span><span class="o">*</span><span class="n">hxs</span><span class="o">*</span><span class="n">hys</span> <span class="o">-</span> <span class="n">hxs</span><span class="o">*</span><span class="n">hxs</span><span class="o">*</span><span class="n">hyy</span>
+    <span class="c1"># if det == 0:</span>
+    <span class="c1">#     return 5., 5., 5., 1</span>
+    <span class="n">aa</span> <span class="o">=</span> <span class="p">(</span><span class="n">hyy</span><span class="o">*</span><span class="n">hss</span> <span class="o">-</span> <span class="n">hys</span><span class="o">*</span><span class="n">hys</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+    <span class="n">ab</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxs</span><span class="o">*</span><span class="n">hys</span> <span class="o">-</span> <span class="n">hxy</span><span class="o">*</span><span class="n">hss</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+    <span class="n">ac</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxy</span><span class="o">*</span><span class="n">hys</span> <span class="o">-</span> <span class="n">hxs</span><span class="o">*</span><span class="n">hyy</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+    <span class="n">bb</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxx</span><span class="o">*</span><span class="n">hss</span> <span class="o">-</span> <span class="n">hxs</span><span class="o">*</span><span class="n">hxs</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+    <span class="n">bc</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxy</span><span class="o">*</span><span class="n">hxs</span> <span class="o">-</span> <span class="n">hxx</span><span class="o">*</span><span class="n">hys</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+    <span class="n">cc</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxx</span><span class="o">*</span><span class="n">hyy</span> <span class="o">-</span> <span class="n">hxy</span><span class="o">*</span><span class="n">hxy</span><span class="p">)</span> <span class="o">/</span> <span class="n">det</span>
+
+    <span class="c1"># 偏移量</span>
+    <span class="c1"># 根据解出的公式，偏移量为3*3的逆矩阵乘以3*1的一阶偏导列向量</span>
+    <span class="c1"># 拆解矩阵相乘运算</span>
+    <span class="n">ofst_x</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">aa</span> <span class="o">*</span> <span class="n">gx</span> <span class="o">+</span> <span class="n">ab</span> <span class="o">*</span> <span class="n">gy</span> <span class="o">+</span> <span class="n">ac</span> <span class="o">*</span> <span class="n">gs</span><span class="p">)</span>
+    <span class="n">ofst_y</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">ab</span> <span class="o">*</span> <span class="n">gx</span> <span class="o">+</span> <span class="n">bb</span> <span class="o">*</span> <span class="n">gy</span> <span class="o">+</span> <span class="n">bc</span> <span class="o">*</span> <span class="n">gs</span><span class="p">)</span>
+    <span class="n">ofst_s</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">ac</span> <span class="o">*</span> <span class="n">gx</span> <span class="o">+</span> <span class="n">bc</span> <span class="o">*</span> <span class="n">gy</span> <span class="o">+</span> <span class="n">cc</span> <span class="o">*</span> <span class="n">gs</span><span class="p">)</span>
+
+    <span class="c1"># 插值后的极值的偏移量</span>
+    <span class="n">ofst_val</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">gx</span> <span class="o">*</span> <span class="n">ofst_x</span> <span class="o">+</span> <span class="n">gy</span> <span class="o">*</span> <span class="n">ofst_y</span> <span class="o">+</span> <span class="n">gs</span> <span class="o">*</span> <span class="n">ofst_s</span><span class="p">)</span>
+
+    <span class="n">val</span> <span class="o">=</span> <span class="n">octave</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">ofst_val</span>
+
+    <span class="k">return</span> <span class="n">ofst_s</span><span class="p">,</span> <span class="n">ofst_x</span><span class="p">,</span> <span class="n">ofst_y</span><span class="p">,</span> <span class="n">val</span>
+
+
+<span class="k">def</span> <span class="nf">keypoints_interpolate_position</span><span class="p">(</span><span class="n">dog_space</span><span class="p">:</span> <span class="n">DogSpace</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">],</span> <span class="n">iter_max</span><span class="p">:</span><span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;对关键点位置进行插值，获取更精确的位置</span>
+
+<span class="sd">    :param dog_space: 差分高斯金字塔</span>
+<span class="sd">    :type dog_space: DogSpace</span>
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: List[KeyPoint]</span>
+<span class="sd">    :param iter_max: 最大迭代次数</span>
+<span class="sd">    :type iter_max: int</span>
+<span class="sd">    :return: 筛选后的关键点</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">max_inter</span> <span class="o">=</span> <span class="n">iter_max</span> <span class="c1"># 最大插值次数</span>
+    <span class="n">ofst_max</span> <span class="o">=</span> <span class="mf">0.6</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">sigma_ratio</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span> <span class="c1"># 迭代所有的关键点</span>
+        <span class="n">o</span><span class="p">,</span><span class="n">s</span><span class="p">,</span><span class="n">i</span><span class="p">,</span><span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">w</span>
+
+        <span class="n">octave</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">ns</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">n_sca</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">value</span>
+
+        <span class="c1"># 开始插值</span>
+        <span class="n">c_i</span><span class="p">,</span> <span class="n">c_j</span><span class="p">,</span> <span class="n">c_s</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">s</span>
+        <span class="n">n_intrp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">is_conv</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">ofst_x</span><span class="p">,</span> <span class="n">ofst_y</span><span class="p">,</span> <span class="n">ofst_s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="n">n_intrp</span> <span class="o">&lt;</span> <span class="n">max_inter</span><span class="p">:</span>
+            <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">c_i</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">c_j</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">ofst_s</span><span class="p">,</span> <span class="n">ofst_y</span><span class="p">,</span> <span class="n">ofst_s</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="n">inverse_3D_Taylor</span><span class="p">(</span><span class="n">octave</span><span class="p">,</span> <span class="n">c_s</span><span class="p">,</span> <span class="n">c_i</span><span class="p">,</span> <span class="n">c_j</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">is_conv</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">ofst_x</span><span class="o">=</span><span class="mf">5.0</span>
+                <span class="n">ofst_y</span><span class="o">=</span><span class="mf">5.0</span>
+                <span class="n">ofst_s</span><span class="o">=</span><span class="mf">5.0</span>
+
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ofst_x</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ofst_max</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ofst_y</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ofst_max</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ofst_s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ofst_max</span><span class="p">:</span>
+                <span class="n">is_conv</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_x</span> <span class="o">&gt;</span> <span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">h</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">c_i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_x</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">c_i</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_y</span> <span class="o">&gt;</span> <span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">c_j</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_y</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_j</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">c_j</span> <span class="o">-=</span> <span class="mi">1</span>
+
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_s</span> <span class="o">&gt;</span> <span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_s</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">ns</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">c_s</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">ofst_s</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">ofst_max</span><span class="p">)</span> <span class="ow">and</span> <span class="p">((</span><span class="n">c_s</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">c_s</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="n">n_intrp</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">is_conv</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">dog_space</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o</span><span class="p">,</span> <span class="n">c_s</span><span class="p">]</span> <span class="o">*</span> <span class="n">sigma_ratio</span><span class="o">**</span><span class="n">ofst_s</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;sigma is zero&#39;</span><span class="p">)</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="n">KeyPoint</span><span class="p">(</span>
+                <span class="n">o</span><span class="o">=</span><span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">c_s</span><span class="p">,</span> <span class="n">h</span><span class="o">=</span><span class="n">c_i</span><span class="p">,</span> <span class="n">w</span><span class="o">=</span><span class="n">c_j</span><span class="p">,</span> 
+                <span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="n">c_i</span><span class="o">+</span><span class="n">ofst_x</span><span class="p">)</span><span class="o">*</span><span class="n">delta</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="p">(</span><span class="n">c_j</span><span class="o">+</span><span class="n">ofst_max</span><span class="p">)</span><span class="o">*</span><span class="n">delta</span><span class="p">,</span>
+                <span class="n">sigma</span><span class="o">=</span><span class="n">dog_space</span><span class="o">.</span><span class="n">sigmas</span><span class="p">[</span><span class="n">o</span><span class="p">,</span> <span class="n">c_s</span><span class="p">]</span> <span class="o">*</span> <span class="n">sigma_ratio</span><span class="o">**</span><span class="n">ofst_s</span><span class="p">,</span>
+                <span class="n">value</span><span class="o">=</span><span class="n">val</span>
+                <span class="p">)</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="k">def</span> <span class="nf">keypoints_edge_response</span><span class="p">(</span><span class="n">dog_sp</span><span class="p">:</span> <span class="n">DogSpace</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;计算关键点的边缘响应</span>
+
+<span class="sd">    :param dog_sp: 差分高斯金字塔</span>
+<span class="sd">    :type dog_sp: DogSpace</span>
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: List[KeyPoint]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">o</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">s</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">h</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">w</span>
+        <span class="n">c_img</span> <span class="o">=</span> <span class="n">dog_sp</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">dog_sp</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">dog_sp</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+
+        <span class="c1"># 计算二阶海森矩阵</span>
+        <span class="n">hxx</span> <span class="o">=</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">hyy</span> <span class="o">=</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">hxy</span> <span class="o">=</span> <span class="mf">0.25</span> <span class="o">*</span> <span class="p">(</span><span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">c_img</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">edge_response</span> <span class="o">=</span> <span class="p">(</span><span class="n">hxx</span> <span class="o">+</span> <span class="n">hyy</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="p">(</span><span class="n">hxx</span><span class="o">*</span><span class="n">hyy</span> <span class="o">-</span> <span class="n">hxy</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">key</span><span class="o">.</span><span class="n">edge_resp</span> <span class="o">=</span>  <span class="n">edge_response</span>
+
+
+<span class="k">def</span> <span class="nf">keypoints_discard_with_edge_resp</span><span class="p">(</span><span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">],</span> <span class="n">thresh</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;根据关键点的边缘响应剔除响应较弱的点</span>
+
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: List[KeyPoint]</span>
+<span class="sd">    :param thresh: 响应阈值</span>
+<span class="sd">    :type thresh: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">edge_resp</span> <span class="o">&lt;=</span> <span class="n">thresh</span><span class="p">:</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+
+
+<span class="c1">#--------------方向匹配-------------</span>
+<span class="k">def</span> <span class="nf">compute_gradient</span><span class="p">(</span><span class="n">im</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">h</span><span class="p">,</span> <span class="n">w</span><span class="p">))</span>
+
+    <span class="c1"># 计算dy</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">h</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">w</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">dy</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+        <span class="c1"># 处理边界</span>
+        <span class="n">dy</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">dy</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">w</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># 计算dx</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+            <span class="n">dx</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.5</span>
+
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">w</span><span class="p">):</span>
+        <span class="n">dx</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+        <span class="n">dx</span><span class="p">[</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">im</span><span class="p">[</span><span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">im</span><span class="p">[</span><span class="n">h</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span>
+
+<span class="k">def</span> <span class="nf">scale_compute_gradient</span><span class="p">(</span><span class="n">g_scale_space</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span> <span class="n">dx_space</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span> <span class="n">dy_space</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;预先计算两个方向的差分， 避免在后续计算中重复计算差分</span>
+
+<span class="sd">    :param g_scale_space: 高斯金字塔</span>
+<span class="sd">    :type g_scale_space: ScaleSpace</span>
+<span class="sd">    :param dx_space: x方向差分金字塔</span>
+<span class="sd">    :type dx_space: ScaleSpace</span>
+<span class="sd">    :param dy_space: y方向差分金字塔</span>
+<span class="sd">    :type dy_space: ScaleSpace</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_oct</span> <span class="o">=</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">n_oct</span>
+    <span class="n">n_sca</span> <span class="o">=</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">n_sca</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_oct</span><span class="p">):</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_sca</span><span class="p">):</span>
+            <span class="n">im</span> <span class="o">=</span> <span class="n">g_scale_space</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,:,:]</span>
+            <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">compute_gradient</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span>
+            <span class="n">dx_space</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">dx</span>
+            <span class="n">dy_space</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">dy</span>
+
+<span class="k">def</span> <span class="nf">accumulate_orientation_hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">im_dx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">im_dy</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">lambda_ori</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="n">KeyPoint</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;计算关键点的方向直方图</span>
+
+<span class="sd">    :param x: 当前尺度的x</span>
+<span class="sd">    :type x: [type]</span>
+<span class="sd">    :param y: 当前尺度的y</span>
+<span class="sd">    :type y: [type]</span>
+<span class="sd">    :param sigma: 原图尺度的sigma</span>
+<span class="sd">    :type sigma: [type]</span>
+<span class="sd">    :param im_dx: x方向的差分图像</span>
+<span class="sd">    :type im_dx: np.ndarray</span>
+<span class="sd">    :param im_dy: y方向的差分图像</span>
+<span class="sd">    :type im_dy: np.ndarray</span>
+<span class="sd">    :param n_bins: 方向直方图的bins数量</span>
+<span class="sd">    :type n_bins: [type]</span>
+<span class="sd">    :param lambda_ori: 用于计算取样区域大小的系数</span>
+<span class="sd">    :type lambda_ori: float</span>
+<span class="sd">    :param key: 关键点</span>
+<span class="sd">    :type key: KeyPoint</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">lambda_ori</span> <span class="o">*</span> <span class="n">sigma</span> <span class="c1"># 计算取样半径</span>
+
+    <span class="c1"># 计算取样区域</span>
+    <span class="n">si_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">R</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">sj_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">R</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+
+    <span class="n">si_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">R</span><span class="o">+</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sj_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span><span class="o">+</span><span class="n">R</span><span class="o">+</span><span class="mf">0.5</span><span class="p">),</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">si_min</span><span class="p">,</span> <span class="n">si_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">sj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sj_min</span><span class="p">,</span> <span class="n">sj_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">sx</span> <span class="o">=</span> <span class="p">(</span><span class="n">si</span> <span class="o">-</span> <span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
+            <span class="n">sy</span> <span class="o">=</span> <span class="p">(</span><span class="n">sj</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">sigma</span>
+
+            <span class="n">dx</span> <span class="o">=</span> <span class="n">im_dx</span><span class="p">[</span><span class="n">si</span><span class="p">,</span> <span class="n">sj</span><span class="p">]</span>
+            <span class="n">dy</span> <span class="o">=</span> <span class="n">im_dy</span><span class="p">[</span><span class="n">si</span><span class="p">,</span> <span class="n">sj</span><span class="p">]</span>
+
+            <span class="c1"># 计算角度</span>
+            <span class="n">ori</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+            <span class="c1"># 计算加权权值</span>
+            <span class="n">r2</span> <span class="o">=</span> <span class="n">sx</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="n">sy</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">r2</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">lambda_ori</span><span class="o">*</span><span class="n">lambda_ori</span><span class="p">))</span>
+            <span class="n">bin_idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ori</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_bins</span>
+
+            <span class="n">key</span><span class="o">.</span><span class="n">hist</span><span class="p">[</span><span class="n">bin_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="n">weight</span>
+
+    <span class="c1"># max_hist_idx = np.argmax(key.hist)</span>
+
+    <span class="c1"># # 对梯度方向直方图进行插值， 获取更精确的方向</span>
+    <span class="c1"># idx_prev = (max_hist_idx - 1 + n_bins) % n_bins</span>
+    <span class="c1"># idx_next = (max_hist_idx + 1) % n_bins</span>
+
+    <span class="c1"># h1 = key.hist[idx_prev]</span>
+    <span class="c1"># h2 = key.hist[max_hist_idx]</span>
+    <span class="c1"># h3 = key.hist[idx_next]</span>
+    <span class="c1"># offset = (h3 - h1) / (2 * (h1 + h3 - 2*h2))</span>
+
+    <span class="c1"># # 计算插值后的角度， 保存到关键点中</span>
+    <span class="c1"># new_ori = (max_hist_idx + 0.5 + offset) * (2 * np.pi / n_bins)</span>
+
+    <span class="c1"># new_ori = new_ori - 2*np.pi if new_ori &gt; 2*np.pi else new_ori # 处理越界情况</span>
+    <span class="c1"># key.theta = new_ori</span>
+
+<span class="k">def</span> <span class="nf">smooth_hist</span><span class="p">(</span><span class="n">hist</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">n_inter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;对角度直方图进行平滑</span>
+
+<span class="sd">    :param hist: 直方图</span>
+<span class="sd">    :type hist: np.ndarray</span>
+<span class="sd">    :param n_inter: 平滑次数</span>
+<span class="sd">    :type n_inter: [type]</span>
+<span class="sd">    :return: 平滑后的直方图</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_inter</span><span class="p">):</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bins</span><span class="p">):</span>
+            <span class="n">i_prev</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="n">bins</span><span class="p">)</span> <span class="o">%</span> <span class="n">bins</span>
+            <span class="n">i_next</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">bins</span>
+            <span class="n">hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="n">i_prev</span><span class="p">]</span><span class="o">+</span><span class="n">tmp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">+</span><span class="n">tmp</span><span class="p">[</span><span class="n">i_next</span><span class="p">])</span><span class="o">/</span><span class="mf">3.</span>
+    <span class="k">return</span> <span class="n">hist</span>
+
+<span class="k">def</span> <span class="nf">interp_peak</span><span class="p">(</span><span class="n">h1</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">h3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;对直方图方向进行插值</span>
+
+<span class="sd">    :param h1: [description]</span>
+<span class="sd">    :type h1: [type]</span>
+<span class="sd">    :param h2: [description]</span>
+<span class="sd">    :type h2: [type]</span>
+<span class="sd">    :param h3: [description]</span>
+<span class="sd">    :type h3: [type]</span>
+<span class="sd">    :return: [description]</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="p">(</span><span class="n">h3</span> <span class="o">-</span> <span class="n">h1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">h1</span> <span class="o">+</span> <span class="n">h3</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">h2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">offset</span>
+
+<span class="k">def</span> <span class="nf">extract_principal_ori</span><span class="p">(</span><span class="n">hist</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">thresh</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从直方图中提取主要方向和辅助方向</span>
+
+<span class="sd">    :param hist: 角度直方图</span>
+<span class="sd">    :type hist: np.ndarray</span>
+<span class="sd">    :param thresh: 辅助方向的阈值:0~1</span>
+<span class="sd">    :type thresh: [type]</span>
+<span class="sd">    :return: 提取后的方向</span>
+<span class="sd">    :rtype: [type]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">principal_ori</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+    <span class="n">smoothed_hist</span> <span class="o">=</span> <span class="n">smooth_hist</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+    <span class="n">max_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">smoothed_hist</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span><span class="p">):</span>
+        <span class="n">i_prev</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="o">+</span><span class="n">n_bins</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_bins</span>
+        <span class="n">i_next</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_bins</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">thresh</span> <span class="o">*</span> <span class="n">max_val</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i_prev</span><span class="p">])</span> <span class="ow">and</span> <span class="p">(</span><span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i_next</span><span class="p">]):</span>
+            <span class="c1"># is peak</span>
+            <span class="c1"># 插值</span>
+            <span class="n">offset</span> <span class="o">=</span> <span class="n">interp_peak</span><span class="p">(</span><span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i_prev</span><span class="p">],</span> <span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">smoothed_hist</span><span class="p">[</span><span class="n">i_next</span><span class="p">])</span>
+            <span class="c1"># 计算插值后的角度， 保存到关键点中</span>
+            <span class="n">new_ori</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="n">offset</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">n_bins</span><span class="p">)</span>
+            <span class="n">new_ori</span> <span class="o">=</span> <span class="n">new_ori</span> <span class="o">-</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">if</span> <span class="n">new_ori</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="k">else</span> <span class="n">new_ori</span> <span class="c1"># 处理越界情况</span>
+            <span class="n">principal_ori</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_ori</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">principal_ori</span>
+
+
+<span class="k">def</span> <span class="nf">keypoints_attribute_orientations</span><span class="p">(</span><span class="n">sx</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span> <span class="n">sy</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">],</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">lambda_ori</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="mf">0.8</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;提取关键点主方向信息</span>
+
+<span class="sd">    :param sx: x方向差分高斯金字塔</span>
+<span class="sd">    :type sx: ScaleSpace</span>
+<span class="sd">    :param sy: y方向差分高斯金字塔</span>
+<span class="sd">    :type sy: ScaleSpace</span>
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: List[KeyPoint]</span>
+<span class="sd">    :param n_bins: 保存的方向数目, defaults to 36</span>
+<span class="sd">    :type n_bins: int, optional</span>
+<span class="sd">    :param lambda_ori: 对模值加权时高斯函数sigma的系数, defaults to 3</span>
+<span class="sd">    :type lambda_ori: int, optional</span>
+<span class="sd">    :param t: 辅助方向的直方图阈值, defaults to 0.8</span>
+<span class="sd">    :type t: int, optional</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">sigma</span>
+        <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">s</span>
+
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">sx</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">sx</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">sx</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">sx</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">sx</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="c1"># 将坐标转为特征金字塔对应层的坐标</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="n">delta</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">/</span> <span class="n">delta</span>
+
+
+        <span class="c1"># 原图对应层的sigma</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span> <span class="o">/</span> <span class="n">delta</span> 
+
+        <span class="n">key</span><span class="o">.</span><span class="n">init_hist</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span> <span class="c1"># 初始化关键点的直方图</span>
+        <span class="c1"># 计算关键点的方向直方图</span>
+        <span class="n">accumulate_orientation_hist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">,</span> <span class="n">lambda_ori</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># 提取关键点的多个方向</span>
+        <span class="n">prin_ori</span> <span class="o">=</span> <span class="n">extract_principal_ori</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">hist</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+        <span class="c1"># 把该关键点复制成多份关键点，并将方向值分别赋给这些复制后的关键点</span>
+        <span class="k">for</span> <span class="n">ori</span> <span class="ow">in</span> <span class="n">prin_ori</span><span class="p">:</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="n">new_key</span><span class="o">.</span><span class="n">theta</span> <span class="o">=</span> <span class="n">ori</span>
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_key</span><span class="p">)</span>
+
+    <span class="c1"># 返回分配了方向的关键点</span>
+    <span class="k">return</span> <span class="n">ret</span>
+
+
+<span class="c1">#--------------关键点特征描述-------------</span>
+<span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">theta</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;将x y 点旋转theta</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">rx</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">x</span> <span class="o">-</span> <span class="n">s</span> <span class="o">*</span> <span class="n">y</span>
+    <span class="n">ry</span> <span class="o">=</span> <span class="n">s</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">c</span> <span class="o">*</span> <span class="n">y</span>
+    <span class="k">return</span> <span class="n">rx</span><span class="p">,</span> <span class="n">ry</span>
+
+<span class="k">def</span> <span class="nf">extract_sift_feature_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">im_dx</span><span class="p">,</span> <span class="n">im_dy</span><span class="p">,</span> <span class="n">n_hist</span><span class="p">,</span> <span class="n">n_ori</span><span class="p">,</span> <span class="n">lambda_descr</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span><span class="n">KeyPoint</span><span class="p">):</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n_hist</span><span class="p">)</span> <span class="o">*</span> <span class="n">lambda_descr</span> <span class="o">*</span> <span class="n">sigma</span>
+    <span class="c1"># 考虑旋转因素， 实际半径需要再乘根号2</span>
+    <span class="n">Rp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">R</span>
+
+    <span class="n">si_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">Rp</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+    <span class="n">sj_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">Rp</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">))</span>
+
+    <span class="n">si_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="n">Rp</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">h</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">sj_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">Rp</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">w</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># 遍历关键点的邻域</span>
+    <span class="k">for</span> <span class="n">si</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">si_min</span><span class="p">,</span> <span class="n">si_max</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">sj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sj_min</span> <span class="p">,</span> <span class="n">sj_max</span><span class="p">):</span>
+            <span class="c1"># 当前点相对于关键点的坐标</span>
+            <span class="n">sx</span> <span class="o">=</span> <span class="n">si</span> <span class="o">-</span> <span class="n">x</span>
+            <span class="n">sy</span> <span class="o">=</span> <span class="n">sj</span> <span class="o">-</span> <span class="n">y</span>
+            <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span> <span class="o">=</span> <span class="n">rotate</span><span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="o">-</span><span class="n">theta</span><span class="p">)</span> <span class="c1"># 将关键点方向与坐标轴对齐</span>
+
+            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">sx</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sy</span><span class="p">))</span> <span class="o">&lt;</span> <span class="n">R</span><span class="p">:</span> <span class="c1"># 只处理区域内的点</span>
+                <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="o">=</span> <span class="n">im_dx</span><span class="p">[</span><span class="n">si</span><span class="p">,</span> <span class="n">sj</span><span class="p">],</span> <span class="n">im_dy</span><span class="p">[</span><span class="n">si</span><span class="p">,</span> <span class="n">sj</span><span class="p">]</span>
+
+                <span class="n">ori</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">dy</span><span class="p">,</span> <span class="n">dx</span><span class="p">)</span> <span class="o">-</span> <span class="n">theta</span> <span class="c1"># si sj点在旋转后的角度</span>
+                <span class="n">ori</span> <span class="o">=</span> <span class="p">(</span><span class="n">ori</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+
+                <span class="c1"># 计算梯度幅值的加权</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="n">lambda_descr</span> <span class="o">*</span> <span class="n">sigma</span>
+                <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">sx</span><span class="o">*</span><span class="n">sx</span><span class="o">+</span><span class="n">sy</span><span class="o">*</span><span class="n">sy</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">*</span><span class="n">t</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+
+                <span class="c1"># alpha beta 指向当前的计算是哪个bin的中心</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="n">sx</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">lambda_descr</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">/</span><span class="n">n_hist</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_hist</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">beta</span>  <span class="o">=</span> <span class="n">sy</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">lambda_descr</span> <span class="o">*</span> <span class="n">sigma</span><span class="o">/</span><span class="n">n_hist</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">n_hist</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+                <span class="n">gamma</span> <span class="o">=</span> <span class="n">ori</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_ori</span>
+
+                <span class="n">i0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">alpha</span><span class="p">))</span>
+                <span class="n">j0</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">beta</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i0</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">i0</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_hist</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">j0</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">j0</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_hist</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="c1"># 当前指向的方向bin</span>
+                        <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_ori</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_ori</span>
+
+                        <span class="c1"># 插值处理</span>
+                        <span class="c1"># 方向指向是连续的，对相邻的两个bin都有贡献，通过权值平衡</span>
+                        <span class="c1"># 靠近子区域中心的权值应该更大</span>
+
+                        <span class="c1"># 对当前方向的贡献度</span>
+                        <span class="n">key</span><span class="o">.</span><span class="n">descr</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n_hist</span><span class="o">*</span><span class="n">n_ori</span><span class="o">+</span><span class="n">j</span><span class="o">*</span><span class="n">n_ori</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">M</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">gamma</span><span class="p">)))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">beta</span><span class="p">))</span>
+
+                        <span class="c1"># 对相邻方向的贡献度</span>
+                        <span class="n">k</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">n_ori</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_ori</span>
+                        <span class="n">key</span><span class="o">.</span><span class="n">descr</span><span class="p">[</span><span class="n">i</span><span class="o">*</span><span class="n">n_hist</span><span class="o">*</span><span class="n">n_ori</span><span class="o">+</span><span class="n">j</span><span class="o">*</span><span class="n">n_ori</span><span class="o">+</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="n">M</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">gamma</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">gamma</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">alpha</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">j</span> <span class="o">-</span> <span class="n">beta</span><span class="p">))</span>
+
+
+
+<span class="k">def</span> <span class="nf">threshold_quantize_feature_vector</span><span class="p">(</span><span class="n">key</span><span class="p">:</span><span class="n">KeyPoint</span><span class="p">,</span> <span class="n">n_descr</span><span class="p">,</span> <span class="n">thresh</span><span class="p">):</span>
+    <span class="n">l2_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">descr</span><span class="p">)</span>
+    <span class="n">t_descr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">descr</span><span class="p">,</span> <span class="n">thresh</span> <span class="o">*</span> <span class="n">l2_norm</span><span class="p">)</span>
+
+    <span class="n">l2_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">t_descr</span><span class="p">)</span>
+    <span class="n">t_descr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">t_descr</span> <span class="o">*</span> <span class="mi">512</span> <span class="o">/</span> <span class="n">l2_norm</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+    <span class="n">key</span><span class="o">.</span><span class="n">descr</span> <span class="o">=</span> <span class="n">t_descr</span>
+
+<span class="k">def</span> <span class="nf">keypoints_attribute_descriptors</span><span class="p">(</span>
+    <span class="n">im_dx</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span> <span class="n">im_dy</span><span class="p">:</span> <span class="n">ScaleSpace</span><span class="p">,</span>
+    <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">],</span>
+    <span class="n">n_hist</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">n_ori</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">lambda_descr</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;生成SIFT描述子</span>
+
+<span class="sd">    :param im_dx: x方向差分金字塔</span>
+<span class="sd">    :type im_dx: ScaleSpace</span>
+<span class="sd">    :param im_dy: y方向差分金字塔</span>
+<span class="sd">    :type im_dy: ScaleSpace</span>
+<span class="sd">    :param keys: 关键点列表</span>
+<span class="sd">    :type keys: List[KeyPoint]</span>
+<span class="sd">    :param n_hist: 直方图划分区域数目</span>
+<span class="sd">    :type n_hist: int</span>
+<span class="sd">    :param n_ori: 方向取样数目</span>
+<span class="sd">    :type n_ori: int</span>
+<span class="sd">    :param lambda_descr: 描述区域半径系数</span>
+<span class="sd">    :type lambda_descr: float</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_descr</span> <span class="o">=</span> <span class="n">n_hist</span> <span class="o">*</span> <span class="n">n_hist</span> <span class="o">*</span> <span class="n">n_ori</span> <span class="c1"># 描述子向量的大小</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+
+        <span class="c1"># 获取关键点的尺度信息</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">y</span> 
+        <span class="n">o</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">o</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">s</span> 
+        <span class="n">sigma</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">theta</span>
+
+        <span class="c1"># 获取尺度空间梯度</span>
+        <span class="n">w</span><span class="p">,</span> <span class="n">h</span> <span class="o">=</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">ws</span><span class="p">[</span><span class="n">o</span><span class="p">],</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">hs</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">deltas</span><span class="p">[</span><span class="n">o</span><span class="p">]</span>
+
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">im_dx</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="n">im_dy</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="c1"># 转换到原图尺度</span>
+        <span class="n">x</span> <span class="o">/=</span> <span class="n">delta</span>
+        <span class="n">y</span> <span class="o">/=</span> <span class="n">delta</span>
+        <span class="n">sigma</span> <span class="o">/=</span> <span class="n">delta</span>
+
+        <span class="n">key</span><span class="o">.</span><span class="n">init_descr</span><span class="p">(</span><span class="n">n_descr</span><span class="p">)</span>
+        <span class="n">extract_sift_feature_vector</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">theta</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">n_hist</span><span class="p">,</span> <span class="n">n_ori</span><span class="p">,</span> <span class="n">lambda_descr</span><span class="p">,</span>  <span class="n">key</span><span class="p">)</span>
+        <span class="n">threshold_quantize_feature_vector</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">n_descr</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+
+
+
+<span class="c1">#--------------sift算法调用-------------</span>
+<span class="k">def</span> <span class="nf">num_of_octave</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">delta_min</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;计算图像金字塔的层数</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hmin</span> <span class="o">=</span> <span class="mi">12</span> <span class="c1"># 最顶层的图像大小</span>
+    <span class="n">h0</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta_min</span> <span class="c1"># 最底层图像大小</span>
+    <span class="n">n_oct</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">h0</span><span class="o">/</span><span class="n">hmin</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n_oct</span>
+
+<span class="k">def</span> <span class="nf">get_thresh</span><span class="p">(</span><span class="n">n_spo</span><span class="p">,</span> <span class="n">c_dog</span><span class="p">):</span>
+    <span class="n">k_nspo</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">n_spo</span><span class="p">)</span>
+    <span class="n">k_3</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_nspo</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">k_3</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">c_dog</span>
+    <span class="k">return</span> <span class="n">thresh</span>
+
+
+<span class="k">def</span> <span class="nf">sift_algorithm</span><span class="p">(</span>
+        <span class="n">img</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> 
+        <span class="n">n_oct</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_spo</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="c1"># 图像金字塔参数</span>
+        <span class="n">c_dog</span><span class="o">=</span><span class="mf">0.013333333</span><span class="p">,</span> <span class="c1">#0.04/3</span>
+        <span class="n">delta_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">sigma_min</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">sigma_in</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">n_bins</span><span class="o">=</span><span class="mi">36</span><span class="p">,</span> <span class="n">lambda_ori</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="c1"># 方向匹配参数</span>
+        <span class="n">c_edge</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="c1"># 边缘响应阈值</span>
+        <span class="n">t</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">n_hist</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">n_ori</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">lambda_descr</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="c1"># sift描述算子参数</span>
+        <span class="n">iter_max</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span> <span class="c1"># 求极值点插值迭代次数</span>
+
+    <span class="n">h</span><span class="p">,</span> <span class="n">w</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">n_oct</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">num_of_octave</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">n_oct</span><span class="p">)</span>
+
+    <span class="c1">#-------------生成图像金字塔-------------</span>
+    <span class="c1"># 高斯金字塔</span>
+    <span class="n">g_scale</span> <span class="o">=</span> <span class="n">gaussian_scale_space</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">sigma_in</span><span class="o">=</span><span class="n">sigma_in</span><span class="p">,</span> <span class="n">sigma_min</span><span class="o">=</span><span class="n">sigma_min</span><span class="p">,</span> <span class="n">n_oct</span><span class="o">=</span><span class="n">n_oct</span><span class="p">,</span> <span class="n">n_spo</span><span class="o">=</span><span class="n">n_spo</span><span class="p">)</span>
+    <span class="c1"># 差分高斯</span>
+    <span class="n">dog_scale</span> <span class="o">=</span> <span class="n">scale_space_dog</span><span class="p">(</span><span class="n">g_scale</span><span class="p">)</span>
+
+
+    <span class="c1"># 辅助过程，用于可视化图像金字塔</span>
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">g_scale</span><span class="o">.</span><span class="n">n_oct</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">g_scale</span><span class="o">.</span><span class="n">n_sca</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">g_scale</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+            <span class="n">save_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;./sift_result/g_</span><span class="si">{</span><span class="n">o</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">.jpg&#39;</span>
+            <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">save_name</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> 
+
+    <span class="k">def</span> <span class="nf">pseudocolor</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr</span> <span class="o">-</span> <span class="n">arr</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">arr</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">-</span><span class="n">arr</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">*</span> <span class="mi">120</span>
+        <span class="n">hsv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">h</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">shape</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Convert hsv color (h,1,1) to its rgb equivalent.</span>
+        <span class="k">return</span> <span class="n">color</span><span class="o">.</span><span class="n">hsv2rgb</span><span class="p">(</span><span class="n">hsv</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dog_scale</span><span class="o">.</span><span class="n">n_oct</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dog_scale</span><span class="o">.</span><span class="n">n_sca</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">dog_scale</span><span class="o">.</span><span class="n">octave</span><span class="p">[</span><span class="n">o</span><span class="p">][</span><span class="n">s</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">pseudo</span> <span class="o">=</span> <span class="n">pseudocolor</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">pseudo</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="p">(</span><span class="n">img</span> <span class="o">*</span> <span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s1">&#39;uint8&#39;</span><span class="p">)</span>
+            <span class="n">save_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;./sift_result/d_</span><span class="si">{</span><span class="n">o</span><span class="si">}</span><span class="s1">_</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">.jpg&#39;</span>
+            <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">save_name</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span> 
+
+
+    <span class="c1">#--------------关键点检测-------------</span>
+    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">keypoints_find_3d_discrete_extrema</span><span class="p">(</span><span class="n">dog_scale</span><span class="p">)</span>
+
+    <span class="c1"># 计算关键点阈值</span>
+    <span class="n">thresh</span> <span class="o">=</span> <span class="n">get_thresh</span><span class="p">(</span><span class="n">n_spo</span><span class="p">,</span> <span class="n">c_dog</span><span class="p">)</span>
+    <span class="n">keypoints_rm_low</span> <span class="o">=</span> <span class="n">keypoints_discard_with_low_response</span><span class="p">(</span><span class="n">keypoints</span><span class="p">,</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">thresh</span><span class="p">)</span>
+    <span class="c1"># 对关键点进行插值，获取更精确的位置</span>
+    <span class="n">keypoints_interp</span> <span class="o">=</span> <span class="n">keypoints_interpolate_position</span><span class="p">(</span><span class="n">dog_scale</span><span class="p">,</span> <span class="n">keypoints_rm_low</span><span class="p">,</span> <span class="n">iter_max</span><span class="p">)</span>
+
+    <span class="n">keyp_rm_low_again</span> <span class="o">=</span> <span class="n">keypoints_discard_with_low_response</span><span class="p">(</span><span class="n">keypoints_interp</span><span class="p">,</span> <span class="n">thresh</span><span class="p">)</span>
+
+    <span class="c1"># j计算边缘响应</span>
+    <span class="n">keypoints_edge_response</span><span class="p">(</span><span class="n">dog_scale</span><span class="p">,</span> <span class="n">keyp_rm_low_again</span><span class="p">)</span>
+    <span class="c1"># 移除不良边缘响应</span>
+    <span class="n">keys_rm_edge_rep</span> <span class="o">=</span> <span class="n">keypoints_discard_with_edge_resp</span><span class="p">(</span><span class="n">keyp_rm_low_again</span><span class="p">,</span> <span class="p">(</span><span class="n">c_edge</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">c_edge</span><span class="p">)</span>
+
+    <span class="c1">#--------------关键点描述-------------</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">g_scale</span><span class="p">)</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">g_scale</span><span class="p">)</span>
+    <span class="n">scale_compute_gradient</span><span class="p">(</span><span class="n">g_scale</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>  <span class="c1"># 预计算两个方向的差分</span>
+
+    <span class="c1"># 计算关键点的主要方向和辅助方向</span>
+    <span class="n">keys_attr_ori</span> <span class="o">=</span> <span class="n">keypoints_attribute_orientations</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">keys_rm_edge_rep</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">lambda_ori</span><span class="o">=</span><span class="n">lambda_ori</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="c1"># 生成关键点描述</span>
+    <span class="n">keypoints_attribute_descriptors</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">,</span> <span class="n">keys_attr_ori</span><span class="p">,</span> <span class="n">n_hist</span><span class="o">=</span><span class="n">n_hist</span><span class="p">,</span> <span class="n">n_ori</span><span class="o">=</span><span class="n">n_ori</span><span class="p">,</span> <span class="n">lambda_descr</span><span class="o">=</span><span class="n">lambda_descr</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;number of keypoints: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">keys_attr_ori</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keys_attr_ori</span>
+
+<span class="k">def</span> <span class="nf">draw_sift_result</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span><span class="n">List</span><span class="p">[</span><span class="n">KeyPoint</span><span class="p">],</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">3.5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;在图像上绘制检测出的SIFT关键点</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+    <span class="n">draw</span> <span class="o">=</span> <span class="n">ImageDraw</span><span class="o">.</span><span class="n">Draw</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">theta</span>
+        <span class="c1"># print(theta)</span>
+        <span class="n">sigma</span> <span class="o">*=</span> <span class="n">factor</span> <span class="c1"># 放大倍数,</span>
+        <span class="n">end_x</span><span class="p">,</span> <span class="n">end_y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">*</span> <span class="n">sigma</span>
+        <span class="n">draw</span><span class="o">.</span><span class="n">line</span><span class="p">([(</span><span class="n">y</span><span class="p">,</span><span class="n">x</span><span class="p">),</span> <span class="p">(</span><span class="n">end_y</span><span class="p">,</span> <span class="n">end_x</span><span class="p">)],</span> <span class="n">fill</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">))</span>
+
+        <span class="n">draw</span><span class="o">.</span><span class="n">ellipse</span><span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="n">sigma</span><span class="p">,</span> <span class="n">x</span><span class="o">-</span><span class="n">sigma</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="n">sigma</span><span class="p">,</span> <span class="n">x</span><span class="o">+</span><span class="n">sigma</span><span class="p">),</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">outline</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+
+    <span class="n">img</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">save_path</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">sift_match</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">img_path</span> <span class="o">=</span> <span class="s1">&#39;./img/sift/download.png&#39;</span>
+
+    <span class="c1"># img_path = &#39;./img/sift/jobs.jfif&#39;</span>
+    <span class="n">img_path</span> <span class="o">=</span> <span class="s1">&#39;./img/sift/images.jfif&#39;</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+    <span class="n">img_RGB</span><span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+
+    <span class="n">siftDetector</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">xfeatures2d</span><span class="o">.</span><span class="n">SIFT_create</span><span class="p">()</span>
+    <span class="n">kp</span> <span class="o">=</span> <span class="n">siftDetector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">img_RGB</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">kp</span><span class="p">,</span><span class="n">des</span> <span class="o">=</span> <span class="n">siftDetector</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">img_RGB</span><span class="p">,</span><span class="n">kp</span><span class="p">)</span>
+    <span class="c1"># 关键点列表</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cv2 检测数量:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">kp</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="c1"># des是一个大小为关键点数目*128的数组</span>
+    <span class="c1"># print type(des),des.shape</span>
+    <span class="n">im</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">drawKeypoints</span><span class="p">(</span><span class="n">img_RGB</span><span class="p">,</span><span class="n">kp</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">flags</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS</span><span class="p">)</span>
+
+    <span class="n">save_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;./sift_result/cv2_</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">.png&#39;</span>
+    <span class="n">io</span><span class="o">.</span><span class="n">imsave</span><span class="p">(</span><span class="n">save_path</span><span class="p">,</span> <span class="n">im</span><span class="p">)</span>
+
+
+    <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">img_path</span><span class="p">)</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">sift_algorithm</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+    <span class="n">save_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;./sift_result/</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">.png&#39;</span>
+    <span class="n">draw_sift_result</span><span class="p">(</span><span class="n">img_path</span><span class="p">,</span> <span class="n">keys</span><span class="p">,</span> <span class="n">save_path</span><span class="p">)</span>
+</code></pre></div>
+
+<p>🐧</p>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

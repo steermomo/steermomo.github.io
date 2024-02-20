@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Winning a kaggle Competition 教你如何噶韭菜</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/08/misc-about-kaggle" rel="bookmark" title="Permalink to Winning a kaggle Competition 教你如何噶韭菜">Winning a kaggle Competition 教你如何噶韭菜</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-08-26 Mon
+        </span>
+<span>Category: <a href="/category/misc/">misc</a></span>
+<!-- <p>tags: <a href="/tags/kaggle/">kaggle</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>我又迷信了呀....</p>
+<p><img src="/images/sticker_newthing.webp" style="max-width: 30%"></p>
+<p>看了DataCamp的<a href="https://www.datacamp.com/courses/winning-a-kaggle-competition-in-python/continue">Winning a Kaggle Competition in Python </a>, 觉得有点用的就是介绍Target encoding的那部分. 丫的压根就没教我怎么Winning.  我肯定也是被收智商税的一类人, 幸好课程是白嫖的. Visual Studio Dev Essentials 送了俩月的DataCamp订阅.</p>
+<p>唯一让我觉得新鲜的, 就是target encoding, 因为之前没看过. 其他的都是泛泛而谈.</p>
+<p>都没有银弹的么🐱‍🐉</p>
+<p><br></p>
+<h4>Target encoding</h4>
+<p>Mean target encoding</p>
+<ul>
+<li>
+<p>smoothing</p>
+</li>
+<li>
+<p>在训练集上计算均值, 应用到测试集上</p>
+</li>
+<li>oof, 在某个kfold上计算, 应用到(k-1)fold上</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># 在训练集上计算均值, 在测试集上应用mean target encoding</span>
+<span class="k">def</span> <span class="nf">test_mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="c1"># Calculate global mean on the train data</span>
+    <span class="n">global_mean</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1"># Group by the categorical feature and calculate its properties</span>
+    <span class="n">train_groups</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">categorical</span><span class="p">)</span>
+    <span class="n">category_sum</span> <span class="o">=</span> <span class="n">train_groups</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">category_size</span> <span class="o">=</span> <span class="n">train_groups</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
+
+    <span class="c1"># Calculate smoothed mean target statistics</span>
+    <span class="n">train_statistics</span> <span class="o">=</span> <span class="p">(</span><span class="n">category_sum</span> <span class="o">+</span> <span class="n">global_mean</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">category_size</span> <span class="o">+</span> <span class="n">alpha</span><span class="p">)</span>
+
+    <span class="c1"># Apply statistics to the test data and fill new categories</span>
+    <span class="n">test_feature</span> <span class="o">=</span> <span class="n">test</span><span class="p">[</span><span class="n">categorical</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">train_statistics</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">global_mean</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">test_feature</span><span class="o">.</span><span class="n">values</span>
+
+
+<span class="c1"># 在训练集上oof, 应用mean target encoding</span>
+<span class="k">def</span> <span class="nf">train_mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="c1"># Create 5-fold cross-validation</span>
+    <span class="n">kf</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">train_feature</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">train</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c1"># For each folds split</span>
+    <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">train</span><span class="p">):</span>
+        <span class="n">cv_train</span><span class="p">,</span> <span class="n">cv_test</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">train</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+
+        <span class="c1"># Calculate out-of-fold statistics and apply to cv_test</span>
+        <span class="n">cv_test_feature</span> <span class="o">=</span> <span class="n">test_mean_target_encoding</span><span class="p">(</span><span class="n">cv_train</span><span class="p">,</span> <span class="n">cv_test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+
+        <span class="c1"># Save new feature for this particular fold</span>
+        <span class="n">train_feature</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv_test_feature</span>       
+    <span class="k">return</span> <span class="n">train_feature</span><span class="o">.</span><span class="n">values</span>
+
+
+<span class="c1">#调用上述两个函数, 分别对训练集和测试集做target encoding</span>
+<span class="k">def</span> <span class="nf">mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+
+    <span class="c1"># Get test feature</span>
+    <span class="n">test_feature</span> <span class="o">=</span> <span class="n">test_mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+
+    <span class="c1"># Get train feature</span>
+    <span class="n">train_feature</span> <span class="o">=</span> <span class="n">train_mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+
+    <span class="c1"># Return new features to add to the model</span>
+    <span class="k">return</span> <span class="n">train_feature</span><span class="p">,</span> <span class="n">test_feature</span>
+</code></pre></div>
+
+<p>在K-fold CV中使用 target encoding</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create 5-fold cross-validation</span>
+<span class="n">kf</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">123</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># For each folds split</span>
+<span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">bryant_shots</span><span class="p">):</span>
+    <span class="n">cv_train</span><span class="p">,</span> <span class="n">cv_test</span> <span class="o">=</span> <span class="n">bryant_shots</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">bryant_shots</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+
+    <span class="c1"># Create mean target encoded feature</span>
+    <span class="n">cv_train</span><span class="p">[</span><span class="s1">&#39;game_id_enc&#39;</span><span class="p">],</span> <span class="n">cv_test</span><span class="p">[</span><span class="s1">&#39;game_id_enc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">mean_target_encoding</span><span class="p">(</span><span class="n">train</span><span class="o">=</span><span class="n">cv_train</span><span class="p">,</span>
+                                                                           <span class="n">test</span><span class="o">=</span><span class="n">cv_test</span><span class="p">,</span>
+                                                                           <span class="n">target</span><span class="o">=</span><span class="s1">&#39;shot_made_flag&#39;</span><span class="p">,</span>
+                                                                           <span class="n">categorical</span><span class="o">=</span><span class="s1">&#39;game_id&#39;</span><span class="p">,</span>
+                                                                           <span class="n">alpha</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="c1"># Look at the encoding</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">cv_train</span><span class="p">[[</span><span class="s1">&#39;game_id&#39;</span><span class="p">,</span> <span class="s1">&#39;shot_made_flag&#39;</span><span class="p">,</span> <span class="s1">&#39;game_id_enc&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Missing Data</h3>
+<p>Numerical data<br>
+- Mean/Median imputation
+- Constant value imputation (-999)</p>
+<p>Categorical data<br>
+- 高频项 <br>
+- 新值 (MISS)</p>
+<p>sklearn.impute SimpleImputer</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Import SimpleImputer</span>
+<span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+
+<span class="c1"># Create mean imputer</span>
+<span class="n">mean_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">)</span>
+
+<span class="c1"># Price imputation</span>
+<span class="n">rental_listings</span><span class="p">[[</span><span class="s1">&#39;price&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">mean_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">rental_listings</span><span class="p">[[</span><span class="s1">&#39;price&#39;</span><span class="p">]])</span>
+
+<span class="c1"># Import SimpleImputer</span>
+<span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+
+<span class="c1"># Create constant imputer</span>
+<span class="n">constant_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s1">&#39;MISSING&#39;</span><span class="p">)</span>
+
+<span class="c1"># building_id imputation</span>
+<span class="n">rental_listings</span><span class="p">[[</span><span class="s1">&#39;building_id&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">constant_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">rental_listings</span><span class="p">[[</span><span class="s1">&#39;building_id&#39;</span><span class="p">]])</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Baseline Model</h3>
+<p><br></p>
+<h3>Hyperparameter tuning</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Competition type</th>
+<th style="text-align: center;">Feature engineering</th>
+<th style="text-align: center;">Hyperparameter  optimization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Classic Machine Learning</td>
+<td style="text-align: center;">+++</td>
+<td style="text-align: center;">+</td>
+</tr>
+<tr>
+<td style="text-align: center;">Deep Learning</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">+++</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Grid search</li>
+<li>Random search</li>
+<li>Bayesian optimization</li>
+</ul>
+<p><br></p>
+<h3>Model ensemble</h3>
+<ul>
+<li>blending</li>
+<li>多个模型， 取平均</li>
+<li>stacking</li>
+<li>多层预测</li>
+<li>第一层模型的预测结果， 作为第二层模型的输入特征</li>
+</ul>
+<p>简单的blending</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingRegressor</span><span class="p">,</span> <span class="n">RandomForestRegressor</span>
+
+<span class="c1"># Train a Gradient Boosting model</span>
+<span class="n">gb</span> <span class="o">=</span> <span class="n">GradientBoostingRegressor</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;fare_amount&#39;</span><span class="p">])</span>
+
+<span class="c1"># Train a Random Forest model</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;fare_amount&#39;</span><span class="p">])</span>
+
+<span class="c1"># Make predictions on the test data</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;rf_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+
+<span class="c1"># Find mean of model predictions</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;blend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">test</span><span class="p">[</span><span class="s1">&#39;rf_pred&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">test</span><span class="p">[[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">,</span> <span class="s1">&#39;rf_pred&#39;</span><span class="p">,</span> <span class="s1">&#39;blend&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+</code></pre></div>
+
+<p>简单的stacking</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingRegressor</span><span class="p">,</span> <span class="n">RandomForestRegressor</span>
+
+<span class="c1"># Split train data into two parts</span>
+<span class="n">part_1</span><span class="p">,</span> <span class="n">part_2</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+
+<span class="c1"># Train a Gradient Boosting model on Part 1</span>
+<span class="n">gb</span> <span class="o">=</span> <span class="n">GradientBoostingRegressor</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">part_1</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">part_1</span><span class="o">.</span><span class="n">fare_amount</span><span class="p">)</span>
+
+<span class="c1"># Train a Random Forest model on Part 1</span>
+<span class="n">rf</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">part_1</span><span class="p">[</span><span class="n">features</span><span class="p">],</span> <span class="n">part_1</span><span class="o">.</span><span class="n">fare_amount</span><span class="p">)</span>
+
+
+<span class="c1"># Make predictions on the Part 2 data</span>
+<span class="n">part_2</span><span class="p">[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">part_2</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+<span class="n">part_2</span><span class="p">[</span><span class="s1">&#39;rf_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">part_2</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+
+<span class="c1"># Make predictions on the test data</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;rf_pred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rf</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="n">features</span><span class="p">])</span>
+
+
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="c1"># Create linear regression model without the intercept</span>
+<span class="n">lr</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">(</span><span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Train 2nd level model in the part_2 data</span>
+<span class="n">lr</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">part_2</span><span class="p">[[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">,</span> <span class="s1">&#39;rf_pred&#39;</span><span class="p">]],</span> <span class="n">part_2</span><span class="o">.</span><span class="n">fare_amount</span><span class="p">)</span>
+
+<span class="c1"># Make stacking predictions on the test data</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;stacking&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">test</span><span class="p">[[</span><span class="s1">&#39;gb_pred&#39;</span><span class="p">,</span> <span class="s1">&#39;rf_pred&#39;</span><span class="p">]])</span>
+
+<span class="c1"># Look at the model coefficients</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">lr</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Tips</h3>
+<ol>
+<li>Save folds</li>
+<li>Save model runs</li>
+<li>Save model predictions</li>
+<li>Save performance results</li>
+</ol>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Introduction to Shell for Data Science</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/08/Introduction-to-Shell-for-Data-Science" rel="bookmark" title="Permalink to Introduction to Shell for Data Science">Introduction to Shell for Data Science</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-08-26 Mon
+        </span>
+<span>Category: <a href="/category/misc/">misc</a></span>
+<!-- <p>tags: <a href="/tags/shell/">Shell</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>emm, 这个有点太简单了
+<img src="/images/sticker_try.webp" style="max-width: 30%"></p>
+<p><br></p>
+<p>pwd (short for "print working directory")<br>
+ls (which is short for "listing")<br>
+cd (which stands for "change directory").  </p>
+<p>cp&amp;mv, 可以指定最后一个参数为文件夹  </p>
+<p><br></p>
+<h2>Chapter 2, 'Manipulating data'.</h2>
+<h3>less</h3>
+<p>可同时打开多个文件
+:n, :p, :q</p>
+<h3>head</h3>
+<h3>ls</h3>
+<p>ls -F prints a / after the name of every directory, * after the name of every runnable program</p>
+<h3>cut</h3>
+<div class="highlight"><pre><span></span><code>cut<span class="w"> </span>-f<span class="w"> </span><span class="m">2</span>-5,<span class="w"> </span><span class="m">8</span><span class="w"> </span>-d<span class="w"> </span>,<span class="w"> </span>values.csv
+<span class="c1"># &quot;select columns 2 through 5 and columns 8, using comma as the separator&quot;</span>
+<span class="c1"># 下标从1开始</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>How can I repeat commands?</h3>
+<div class="highlight"><pre><span></span><code>!head<span class="w"> </span>or<span class="w"> </span>!cut
+!55
+</code></pre></div>
+
+<p><br></p>
+<h3>How can I select lines containing specific values?</h3>
+<p><code>head</code> and <code>tail</code> select rows, <code>cut</code> selects columns, and <code>grep</code> selects lines according to what they contain.</p>
+<p>grep flags</p>
+<ul>
+<li>-c: print a count of matching lines rather than the lines themselves</li>
+<li>-h: do not print the names of files when searching multiple files</li>
+<li>-i: ignore case (e.g., treat "Regression" and "regression" as matches)</li>
+<li>-l: print the names of files that contain matches, not the matches</li>
+<li>-n: print line numbers for matching lines</li>
+<li>-v: invert the match, i.e., only show lines that don't match</li>
+</ul>
+<p><br></p>
+<h3>Why isn't it always safe to treat data as text?</h3>
+<p>paste 命令</p>
+<p><br></p>
+<h2>Chapter 3, 'Combining tools'.</h2>
+<p><br></p>
+<p>wc (short for "word count") prints the number of characters, words, and lines </p>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span><span class="s2">&quot;July 2017&quot;</span><span class="w"> </span>seasonal/spring.csv<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+</code></pre></div>
+
+<p><br></p>
+<h3>How can I sort lines of text?</h3>
+<p><code>sort</code>, By default it does this in ascending alphabetical order.
+but the flags -n and -r can be used to sort numerically and reverse the order of its output, while -b tells it to ignore leading blanks and -f tells it to fold case (i.e., be case-insensitive).
+<br></p>
+<h3>How can I remove duplicate lines?</h3>
+<p><code>unique</code>,  removes adjacent duplicated lines</p>
+<div class="highlight"><pre><span></span><code>cut<span class="w"> </span>-d<span class="w"> </span>,<span class="w"> </span>-f<span class="w"> </span><span class="m">2</span><span class="w"> </span>seasonal/winter.csv<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>Tooth<span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span><span class="p">|</span><span class="w"> </span>uniq<span class="w"> </span>-c
+</code></pre></div>
+
+<p><br></p>
+<h2>Chapter 4, 'Batch processing'.</h2>
+<p><br></p>
+<h3>How does the shell store information?</h3>
+<p><code>set</code> 获取环境变量
+<br></p>
+<h3>How can I repeat a command many times?</h3>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>..vai..<span class="w"> </span><span class="k">in</span><span class="w"> </span>..list..<span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span>..body..<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>How can I record the names of a set of files?</h3>
+<blockquote>
+<p>datasets=xx/*.csv<br>
+for filename in $datasets;...
+<br></p>
+</blockquote>
+<h3>How can I do many things in a single loop?</h3>
+<p>separate them with semi-colons:</p>
+<p><br></p>
+<h2>Chapter 5, 'Creating new tools'.</h2>
+<p><br></p>
+<h3>How can I record what I just did?</h3>
+<ol>
+<li>run history</li>
+<li>tail -n 10</li>
+<li>redirect to a file</li>
+</ol>
+<h3>How can I pass filenames to scripts?</h3>
+<p><code>$@</code>:  all of the command-line parameters given to the script
+As well as <code>$@</code>, the shell lets you use <code>$1</code>, <code>$2</code></p>
+<h3>loops in a shell script</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Print the first and last data records of each file.</span>
+<span class="k">for</span><span class="w"> </span>filename<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nv">$@</span>
+<span class="k">do</span>
+<span class="w">    </span>head<span class="w"> </span>-n<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="nv">$filename</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span>
+<span class="w">    </span>tail<span class="w"> </span>-n<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="nv">$filename</span>
+<span class="k">done</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

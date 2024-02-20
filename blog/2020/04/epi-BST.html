@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-BST</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-BST" rel="bookmark" title="Permalink to EPI-BST">EPI-BST</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-04-20 Mon
+        </span>
+<span>Category: <a href="/category/leetcode/">LeetCode</a></span>
+<!-- <p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还没刷过BST。</p>
+<p>[TOC]</p>
+<h2>BST</h2>
+<h3>库函数</h3>
+<p>C++中的<code>set</code>和<code>map</code>是BST-based.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// 与unordered_set 和unordered_map有些不同的api</span>
+
+<span class="c1">// set</span>
+<span class="p">.</span><span class="n">begin</span><span class="p">();</span><span class="w"> </span><span class="c1">//返回的迭代器按key递增的顺序</span>
+<span class="o">*</span><span class="n">begin</span><span class="p">();</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="o">*</span><span class="n">rbegin</span><span class="p">();</span><span class="w"> </span><span class="c1">//返回BST中的最大最小元素</span>
+
+<span class="n">lower_bound</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span><span class="o">/</span><span class="n">upper_bound</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span><span class="w"> </span><span class="c1">//返回第一个大于等于/大于参数的元素</span>
+
+<span class="p">.</span><span class="n">equal_range</span><span class="p">(</span><span class="n">val</span><span class="p">);</span><span class="c1">//</span>
+</code></pre></div>
+
+<blockquote>
+<h3>equal_range</h3>
+<p>The range is defined by two iterators, one pointing to the first element that is <em>not less</em> than <code>key</code> and another pointing to the first element <em>greater</em> than <code>key</code>. Alternatively, the first iterator may be obtained with <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/container/set/lower_bound.html">lower_bound()</a>, and the second with <a href="dfile:///Users/steer/Library/Application Support/Dash/DocSets/C++/C++.docset/Contents/Resources/Documents/en.cppreference.com/w/cpp/container/set/upper_bound.html">upper_bound()</a>.</p>
+</blockquote>
+<h3>TEST IF A BINARY TREE SATISFIES THE BST PROPERTY</h3>
+<p>Write a program that takes as input a binary tree and checks if the tree satisfies the BST property .</p>
+<p>Hint: Is it correct to check for each node that its key is greater than or equal to the key at its left child and less than or equal to the key at its right child ?</p>
+<p>要检查二叉树的特性：左子树的所有结点值小于当前节点、右子树所有结点值大于当前节点。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">IsBinaryTreeBSTHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">max_val</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">min_val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">max_val</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">min_val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">IsBinaryTreeBSTHelper</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">min_val</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">IsBinaryTreeBSTHelper</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">max_val</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>FIND THE FIRST KEY GREATER THAN A GIVEN VALUE IN A BST</h3>
+<p>Write a program that takes as input a BST and a value , and returns the first key that would appear in an inorder traversal which is greater than the input value. For example , when applied to the BST in Figure 15.1 on Page 251 you should return 29 for input 23.</p>
+<p>看完解析觉得自己就是个傻子，写了一大坨分情况讨论。</p>
+<p>要找到比k值大的第一个元素，从BST的根结点向下搜索：如果当前结点值大于k，可能是候选点，向左搜索；如果当前节点小于k，则向右子树搜索更大的值。直到抵达树的叶结点。</p>
+<p>该方法的时间复杂度为$O(h)$, 空间复杂度为$O(1)$</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// search_first_greater_value_in_bst.cc</span>
+<span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">FindFirstGreaterThanK</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                                    </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+
+<span class="w">    </span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">sub_tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="o">*</span><span class="n">ret_so_far</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">sub_tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">ret_so_far</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sub_tree</span><span class="p">;</span>
+<span class="w">            </span><span class="n">sub_tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">sub_tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret_so_far</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>FIND THE k LARGEST ELEMENTS IN A BST</h3>
+<p>A BST is a sorted data structure , which suggests that it should be possible to find the k largest keys easily .</p>
+<p>Write a program that takes as input a BST and an integer k , and returns the k largest elements in the BST in decreasing order. </p>
+<p>Hint What does an inorder traversal yield ?</p>
+<p>brute-force的方法就是中序遍历，返回最后k个元素。这样前面的元素都算白遍历了，相应地，可以从后面逆中序遍历。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">FindKLargestInBSTHelper</span><span class="p">(</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">sub_tree</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ret</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sub_tree</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">found</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">FindKLargestInBSTHelper</span><span class="p">(</span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// 找到元素后直接返回，不再遍历左子树</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">found</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">FindKLargestInBSTHelper</span><span class="p">(</span><span class="n">sub_tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">FindKLargestInBST</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="n">FindKLargestInBSTHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>COMPUTE THE LCA IN A BST</h3>
+<p>Since a BST is a specialized binary tree , the notion of lowest common ancestor , as expressed in Problem 10.4 on Page 155 , holds for BSTs too.</p>
+<p>In general , computing the LCA of two nodes in a BST is no easier than computing the LCA in a binary tree , since structurally a binary tree can be viewed as a BST where all the keys are equal . However , when the keys are distinct , it is possible to improve on the LCA algorithms for binary trees.</p>
+<p>Design an algorithm that takes as input a BST and two nodes , and returns the LCA of the two nodes. For example , for the BST in Figure 15.1 on Page 251 , and nodes C and G , your algorithm should return B . Assume all keys are distinct. Nodes do not have references to their parents .</p>
+<p>Hint Take advantage of the BST property .</p>
+<p>比之前在二叉树中查找LCA要简单一些。 虽然结点没有parent的信息， 对于BST，在知道结点值的情况下，就可以从上向下搜索到对应的结点。</p>
+<p>从根结点开始搜索，直到抵达LCA，他们的搜索路径都是一致的，在LCA结点开始出现分歧。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">//lowest_common_ancestor_in_bst.cc</span>
+
+<span class="c1">// Input nodes are nonempty and the key at s is less than or equal to that at</span>
+<span class="c1">// b.</span>
+<span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">FindLca</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">s</span><span class="p">,</span>
+<span class="w">                      </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+
+<span class="w">  </span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">s_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="n">b_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">b</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="n">p</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">c_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">c_val</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">c_val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// go left</span>
+<span class="w">          </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">c_val</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">b_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">c_val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// go right</span>
+<span class="w">          </span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">p</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>RECONSTRUCT A BST FROM TRAVERSAL DATA</h3>
+<p>As discussed in Problem 10.12 on Page 163 there are many different binary trees that yield the same sequence of visited nodes in an inorder traversal. This is also true for preorder and postorder traversals. Given the sequence of nodes that an inorder traversal sequence visits and either of the other two traversal sequences , there exists a unique binary tree that yields those sequences . Here we study if it is possible to reconstruct the tree with less traversal information when the tree is known to be a BST.</p>
+<p>It is critical that the elements stored in the tree be unique . If the root contains key v and the tree contains more occurrences of v , we cannot always identify from the sequence whether the subsequent vs are in the left subtree or the right subtree. For example , for the tree rooted at G in Figure 15.2 on Page 256 the preorder traversal sequence is 285 , 243 , 285 , 401. The same preorder traversal sequence is seen if 285 appears in the left subtree as the right child of the node with key 243 and 401 is at the root ' s right child .</p>
+<p>Suppose you are given the sequence in which keys are visited in an inorder traversal of a BST , and all keys are distinct. Can you reconstruct the BST from the sequence ? If so , write a program to do so. Solve the same problem for preorder and postorder traversal sequences .</p>
+<p>前序遍历的话，序列的第一个结点就是根结点，剩下的子序列就是左子树和右子树。而在剩余序列中，第一个结点又是左子树的根结点。</p>
+<p>~~因此直接根据前序遍历，向一颗空的BST中插入结点就可以。~~  我本来以为这个想法是错的, 仔细想了一下没啥问题，测试样例也全过了。 在最坏情况下(全是左子树)这种方法的时间复杂度应该为$O(n^2 )$</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">BstInsert</span><span class="p">(</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 将指定位置插入结点</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">root</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+<span class="w">                </span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">}</span>
+<span class="w">        </span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BstInsert</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">BstInsert</span><span class="p">(</span><span class="n">root</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">RebuildBSTFromPreorder</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span>
+<span class="w">          </span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">preorder_sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">}</span>
+<span class="w">          </span><span class="p">);</span>
+<span class="w">  </span><span class="c1">// 顺序插入</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">BstInsert</span><span class="p">(</span><span class="n">root</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">root</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>有了根结点的值，根据BST的性质，可以将剩下的子序列划分为左子树和右子树，递归地构建出BST。</p>
+<div class="highlight"><pre><span></span><code><span class="c1">//bst_from_preorder.cc</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">start</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 查找左右子树的划分点</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">transition_point</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">transition_point</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">[</span><span class="n">transition_point</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">[</span><span class="n">start</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="o">++</span><span class="n">transition_point</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 递归构建子树</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="n">preorder_sequence</span><span class="p">[</span><span class="n">start</span><span class="p">],</span>
+<span class="w">       </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">transition_point</span><span class="p">),</span>
+<span class="w">       </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="n">transition_point</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">)</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">RebuildBSTFromPreorder</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>上述的做法在求分界点的片段中，对vector进行了多次遍历，如果BST只要左子树，将进行大量的遍历，时间复杂度为$O(n^2)$。</p>
+<p>在最开始不太正确的思路还是提供了一些信息，子序列的第一个就是左子树的根结点。这样就没有必要每次都从根结点开始查找并插入，依次构建左子树就可以了嘛。</p>
+<p>下面的方法，每次将<code>root_idx</code>向前推进一次, 根据<code>root_idx</code>创建当前的根结点. 时间复杂度为$O(n)$</p>
+<div class="highlight"><pre><span></span><code><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">root_idx</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">low_bound</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="n">upper_bound</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">root_idx</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">.</span><span class="n">size</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">root_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">[</span><span class="n">root_idx</span><span class="p">];</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">root_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">low_bound</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">root_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">upper_bound</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="o">++</span><span class="n">root_idx</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_subtree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="n">root_idx</span><span class="p">,</span><span class="w"> </span><span class="n">low_bound</span><span class="p">,</span><span class="w"> </span><span class="n">root_val</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right_subtree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="n">root_idx</span><span class="p">,</span><span class="w"> </span><span class="n">root_val</span><span class="p">,</span><span class="w"> </span><span class="n">upper_bound</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span>
+<span class="w">        </span><span class="n">root_val</span><span class="p">,</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">left_subtree</span><span class="p">),</span>
+<span class="w">        </span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">right_subtree</span><span class="p">)</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">RebuildBSTFromPreorder</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder_sequence</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">root_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">RebuildBSTFromPreorderHelper</span><span class="p">(</span><span class="n">preorder_sequence</span><span class="p">,</span><span class="w"> </span><span class="n">root_idx</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">min</span><span class="p">(),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find the closest entries in three sorted arrays</h3>
+<p>Design an algorithm that takes three sorted arrays and returns one entry from each such that the minimum interval containing these three entries is as small as possible . For example , if the three arrays are ( 5 , 10 , 15 ) , ( 3 , 6 , 9 , 12 , 15 ) , and ( 8, 16 , 24 ) , then 15 , 15 , 16 lie in the smallest possible interval.</p>
+<p>Hint How would you proceed if you needed to pick three entries in a single sorted array ?</p>
+<p>我连题目都没看懂... 没理解错的话，是要在3个排序数组中分别找到3个元素，使得这3个元素之间的间距最小。</p>
+<p>从这3个数组的头部开始，初始时读入3个元素，计算最大最小值之间的差异。然后将最小的元素替换为其下一个元素，再次计算最大最小的差异。</p>
+<p>这里需要不停地插入、删除、找到最大最小元素，所以比较适合使用BST。（而我第一时间居然是想到造一个BST的轮子！！！！</p>
+<p>在多个排序数组中，会出现相同的元素，这里用<code>multimap</code>保持迭代器信息.</p>
+<div class="highlight"><pre><span></span><code><span class="c1">//minimum_distance_3_sorted_arrays.cc</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">FindClosestElementsInSortedArrays</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">sorted_arrays</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">min_distance_so_far</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">();</span>
+<span class="w">  </span><span class="k">struct</span><span class="w"> </span><span class="nc">IterTail</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;::</span><span class="n">const_iterator</span><span class="w"> </span><span class="n">iter</span><span class="p">,</span><span class="w"> </span><span class="n">tail</span><span class="p">;</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="w">  </span><span class="c1">// 存在多个相同值的情况，使用multimap</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">multimap</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="n">IterTail</span><span class="o">&gt;</span><span class="w"> </span><span class="n">iter_and_tail</span><span class="p">;</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">sorted_array</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">sorted_arrays</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">sorted_array</span><span class="p">.</span><span class="n">front</span><span class="p">(),</span>
+<span class="w">                              </span><span class="n">IterTail</span><span class="p">{</span><span class="n">cbegin</span><span class="p">(</span><span class="n">sorted_array</span><span class="p">),</span><span class="w"> </span><span class="n">cend</span><span class="p">(</span><span class="n">sorted_array</span><span class="p">)});</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="nb">true</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">// 更新间距</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">min_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">cbegin</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">;</span>
+<span class="w">      </span><span class="kt">int</span><span class="w"> </span><span class="n">max_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">crbegin</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">first</span><span class="p">;</span>
+<span class="w">      </span><span class="n">min_distance_so_far</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">min</span><span class="p">(</span><span class="n">max_val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">min_val</span><span class="p">,</span><span class="w"> </span><span class="n">min_distance_so_far</span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// 推进迭代器</span>
+<span class="w">      </span><span class="k">const</span><span class="w"> </span><span class="k">auto</span><span class="w"> </span><span class="n">next_min_iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">next</span><span class="p">(</span><span class="n">cbegin</span><span class="p">(</span><span class="n">iter_and_tail</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">iter</span><span class="p">),</span>
+<span class="w">                 </span><span class="n">next_min_end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cbegin</span><span class="p">(</span><span class="n">iter_and_tail</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">tail</span><span class="p">;</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">next_min_iter</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">next_min_end</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">return</span><span class="w"> </span><span class="n">min_distance_so_far</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="c1">// 插入新迭代器位置</span>
+<span class="w">      </span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span>
+<span class="w">              </span><span class="o">*</span><span class="n">next_min_iter</span><span class="p">,</span>
+<span class="w">              </span><span class="n">IterTail</span><span class="p">{</span><span class="n">next_min_iter</span><span class="p">,</span><span class="w"> </span><span class="n">next_min_end</span><span class="p">}</span>
+<span class="w">              </span><span class="p">);</span>
+<span class="w">      </span><span class="c1">// 删除最小元素</span>
+<span class="w">      </span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">iter_and_tail</span><span class="p">.</span><span class="n">cbegin</span><span class="p">());</span>
+
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>ENUMERATE NUMBERS OF THE FORM a + b $\sqrt{2}$</h3>
+<p>Numbers of the form a + b$\sqrt q$ , where a and b are nonnegative integers , and q is an integer which is not the square of another integer , have special properties , e. g . , they are closed under addition and multiplication . Some of the first few numbers of this form are given in Figure 15.4.</p>
+<p>Design an algorithm for efficiently computing the k smallest numbers a + b$\sqrt{2}$  for nonnegative integers a and b.</p>
+<p>要计算前k个符合a + b $\sqrt{2}$的数值。</p>
+<p>暴力的解法就是分别计算前k个a和b对应的值，然后对$k^2$个结果排序. </p>
+<p>时间复杂度更低的方法有些类似之前用堆排序查找最小的$n$个值做法.   这里用到两个特性:</p>
+<ol>
+<li>C++中的set的底层是BST</li>
+<li>BST的<code>begin()</code>方法返回最小元素的迭代器.</li>
+</ol>
+<p>这样在最开始时向BST中插入$a$, $b$均为0的结点, 然后每次从BST中取出最小元素, 将其$a$, $b$值分别+1后再插入到BST中.</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">ABSqrt2</span><span class="p">{</span>
+<span class="w">    </span><span class="n">ABSqrt2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">a</span><span class="p">(</span><span class="n">a</span><span class="p">),</span><span class="w"> </span><span class="n">b</span><span class="p">(</span><span class="n">b</span><span class="p">),</span><span class="w"> </span><span class="n">val</span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)){}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="k">operator</span><span class="w"> </span><span class="o">&lt;</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">ABSqrt2</span><span class="o">&amp;</span><span class="w"> </span><span class="n">rhs</span><span class="p">)</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">rhs</span><span class="p">.</span><span class="n">val</span><span class="p">;}</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">val</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">GenerateFirstKABSqrt2</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="n">ABSqrt2</span><span class="o">&gt;</span><span class="w"> </span><span class="n">candidates</span><span class="p">;</span>
+<span class="w">  </span><span class="n">candidates</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">auto</span><span class="w"> </span><span class="n">next_smallest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">candidates</span><span class="p">.</span><span class="n">cbegin</span><span class="p">();</span>
+<span class="w">      </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">next_smallest</span><span class="o">-&gt;</span><span class="n">val</span><span class="p">);</span>
+
+<span class="w">      </span><span class="n">candidates</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">next_smallest</span><span class="o">-&gt;</span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">next_smallest</span><span class="o">-&gt;</span><span class="n">b</span><span class="p">);</span>
+<span class="w">      </span><span class="n">candidates</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">next_smallest</span><span class="o">-&gt;</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">next_smallest</span><span class="o">-&gt;</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="w">      </span><span class="n">candidates</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">next_smallest</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>THE MOST VISITED PAGES PROBLEM</h3>
+<p>You are given a server log file containing billions of lines. Each line contains a number of fields. For this problem, the relevant field is an id denoting the page that was accessed.
+Write a function to read the next line from a log file, and a function to find the k most visited pages, where k is an input to the function. Optimize performance for the situation where calls to the two functions are interleaved. You can assume the set of distinct pages is small enough to fit in RAM.</p>
+<h3>BUILDA MINIMUM HEIGHT BST FROM A SORTED ARRAY</h3>
+<p>Given a sorted array, the number of BSTs that can be built on the entries in the array grows enormously with its size. Some of these trees are skewed, and are closer to lists; others are more balanced. See Figure 15.3 on Page 259 for an example.
+How would you build a BST of minimum possible height from a sorted array?
+Hint: Which element should be the root?</p>
+<p>要构建最矮的BST，BST的左右子树需要平衡， 这样才能降低树的高度。</p>
+<p>而且数组也已经是排序过的，则排在中间位置的结点用于构建根结点。</p>
+<p>递归地向下构建树</p>
+<div class="highlight"><pre><span></span><code><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">BuildMinHeightBSTFromSortedArrayHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">right</span><span class="p">){</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">middle_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">right</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">left</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 递归构建结点</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="n">A</span><span class="p">[</span><span class="n">middle_idx</span><span class="p">],</span>
+<span class="w">                                                       </span><span class="n">BuildMinHeightBSTFromSortedArrayHelper</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">middle_idx</span><span class="p">),</span>
+<span class="w">                                                       </span><span class="n">BuildMinHeightBSTFromSortedArrayHelper</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="n">middle_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">)});</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>INSERTIONANDDELETIONINABST</h3>
+<p>A BST is a dynamic data structure—in particular, if implemented carefully, key inser-tion and deletion can be made very fast.
+Design efficient functions for inserting and removing keys in a BST. Assume that all elements in the BST are unique, and that your insertion method must preserve this property.</p>
+<h3>TEST IF THREE BST NODES ARE TOTALLY ORDERED</h3>
+<p>Write a program which takes two nodes in a BST and a third node, the "middle" node, and determines if one of the two nodes is a proper ancestor and the other a proper descendant of the middle. (A proper ancestor of a node is an ancestor that is not equal to the node; a proper descendant is defined similarly.) For example, in Figure 15.1 on Page 251, if the middle is Node /, your function should return true if the two nodes are {A,K\ or It should return false if the two nodes are {I,P\ or {/, K. You can assume that all keys are unique. Nodes do not have pointers to their parents</p>
+<p>给出BST中的两个结点和第三个结点，判断第三个结点是否是刚好在前两个结点中间（在同一条向上遍历的路径内）， 结点不包含父结点信息。</p>
+<p>因为是BST，结点不包含父结点信息也可以实现路径遍历。</p>
+<p>从第一个结点查找至第二个结点，如果中间有经过第3个结点，则第3个结点是在它们之间的。</p>
+<p>这里因为前两个结点并没有保证顺序，需要逆转再查找一次。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">IsAncAndDes</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">lookup</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 从head 到 tail遍历一次</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lookup</span><span class="p">.</span><span class="n">front</span><span class="p">(),</span><span class="w"> </span><span class="n">tail</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">lookup</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">c_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">tail</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">lookup</span><span class="p">[</span><span class="n">c_idx</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="o">++</span><span class="n">c_idx</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">tail</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">head</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">head</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">head</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">c_idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">PairIncludesAncestorAndDescendantOfM</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">possible_anc_or_desc_0</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">possible_anc_or_desc_1</span><span class="p">,</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">middle</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="n">lookup</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">possible_anc_or_desc_0</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">middle</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">possible_anc_or_desc_1</span><span class="p">.</span><span class="n">get</span><span class="p">()};</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">s_order_ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IsAncAndDes</span><span class="p">(</span><span class="n">lookup</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">s_order_ret</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">reverse</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">begin</span><span class="p">(</span><span class="n">lookup</span><span class="p">),</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">end</span><span class="p">(</span><span class="n">lookup</span><span class="p">));</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">reverse_order_ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">IsAncAndDes</span><span class="p">(</span><span class="n">lookup</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reverse_order_ret</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>THE RANGE LOOKUP PROBLEM</h3>
+<p>Consider the problem of developing a web-service that takes a geographical loca- tion, and returns the nearest restaurant. The service starts with a set of restaurant locations—each location includes X and Y-coordinates. A query consists of a location, and should return the nearest restaurant (ties can be broken arbitrarily).</p>
+<p>One approach is to build two BSTs on the restaurant locations: Tx sorted on the X coordinates, and Ty sorted on the Y coordinates. A query on location ( p,q) can be performed by finding all the restaurants whose X coordinate is in the interval [ p- D, p+ D], and all the restaurants whose Ycoordinate is in the interval [q- D, q+ D], taking the intersection of these two sets, and finding the restaurant in the intersection which is closest to ( p,q). Heuristically, if D is chosen correctly, the subsets are small and a brute-force search for the closest point is fast. One approach is to start with a small value for D and keep doubling it until the final intersection is nonempty.
+There are other data structures which are more robust, e.g., Quadtrees and k-d trees, but the approach outlined above works well in practice.
+Write a program that takes as input a BST and an interval and returns the BST keys that lie in the interval. For example, for the tree in Figure 15.1 on Page 251, and interval [16, 31], you should return 17, 19, 23, 29, 31.</p>
+<p>对BST中序遍历可以得到顺序序列，在中序遍历的过程中，设置条件进行剪枝，降低搜索的空间，直接针对区间进行搜索， 区间内的值都找完后立刻退出搜索。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">RangeLookupInBSTHelper</span><span class="p">(</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">Interval</span><span class="o">&amp;</span><span class="w"> </span><span class="n">interval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">c_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c_data</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">left</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RangeLookupInBSTHelper</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="n">interval</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c_data</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">left</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">c_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">c_data</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">interval</span><span class="p">.</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">RangeLookupInBSTHelper</span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="n">interval</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="p">}</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">RangeLookupInBST</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BstNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                             </span><span class="k">const</span><span class="w"> </span><span class="n">Interval</span><span class="o">&amp;</span><span class="w"> </span><span class="n">interval</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="n">RangeLookupInBSTHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="n">ret</span><span class="p">,</span><span class="w"> </span><span class="n">interval</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2>Augmented BSTs</h2>
+<h3>ADD CREDITS</h3>
+<p>Consider a server that a large number of clients connect to. Each client is identified by a string. Each client has a "credit", which is a nonnegative integer value. The server needs to maintain a data structure to which clients can be added, removed, queried, or updated. In addition, the server needs to be able to add a specified number of credits to all clients simultaneously.</p>
+<p>Design a data structure that implements the following methods:</p>
+<ul>
+<li>Insert</li>
+<li>Remove</li>
+<li>Lookup</li>
+<li>Add-to-all</li>
+<li>Max</li>
+</ul>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

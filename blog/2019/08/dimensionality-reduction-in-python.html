@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Dimensionality Reduction in Python - 这不是迷信</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/08/dimensionality-reduction-in-python" rel="bookmark" title="Permalink to Dimensionality Reduction in Python - 这不是迷信">Dimensionality Reduction in Python - 这不是迷信</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-08-26 Mon
+        </span>
+<span>Category: <a href="/category/python/">Python</a></span>
+<!-- <p>tags: <a href="/tags/pca/">PCA</a> <a href="/tags/python/">Python</a> <a href="/tags/machine-learning/">Machine Learning</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>这次不是迷信...</p>
+<p>因为有门课需要做笔记, 西瓜书第十章,降维与度量学习, 看到DataCamp上有Dimensionality Reduction in Python, 刚好拿来交差. </p>
+<p>Update: 看完感觉, 真水啊, 我学了个seaborn的pairplot跟heatmap.</p>
+<p><img src="/images/sticker_writecode.webp" style="max-width: 30%"></p>
+<p>看了DataCamp的<a href="https://www.datacamp.com/courses/dimensionality-reduction-in-python">Dimensionality Reduction in Python </a></p>
+<h3>Feature selection vs feature extraction</h3>
+<ul>
+<li>Feature selection<ul>
+<li>只选择部分特征</li>
+</ul>
+</li>
+<li>Feature extraction<ul>
+<li>计算, 提取, 生成新特征</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a pairplot and color the points using the &#39;Gender&#39; feature</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">ansur_df_1</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Gender&#39;</span><span class="p">,</span> <span class="n">diag_kind</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">)</span>
+
+<span class="c1"># Show the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://ww1.sinaimg.cn/large/dd456925ly1g6gymoje4qj20np0nptcl.jpg" style="max-width: 60%"></p>
+<!-- ![](http://ww1.sinaimg.cn/large/dd456925ly1g6gymoje4qj20np0nptcl.jpg) -->
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Remove one of the redundant features</span>
+<span class="n">reduced_df</span> <span class="o">=</span> <span class="n">ansur_df_1</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;body_height&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Create a pairplot and color the points using the &#39;Gender&#39; feature</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">reduced_df</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Gender&#39;</span><span class="p">)</span>
+
+<span class="c1"># Show the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://ww1.sinaimg.cn/large/dd456925ly1g6gypupvl9j20np0npgox.jpg" style="max-width: 60%"></p>
+<!-- ![](http://ww1.sinaimg.cn/large/dd456925ly1g6gypupvl9j20np0npgox.jpg) -->
+
+<p><br></p>
+<h3>t-SNE visualization of high-dimensional data</h3>
+<p>Fitting t-SNE to the ANSUR data</p>
+<p>这个数据集记录了一些人体的指标</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Non-numerical columns in the dataset</span>
+<span class="n">non_numeric</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Branch&#39;</span><span class="p">,</span> <span class="s1">&#39;Gender&#39;</span><span class="p">,</span> <span class="s1">&#39;Component&#39;</span><span class="p">]</span>
+
+<span class="c1"># Drop the non-numerical columns from df</span>
+<span class="n">df_numeric</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">non_numeric</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Create a t-SNE model with learning rate 50</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="c1"># Fit and transform the t-SNE model on the numeric dataset</span>
+<span class="n">tsne_features</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df_numeric</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tsne_features</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+<span class="c1"># Color the points according to Army Component</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Component&#39;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># Show the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="" src="http://ww1.sinaimg.cn/large/dd456925ly1g6gz2a3qqej20np0nptik.jpg"></p>
+<p><br></p>
+<h3>The curse of dimensionality</h3>
+<p><br></p>
+<h3>Features with missing values or little variance</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">VarianceThreshold</span>
+
+<span class="c1"># Create a VarianceThreshold feature selector</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="n">VarianceThreshold</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span>
+
+<span class="c1"># Fit the selector to normalized head_df</span>
+<span class="n">sel</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">head_df</span> <span class="o">/</span> <span class="n">head_df</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+
+<span class="c1"># Create a boolean mask</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">sel</span><span class="o">.</span><span class="n">get_support</span><span class="p">()</span>
+
+<span class="c1"># Apply the mask to create a reduced dataframe</span>
+<span class="n">reduced_df</span> <span class="o">=</span> <span class="n">head_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dimensionality reduced from </span><span class="si">{}</span><span class="s2"> to </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">head_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">reduced_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Pairwise correlation</h3>
+<p>Seaborn pairplot</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create the correlation matrix</span>
+<span class="n">corr</span> <span class="o">=</span> <span class="n">ansur_df</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="c1"># Generate a mask for the upper triangle </span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">))</span>
+
+<span class="c1"># Add the mask to the heatmap</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">corr</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">mask</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.2f&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://ws1.sinaimg.cn/mw690/dd456925ly1g6hpd7tf6uj20np0npwfg.jpg" style="max-width: 60%"></p>
+<!-- ![image](http://ws1.sinaimg.cn/mw690/dd456925ly1g6hpd7tf6uj20np0npwfg.jpg) -->
+
+<p><br></p>
+<h3>Removing highly correlated features</h3>
+<p><br></p>
+<h3>Selecting features for model performance</h3>
+<p>Pima Indians diabetes dataset</p>
+<p>Automatic Recursive Feature Elimination</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create the RFE with a LogisticRegression estimator and 3 features to select</span>
+<span class="n">rfe</span> <span class="o">=</span> <span class="n">RFE</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">LogisticRegression</span><span class="p">(),</span> <span class="n">n_features_to_select</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Fits the eliminator to the data</span>
+<span class="n">rfe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Print the features and their ranking (high = dropped early on)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">rfe</span><span class="o">.</span><span class="n">ranking_</span><span class="p">)))</span>
+
+<span class="c1"># Print the features that are not eliminated</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">rfe</span><span class="o">.</span><span class="n">support_</span><span class="p">])</span>
+
+<span class="c1"># Calculates the test set accuracy</span>
+<span class="n">acc</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">rfe</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:.1%}</span><span class="s2"> accuracy on test set.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">acc</span><span class="p">))</span> 
+</code></pre></div>
+
+<p><br></p>
+<h3>Tree-based feature selection</h3>
+<p>Recursive Feature Elimination with random forests</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Set the feature eliminator to remove 2 features on each step</span>
+<span class="n">rfe</span> <span class="o">=</span> <span class="n">RFE</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">RandomForestClassifier</span><span class="p">(),</span> <span class="n">n_features_to_select</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Fit the model to the training data</span>
+<span class="n">rfe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Create a mask</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">rfe</span><span class="o">.</span><span class="n">support_</span>
+
+<span class="c1"># Apply the mask to the feature dataset X and print the result</span>
+<span class="n">reduced_X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reduced_X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Regularized linear regression</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Find the highest alpha value with R-squared above 98%</span>
+<span class="n">la</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Fits the model and calculates performance stats</span>
+<span class="n">la</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_std</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_std</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="n">n_ignored_features</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">coef_</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Print peformance stats </span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The model can predict </span><span class="si">{0:.1%}</span><span class="s2"> of the variance in the test set.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_squared</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> out of </span><span class="si">{}</span><span class="s2"> features were ignored.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">n_ignored_features</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">la</span><span class="o">.</span><span class="n">coef_</span><span class="p">)))</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Combining feature selectors</h3>
+<p>LassoCV
+使用3个模型, 分别去做feature select, 投票后的结果, 作为单个模型特征选择的</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LassoCV</span>
+
+<span class="c1"># Create and fit the LassoCV model on the training set</span>
+<span class="n">lcv</span> <span class="o">=</span> <span class="n">LassoCV</span><span class="p">()</span>
+<span class="n">lcv</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Optimal alpha = </span><span class="si">{0:.3f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">lcv</span><span class="o">.</span><span class="n">alpha_</span><span class="p">))</span>
+
+<span class="c1"># Calculate R squared on the test set</span>
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">lcv</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The model explains </span><span class="si">{0:.1%}</span><span class="s1"> of the test set variance&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_squared</span><span class="p">))</span>
+
+<span class="c1"># Create a mask for coefficients not equal to zero</span>
+<span class="n">lcv_mask</span> <span class="o">=</span> <span class="n">lcv</span><span class="o">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> features out of </span><span class="si">{}</span><span class="s1"> selected&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">lcv_mask</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">lcv_mask</span><span class="p">)))</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">RFE</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingRegressor</span>
+
+<span class="c1"># Select 10 features with RFE on a GradientBoostingRegressor, drop 3 features on each step</span>
+<span class="n">rfe_gb</span> <span class="o">=</span> <span class="n">RFE</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">GradientBoostingRegressor</span><span class="p">(),</span> 
+             <span class="n">n_features_to_select</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rfe_gb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Calculate the R squared on the test set</span>
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">rfe_gb</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The model can explain </span><span class="si">{0:.1%}</span><span class="s1"> of the variance in the test set&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_squared</span><span class="p">))</span>
+
+<span class="c1"># Assign the support array to gb_mask</span>
+<span class="n">gb_mask</span> <span class="o">=</span> <span class="n">rfe_gb</span><span class="o">.</span><span class="n">support_</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.feature_selection</span> <span class="kn">import</span> <span class="n">RFE</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+
+<span class="c1"># Select 10 features with RFE on a RandomForestRegressor, drop 3 features on each step</span>
+<span class="n">rfe_rf</span> <span class="o">=</span> <span class="n">RFE</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span><span class="n">RandomForestRegressor</span><span class="p">(),</span> 
+             <span class="n">n_features_to_select</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rfe_rf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Calculate the R squared on the test set</span>
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">rfe_rf</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The model can explain </span><span class="si">{0:.1%}</span><span class="s1"> of the variance in the test set&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_squared</span><span class="p">))</span>
+
+<span class="c1"># Assign the support array to gb_mask</span>
+<span class="n">rf_mask</span> <span class="o">=</span> <span class="n">rfe_rf</span><span class="o">.</span><span class="n">support_</span>
+
+
+<span class="c1"># Sum the votes of the three models</span>
+<span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">lcv_mask</span><span class="p">,</span> <span class="n">rf_mask</span><span class="p">,</span> <span class="n">gb_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Sum the votes of the three models</span>
+<span class="n">votes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="n">lcv_mask</span><span class="p">,</span> <span class="n">rf_mask</span><span class="p">,</span> <span class="n">gb_mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Create a mask for features selected by all 3 models</span>
+<span class="n">meta_mask</span> <span class="o">=</span> <span class="n">votes</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+
+<span class="c1"># Apply the dimensionality reduction on X</span>
+<span class="n">X_reduced</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">meta_mask</span><span class="p">]</span>
+
+<span class="c1"># Plug the reduced dataset into a linear regression pipeline</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X_reduced</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">lm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">),</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">r_squared</span> <span class="o">=</span> <span class="n">lm</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">),</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;The model can explain </span><span class="si">{0:.1%}</span><span class="s1"> of the variance in the test set using </span><span class="si">{1:}</span><span class="s1"> features.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_squared</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">lm</span><span class="o">.</span><span class="n">coef_</span><span class="p">)))</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Feature extraction</h3>
+<p><br></p>
+<h3>Principal component analysis</h3>
+<p>4 feature sample of the ANSUR dataset</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a pairplot to inspect ansur_df</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://ws2.sinaimg.cn/mw690/dd456925ly1g6hraamp2ij20np0npdly.jpg" style="max-width: 60%"></p>
+<!-- ![image](http://ws2.sinaimg.cn/mw690/dd456925ly1g6hraamp2ij20np0npdly.jpg) -->
+
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="c1"># Create the scaler</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">ansur_std</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="c1"># Create the PCA instance and fit and transform the data with pca</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">pca</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">ansur_std</span><span class="p">)</span>
+<span class="n">pc_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">pc</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PC 1&#39;</span><span class="p">,</span> <span class="s1">&#39;PC 2&#39;</span><span class="p">,</span> <span class="s1">&#39;PC 3&#39;</span><span class="p">,</span> <span class="s1">&#39;PC 4&#39;</span><span class="p">])</span>
+
+<span class="c1"># Create a pairplot of the principal component dataframe</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">pc_df</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://wx4.sinaimg.cn/mw690/dd456925ly1g6hrdxcyjjj20np0npn40.jpg" style="max-width: 60%"></p>
+<!-- ![image](http://wx4.sinaimg.cn/mw690/dd456925ly1g6hrdxcyjjj20np0npn40.jpg) -->
+
+<p>PCA on larger dataset.
+13 dimensions</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+
+<span class="c1"># Scale the data</span>
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">ansur_std</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="c1"># Apply PCA</span>
+<span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">()</span>
+<span class="n">pca</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ansur_std</span><span class="p">)</span>
+
+<span class="c1"># Inspect the explained variance ratio per component</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">)</span>
+<span class="c1"># [0.61449404 0.19893965 0.06803095 0.03770499 0.03031502 0.0171759</span>
+<span class="c1">#  0.01072762 0.00656681 0.00634743 0.00436015 0.0026586  0.00202617</span>
+<span class="c1">#  0.00065268]</span>
+
+<span class="c1"># Print the cumulative sum of the explained variance ratio</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pca</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="o">.</span><span class="n">cumsum</span><span class="p">())</span>
+
+<span class="c1"># [0.61449404 0.81343368 0.88146463 0.91916962 0.94948464 0.96666054</span>
+<span class="c1">#  0.97738816 0.98395496 0.99030239 0.99466254 0.99732115 0.99934732</span>
+<span class="c1">#  1.        ]</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>PCA applications</h3>
+<blockquote>
+<p>class sklearn.decomposition.PCA(n_components=None, copy=True, whiten=False, svd_solver=’auto’, tol=0.0, iterated_power=’auto’, random_state=None)[source]¶</p>
+<p>Attributes:components_, explained_variance_ratio_</p>
+</blockquote>
+<p>Understanding the components</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build the pipeline</span>
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+                 <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">))])</span>
+
+<span class="c1"># Fit it to the dataset and extract the component vectors</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">poke_df</span><span class="p">)</span>
+<span class="n">vectors</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">components_</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Print feature effects</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PC 1 effects = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">poke_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]))))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;PC 2 effects = &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">poke_df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">]))))</span>
+
+    <span class="c1">#PC 1 effects = {&#39;Sp. Atk&#39;: 0.46, &#39;Speed&#39;: 0.34, &#39;HP&#39;: 0.39, #&#39;Defense&#39;: 0.36, &#39;Attack&#39;: 0.44, &#39;Sp. Def&#39;: 0.45}</span>
+    <span class="c1">#PC 2 effects = {&#39;Sp. Atk&#39;: -0.31, &#39;Speed&#39;: -0.67, &#39;HP&#39;: 0.08, #&#39;Defense&#39;: 0.63, &#39;Attack&#39;: -0.01, &#39;Sp. Def&#39;: 0.24}</span>
+</code></pre></div>
+
+<p>PCA for feature exploration</p>
+<div class="highlight"><pre><span></span><code><span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+                 <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">))])</span>
+
+<span class="c1"># Fit the pipeline to poke_df and transform the data</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">poke_df</span><span class="p">)</span>
+
+<span class="c1"># Add the 2 components to poke_cat_df</span>
+<span class="n">poke_cat_df</span><span class="p">[</span><span class="s1">&#39;PC 1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">poke_cat_df</span><span class="p">[</span><span class="s1">&#39;PC 2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Use the Type feature to color the PC 1 vs PC 2 scatterplot</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">poke_cat_df</span><span class="p">,</span> 
+                <span class="n">x</span><span class="o">=</span><span class="s1">&#39;PC 1&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;PC 2&#39;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;Type&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img alt="image" src="http://ws2.sinaimg.cn/mw690/dd456925ly1g6hrtrt89ij20np0np0wj.jpg"></p>
+<p>使用2个主成分</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Build the pipeline</span>
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([</span>
+        <span class="p">(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+        <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;classifier&#39;</span><span class="p">,</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">))])</span>
+
+<span class="c1"># Fit the pipeline to the training data</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Score the accuracy on the test set</span>
+<span class="n">accuracy</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+
+<span class="c1"># Prints the model accuracy</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:.1%}</span><span class="s1"> test set accuracy&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">accuracy</span><span class="p">))</span>
+
+<span class="c1"># 95.8%</span>
+</code></pre></div>
+
+<p>使用3个主成分</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 95.0%</span>
+</code></pre></div>
+
+<p><br></p>
+<h3>Principal Component selection</h3>
+<p>Selecting the proportion of variance to keep</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Pipe a scaler to PCA selecting 80% of the variance</span>
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+                 <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mf">0.8</span><span class="p">))])</span>
+
+<span class="c1"># Fit the pipe to the data</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> components selected&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">components_</span><span class="p">)))</span>
+
+<span class="c1">#&gt; 11 components selected</span>
+
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+                 <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mf">0.9</span><span class="p">))])</span>
+
+<span class="c1"># Fit the pipe to the data</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> components selected&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">components_</span><span class="p">)))</span>
+
+<span class="c1">#&gt; 23 components selected</span>
+</code></pre></div>
+
+<p>Choosing the number of components
+Plot the explained variance ratio.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Pipeline a scaler and pca selecting 10 components</span>
+<span class="n">pipe</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">([(</span><span class="s1">&#39;scaler&#39;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">()),</span>
+                 <span class="p">(</span><span class="s1">&#39;reducer&#39;</span><span class="p">,</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">10</span><span class="p">))])</span>
+
+<span class="c1"># Fit the pipe to the data</span>
+<span class="n">pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">ansur_df</span><span class="p">)</span>
+
+<span class="c1"># Plot the explained variance ratio</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">explained_variance_ratio_</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Principal component index&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Explained variance ratio&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+<p><img src="http://ws3.sinaimg.cn/mw690/dd456925gy1g6hs52a6juj20np0npwfc.jpg" style="max-width: 50%"></p>
+<!-- ![image](http://ws3.sinaimg.cn/mw690/dd456925gy1g6hs52a6juj20np0npwfc.jpg) -->
+
+<p>PCA for image compression</p>
+<div class="highlight"><pre><span></span><code><span class="n">plot_digits</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Transform the input data to principal components</span>
+<span class="n">pc</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="c1"># Prints the number of features per dataset</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;X_test has </span><span class="si">{}</span><span class="s2"> features&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pc has </span><span class="si">{}</span><span class="s2"> features&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pc</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+<span class="c1"># X_test has 784 features</span>
+<span class="c1"># pc has 78 features</span>
+
+<span class="n">X_rebuilt</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+
+<span class="c1"># Prints the number of features</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;X_rebuilt has </span><span class="si">{}</span><span class="s2"> features&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">X_rebuilt</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="c1">#&gt; X_rebuilt has 784 features</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">原图</th>
+<th style="text-align: center;">重建后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><img alt="image" src="http://wx4.sinaimg.cn/mw690/dd456925ly1g6hs6m92tej20np0npabd.jpg"></td>
+<td style="text-align: center;"><img alt="image" src="http://ws4.sinaimg.cn/mw690/dd456925ly1g6hs92p1daj20np0npac0.jpg"></td>
+</tr>
+</tbody>
+</table>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

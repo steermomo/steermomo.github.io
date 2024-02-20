@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Deformable-Conv编译后运行报错及解决</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2021/01/Build-MSAttn-in-Deformable-DETR" rel="bookmark" title="Permalink to Deformable-Conv编译后运行报错及解决">Deformable-Conv编译后运行报错及解决</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2021-01-27 Wed
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">Pytorch</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <!-- Status: draft -->
+
+<p>最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。</p>
+<p>所用的代码是Deformable DETR的官方实现<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>，其中需要先对CUDA的算子进行编译</p>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>./models/ops
+sh<span class="w"> </span>./make.sh
+<span class="c1"># unit test (should see all checking is True)</span>
+python<span class="w"> </span>test.py
+</code></pre></div>
+
+<p>我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误</p>
+<div class="highlight"><pre><span></span><code>error<span class="w"> </span><span class="k">in</span><span class="w"> </span>ms_deformable_im2col_cuda:<span class="w"> </span>no<span class="w"> </span>kernel<span class="w"> </span>image<span class="w"> </span>is<span class="w"> </span>available<span class="w"> </span><span class="k">for</span><span class="w"> </span>execution<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>device
+</code></pre></div>
+
+<p>集群上的环境是:</p>
+<div class="highlight"><pre><span></span><code>CUDA<span class="w">                </span><span class="m">10</span>.2
+torch<span class="w">               </span><span class="m">1</span>.7.0+cu101
+torchvision<span class="w">         </span><span class="m">0</span>.8.1+cu101
+OS<span class="w">                  </span><span class="m">4</span>.14.105-1-tlinux3-0013
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code>+-----------------------------------------------------------------------------+
+<span class="p">|</span><span class="w"> </span>NVIDIA-SMI<span class="w"> </span><span class="m">440</span>.64.00<span class="w">    </span>Driver<span class="w"> </span>Version:<span class="w"> </span><span class="m">440</span>.64.00<span class="w">    </span>CUDA<span class="w"> </span>Version:<span class="w"> </span><span class="m">10</span>.2<span class="w">     </span><span class="p">|</span>
+<span class="p">|</span>-------------------------------+----------------------+----------------------+
+<span class="p">|</span><span class="w"> </span>GPU<span class="w">  </span>Name<span class="w">        </span>Persistence-M<span class="p">|</span><span class="w"> </span>Bus-Id<span class="w">        </span>Disp.A<span class="w"> </span><span class="p">|</span><span class="w"> </span>Volatile<span class="w"> </span>Uncorr.<span class="w"> </span>ECC<span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>Fan<span class="w">  </span>Temp<span class="w">  </span>Perf<span class="w">  </span>Pwr:Usage/Cap<span class="p">|</span><span class="w">         </span>Memory-Usage<span class="w"> </span><span class="p">|</span><span class="w"> </span>GPU-Util<span class="w">  </span>Compute<span class="w"> </span>M.<span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="o">===============================</span>+<span class="o">======================</span>+<span class="o">======================</span><span class="p">|</span>
+<span class="p">|</span><span class="w">   </span><span class="m">0</span><span class="w">  </span>Tesla<span class="w"> </span>P40<span class="w">           </span>On<span class="w">   </span><span class="p">|</span><span class="w"> </span><span class="m">00000000</span>:04:00.0<span class="w"> </span>Off<span class="w"> </span><span class="p">|</span><span class="w">                  </span>Off<span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>N/A<span class="w">   </span>43C<span class="w">    </span>P0<span class="w">    </span>57W<span class="w"> </span>/<span class="w"> </span>250W<span class="w"> </span><span class="p">|</span><span class="w">  </span>20653MiB<span class="w"> </span>/<span class="w"> </span>24451MiB<span class="w"> </span><span class="p">|</span><span class="w">    </span><span class="m">100</span>%<span class="w">      </span>Default<span class="w"> </span><span class="p">|</span>
++-------------------------------+----------------------+----------------------+
++-------------------------------+----------------------+----------------------+
+<span class="p">|</span><span class="w">   </span><span class="m">7</span><span class="w">  </span>Tesla<span class="w"> </span>P40<span class="w">           </span>On<span class="w">   </span><span class="p">|</span><span class="w"> </span><span class="m">00000000</span>:0F:00.0<span class="w"> </span>Off<span class="w"> </span><span class="p">|</span><span class="w">                  </span>Off<span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>N/A<span class="w">   </span>47C<span class="w">    </span>P0<span class="w">   </span>142W<span class="w"> </span>/<span class="w"> </span>250W<span class="w"> </span><span class="p">|</span><span class="w">  </span>20653MiB<span class="w"> </span>/<span class="w"> </span>24451MiB<span class="w"> </span><span class="p">|</span><span class="w">     </span><span class="m">40</span>%<span class="w">      </span>Default<span class="w"> </span><span class="p">|</span>
++-------------------------------+----------------------+----------------------+
+</code></pre></div>
+
+<p>找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh </p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">ms_deformable_im2col_cuda</span><span class="p">(</span><span class="n">cudaStream_t</span><span class="w"> </span><span class="n">stream</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="n">scalar_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_value</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_spatial_shapes</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int64_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_level_start_index</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="n">scalar_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_sampling_loc</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="n">scalar_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_attn_weight</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">batch_size</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">spatial_size</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_heads</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">channels</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_query</span><span class="p">,</span>
+<span class="w">                              </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_point</span><span class="p">,</span>
+<span class="w">                              </span><span class="n">scalar_t</span><span class="o">*</span><span class="w"> </span><span class="n">data_col</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch_size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_query</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_heads</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">channels</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_actual_kernels</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">batch_size</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_query</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">num_heads</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">channels</span><span class="p">;</span>
+<span class="w">  </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">num_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CUDA_NUM_THREADS</span><span class="p">;</span>
+<span class="w">  </span><span class="n">ms_deformable_im2col_gpu_kernel</span><span class="o">&lt;</span><span class="n">scalar_t</span><span class="o">&gt;</span>
+<span class="w">      </span><span class="o">&lt;&lt;&lt;</span><span class="n">GET_BLOCKS</span><span class="p">(</span><span class="n">num_actual_kernels</span><span class="p">,</span><span class="w"> </span><span class="n">num_threads</span><span class="p">),</span><span class="w"> </span><span class="n">num_threads</span><span class="p">,</span>
+<span class="w">          </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">stream</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span>
+<span class="w">      </span><span class="n">num_kernels</span><span class="p">,</span><span class="w"> </span><span class="n">data_value</span><span class="p">,</span><span class="w"> </span><span class="n">data_spatial_shapes</span><span class="p">,</span><span class="w"> </span><span class="n">data_level_start_index</span><span class="p">,</span><span class="w"> </span><span class="n">data_sampling_loc</span><span class="p">,</span><span class="w"> </span><span class="n">data_attn_weight</span><span class="p">,</span><span class="w"> </span>
+<span class="w">      </span><span class="n">batch_size</span><span class="p">,</span><span class="w"> </span><span class="n">spatial_size</span><span class="p">,</span><span class="w"> </span><span class="n">num_heads</span><span class="p">,</span><span class="w"> </span><span class="n">channels</span><span class="p">,</span><span class="w"> </span><span class="n">num_levels</span><span class="p">,</span><span class="w"> </span><span class="n">num_query</span><span class="p">,</span><span class="w"> </span><span class="n">num_point</span><span class="p">,</span><span class="w"> </span><span class="n">data_col</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">err</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cudaGetLastError</span><span class="p">();</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">cudaSuccess</span><span class="p">)</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;error in ms_deformable_im2col_cuda: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">cudaGetErrorString</span><span class="p">(</span><span class="n">err</span><span class="p">));</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div>
+
+<p>在调用ms_deformable_im2col_gpu_kernel之后出现了问题，网上搜了一下也没发现解决方案。</p>
+<p>只能自己看了一下<code>setup.py</code>, 发现里面与编译相关配置为</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">torch</span><span class="o">.</span><span class="n">cuda</span><span class="o">.</span><span class="n">is_available</span><span class="p">()</span> <span class="ow">and</span> <span class="n">CUDA_HOME</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">extension</span> <span class="o">=</span> <span class="n">CUDAExtension</span>
+        <span class="n">sources</span> <span class="o">+=</span> <span class="n">source_cuda</span>
+        <span class="n">define_macros</span> <span class="o">+=</span> <span class="p">[(</span><span class="s2">&quot;WITH_CUDA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
+        <span class="n">extra_compile_args</span><span class="p">[</span><span class="s2">&quot;nvcc&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;-DCUDA_HAS_FP16=1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-D__CUDA_NO_HALF_OPERATORS__&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-D__CUDA_NO_HALF_CONVERSIONS__&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-D__CUDA_NO_HALF2_OPERATORS__&quot;</span><span class="p">,</span>
+
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Cuda is not availabel&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>P40上也没有FP16的支持，遂将<code>-DCUDA_HAS_FP16=1</code>改成了<code>-DCUDA_HAS_FP16=0</code>。
+然后删除build文件重新编译一遍，运行就都正常了。</p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://github.com/fundamentalvision/Deformable-DETR&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

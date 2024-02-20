@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>EPI-Binary Trees</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/04/epi-Binary-Trees" rel="bookmark" title="Permalink to EPI-Binary Trees">EPI-Binary Trees</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-04-05 Sun
+        </span>
+<span>Category: <a href="/category/leetcode/">LeetCode</a></span>
+<!-- <p>tags: <a href="/tags/epi/">EPI</a> <a href="/tags/cpp/">cpp</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>很久很久以前，有人刷题不做记录，从Array刷到二叉树，刷了几年还是在刷二叉树。</p>
+<p><img src="/images/what.jfif" style="max-width: 80%"></p>
+<p>这里记录一下做<strong>Elements of Programming Interviews</strong>的题目，避免四年之后还是在刷二叉树。</p>
+<p>[TOC]</p>
+<h2>Binary Trees</h2>
+<h3>结构定义</h3>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="w"> </span><span class="o">&lt;</span><span class="k">typename</span><span class="w"> </span><span class="nc">T</span><span class="o">&gt;</span>
+<span class="k">struct</span><span class="w"> </span><span class="nc">BinaryTreeNode</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">T</span><span class="w"> </span><span class="n">data</span><span class="p">;</span>
+<span class="w">  </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>EPI这部分的定义，跟我之前数据结构学得有点点区别...假书害人</p>
+<ul>
+<li>full binary tree，满二叉树，非叶结点都有两个子结点</li>
+<li>perfet binary tree，完美二叉树，深度为k且有2^(k+1)-1个结点(每一层都被完全填充)。</li>
+<li>complete binary tree，完全二叉树，除了最后一层外的其他每一层都被完全填充，并且所有结点保持左对齐</li>
+</ul>
+<h3>Test if a binary tree is height-balanced</h3>
+<p>测试二叉树的高度是否平衡， 在Leetcode也做过，不同的是我当时用height=-1表示子树不平衡。</p>
+<p>EPI的做法蛮有意思，定义了一个结构体，通过返回结构体的形式返回多个参数值，是我之前没见过的。</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">BalancedSatusWithHeight</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">balanced</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">height</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">BalancedSatusWithHeight</span><span class="w"> </span><span class="nf">CheckBalanced</span><span class="p">(</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">tree</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tree</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="nb">true</span><span class="p">,</span><span class="w"> </span><span class="mi">-1</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CheckBalanced</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">left_result</span><span class="p">.</span><span class="n">balanced</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">CheckBalanced</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">right_result</span><span class="p">.</span><span class="n">balanced</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="nb">false</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_balanced</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">abs</span><span class="p">(</span><span class="n">left_result</span><span class="p">.</span><span class="n">height</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">right_result</span><span class="p">.</span><span class="n">height</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">max</span><span class="p">(</span><span class="n">left_result</span><span class="p">.</span><span class="n">height</span><span class="p">,</span><span class="w"> </span><span class="n">right_result</span><span class="p">.</span><span class="n">height</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="n">is_balanced</span><span class="p">,</span><span class="w"> </span><span class="n">height</span><span class="p">};</span>
+<span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">IsBalanced</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">CheckBalanced</span><span class="p">(</span><span class="n">tree</span><span class="p">).</span><span class="n">balanced</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Test if a binary tree is symmetric</h3>
+<p>检测树是否对称，检测根结点的左右子树是否对称即可。</p>
+<p>前序遍历， 左右子树分别用中左右、中右左的顺序。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">CheckSymmetrice</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">left</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">left</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">data</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">right</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">CheckSymmetrice</span><span class="p">(</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">CheckSymmetrice</span><span class="p">(</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">right</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">IsSymmetric</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">CheckSymmetrice</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the lowest common ancestor in a binary tree</h3>
+<p>查找两个结点的最近公共祖先。</p>
+<p>在看解析之前，我只能想到暴力的解法，遍历每个结点，leetcode好像也是可以过这个暴力解的。</p>
+<p>关键点应该是在于想清楚问题的形式，对于两个结点的最近公共祖先来说，这两个结点肯定不是在同一个子树中，否则还可以向下深入一层。</p>
+<p>那么在自底向上的查找过程中，记录当前已经找到的结点的个数，可以避免多次遍历。</p>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span><span class="w"> </span><span class="nc">Status</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">num_target_nodes</span><span class="p">;</span>
+<span class="w">    </span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">ancestor</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="n">Status</span><span class="w"> </span><span class="nf">LCAHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span>
+<span class="w">                 </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tree</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="k">nullptr</span><span class="p">};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 查找左子树</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LCAHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span><span class="w"> </span><span class="n">node1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">left_result</span><span class="p">.</span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">){</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">left_result</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 查找右子树</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right_result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LCAHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span><span class="w"> </span><span class="n">node1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">right_result</span><span class="p">.</span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">right_result</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 如果当前结点或左右子树的目标和为2 则当前为目标结点</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">left_result</span><span class="p">.</span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">+</span>
+<span class="w">            </span><span class="n">right_result</span><span class="p">.</span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">+</span>
+<span class="w">            </span><span class="p">(</span><span class="n">tree</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">node0</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">tree</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">node1</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">{</span><span class="n">num_target_nodes</span><span class="p">,</span><span class="w"> </span><span class="n">num_target_nodes</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">nullptr</span><span class="p">};</span>
+<span class="p">}</span>
+<span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">Lca</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                         </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span>
+<span class="w">                         </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">LCAHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span><span class="w"> </span><span class="n">node1</span><span class="p">).</span><span class="n">ancestor</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the LCA when nodes have parent pointers</h3>
+<p>还是查找LCA，不同的是有了父结点指针。</p>
+<p>分别从两个结点向上查找，记录路径。对齐根节点后，从后向前查找，最后一个相同的结点即为最近祖先。</p>
+<p>这里使用了O(h)的空间，如果记录树的高度，同时只在树上操作的话，可以避免这一开销。</p>
+<div class="highlight"><pre><span></span><code><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">Lca</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node0</span><span class="p">,</span>
+<span class="w">                         </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="n">path0</span><span class="p">,</span><span class="w"> </span><span class="n">path1</span><span class="p">;</span>
+<span class="w">  </span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">p0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node0</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span><span class="w"> </span><span class="o">*</span><span class="n">p1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node1</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">  </span><span class="c1">// 查找node0的路径</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">p0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">path0</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">p0</span><span class="p">);</span>
+<span class="w">      </span><span class="n">p0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p0</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// 查找node1的路径</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">p1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">path1</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">p1</span><span class="p">);</span>
+<span class="w">      </span><span class="n">p1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">p1</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="c1">// 对齐根结点</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">idx0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path0</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">idx1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">path1</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="p">(</span><span class="n">idx0</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">idx1</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">path0</span><span class="p">[</span><span class="n">idx0</span><span class="p">]</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">path1</span><span class="p">[</span><span class="n">idx1</span><span class="p">])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">break</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="o">--</span><span class="n">idx0</span><span class="p">,</span><span class="w"> </span><span class="o">--</span><span class="n">idx1</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">path0</span><span class="p">[</span><span class="n">idx0</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Sum the root-to-leaf paths in a binary tree</h3>
+<p>二叉树每个结点内包含二值(0， 1)， 从根结点到叶结点的序列可以组成一个二进制序列，计算树中所有序列的和。</p>
+<p>这个递归的思路还是比较清晰， 向下调用的时候，相当于积攒路径上的值，到达叶结点后，返回每个叶结点序列的值并求和。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="w"> </span><span class="nf">SumRootToLeafHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">partial_sum</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">partial_sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">partial_sum</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 叶结点</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">partial_sum</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">SumRootToLeafHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">partial_sum</span><span class="p">)</span><span class="w"> </span><span class="o">+</span>
+<span class="w">            </span><span class="n">SumRootToLeafHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">partial_sum</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">SumRootToLeaf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">SumRootToLeafHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Find a root to leaf path with specified sum</h3>
+<p>判断二叉树中是否存在路径和为target num的路径</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">HasPathSumHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                        </span><span class="kt">int</span><span class="w"> </span><span class="n">current_sum</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">current_sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">current_sum</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">HasPathSumHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">current_sum</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">)</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">HasPathSumHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">current_sum</span><span class="p">,</span><span class="w"> </span><span class="n">target</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="kt">bool</span><span class="w"> </span><span class="nf">HasPathSum</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">remaining_weight</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">HasPathSumHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">remaining_weight</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement an inorder traversal without recursion</h3>
+<p>不能用递归遍历的话，可以选择使用栈，需要注意压栈顺序。</p>
+<p>~~我只能用单个栈实现前序遍历...~~</p>
+<p>还是需要模拟中序遍历的情况，先尽可能向左，到达叶结点后访问值域，再向右向左访问。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">InorderTraversal</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="n">stk</span><span class="p">;</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">curr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">stk</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">curr</span><span class="p">);</span>
+<span class="w">          </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// curr 为空, 上一个结点为叶结点</span>
+<span class="w">          </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="w">          </span><span class="n">stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+<span class="w">          </span><span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span><span class="w"> </span><span class="c1">// 访问当前结点</span>
+<span class="w">          </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// 向右访问一次</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the kth node in an inorder traversal</h3>
+<div class="highlight"><pre><span></span><code><span class="k">const</span><span class="w"> </span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">FindKthNodeBinaryTree</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">stack</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="n">stk</span><span class="p">;</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">c_th</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">stk</span><span class="p">.</span><span class="n">empty</span><span class="p">()</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">curr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">stk</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">curr</span><span class="p">);</span>
+<span class="w">            </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// curr 为空, 上一个结点为叶结点</span>
+<span class="w">            </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">stk</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+<span class="w">            </span><span class="n">stk</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+<span class="w">            </span><span class="o">++</span><span class="n">c_th</span><span class="p">;</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">c_th</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">k</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">curr</span><span class="p">;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">            </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span><span class="w"> </span><span class="c1">// 向右访问一次</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the successor</h3>
+<p>successor 是在中序遍历中出现在给定结点后的结点。假设每个结点都有父节点的信息。</p>
+<p>最简单的方法是，通过父节点指针一直找到根节点，再中序遍历。虽然这样多了很多不必要的计算。</p>
+<p>如果该结点有右子树的话，successor就是中序遍历右子树时的第一个结点。</p>
+<p>~~如果该结点没有右子树，又可以分两种情况~~</p>
+<ul>
+<li>~~该结点是左子树，successor就是父结点~~</li>
+<li>~~该结点是右子树，successor是父结点的父结点~~</li>
+</ul>
+<p>上面的情况考虑不够完备，如果父节点也是在右子树中的话，上述的情况是不满足的。 这里要找的是最近的且位于左子树中的祖先结点，这样它的父结点才是在中序遍历时会访问到的下一个结点。</p>
+<div class="highlight"><pre><span></span><code><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">FindSuccessor</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">node</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">auto</span><span class="w"> </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">      </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="n">curr</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="o">*</span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">curr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Implement an inorder traversal with constant space</h3>
+<p>不使用额外空间实现中序遍历，结点含有父结点信息。</p>
+<p>这里父结点信息是解决问题的关键，可是不会用啊...看解析吧</p>
+<p>要求不开辟新空间存储，就需要手动使用指针在二叉树上移动。</p>
+<p>那么就需要知道当前的指针是处于什么状态， 这里将指针的状态归类为</p>
+<ul>
+<li>向下访问阶段</li>
+<li>有左子树，继续往下</li>
+<li>无左子树，访问数据域，向上访问</li>
+<li>从子树返回阶段</li>
+<li>是从左子树返回的，访问数据域，访问右子树</li>
+<li>是从右子树返回的，则整个分支访问完成，返回上层</li>
+</ul>
+<p>由上面的分类可以看出，需要明确指针的状态才能控制下一步的移动方向。 这里使用双指针prev和curr判断当前指针状态。</p>
+<div class="highlight"><pre><span></span><code><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">InorderTraversal</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="o">*</span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">prev</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// 是从上往下访问</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="c1">// 有左子树，继续往下</span>
+<span class="w">              </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">          </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="c1">// 到达叶结点， 访问数据</span>
+<span class="w">              </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+<span class="w">              </span><span class="c1">// 如果有右子树， 继续向右，否则当前分支结束，向上</span>
+<span class="w">              </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">prev</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="c1">// 是从左子树向上回溯</span>
+<span class="w">          </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">);</span>
+<span class="w">          </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">parent</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="n">prev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr</span><span class="p">;</span>
+<span class="w">      </span><span class="n">curr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Reconstruct a binary tree from traversal data</h3>
+<p>...</p>
+<p>...</p>
+<p>...</p>
+<p>忘了</p>
+<p>这个在想法上还是很容易理解，前序遍历的第一个位置是根结点的值，在中序遍历中根结点的左右两边分别是左右子树。</p>
+<p>拿着前序遍历的根结点值就能将中序的序列分开，并递归地往下处理。这样就能自底向上地创建每一个结点。</p>
+<p>那么在处理时就需要将每个子树的前序区间跟中序区间指示出来。并且已知根结点的值，需要在中序遍历序列中查找其下标，通过构建hashtable的方式将查找的时间复杂度从O(n)降低到O(1)。总的时间复杂度为O(n)，空间复杂度为O(h+n)。</p>
+<p>EPI的代码中用了<code>make_unique</code>让创建结点的这个过程直观了很多。</p>
+<div class="highlight"><pre><span></span><code><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">BinaryTreeFromPreorderInorderHelper</span><span class="p">(</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">preorder_start</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">preorder_end</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inorder_start</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">inorder_end</span><span class="p">,</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="w"> </span><span class="p">,</span><span class="kt">size_t</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">node_to_inorder_idx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 区间内无有效的值</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">preorder_end</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">preorder_start</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">inorder_end</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">inorder_start</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">root_inorder_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">node_to_inorder_idx</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="n">preorder</span><span class="p">[</span><span class="n">preorder_start</span><span class="p">]);</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w">  </span><span class="n">left_subtree_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">root_inorder_idx</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">inorder_start</span><span class="p">;</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span>
+<span class="w">        </span><span class="n">preorder</span><span class="p">[</span><span class="n">preorder_start</span><span class="p">],</span>
+<span class="w">        </span><span class="n">BinaryTreeFromPreorderInorderHelper</span><span class="p">(</span>
+<span class="w">                </span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_start</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">left_subtree_size</span><span class="p">,</span>
+<span class="w">                </span><span class="n">inorder_start</span><span class="p">,</span><span class="w"> </span><span class="n">root_inorder_idx</span><span class="p">,</span><span class="w"> </span><span class="n">node_to_inorder_idx</span><span class="p">),</span>
+<span class="w">        </span><span class="n">BinaryTreeFromPreorderInorderHelper</span><span class="p">(</span>
+<span class="w">                </span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_start</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="n">left_subtree_size</span><span class="p">,</span><span class="w"> </span><span class="n">preorder_end</span><span class="p">,</span>
+<span class="w">                </span><span class="n">root_inorder_idx</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">inorder_end</span><span class="p">,</span><span class="w"> </span><span class="n">node_to_inorder_idx</span><span class="p">)</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">BinaryTreeFromPreorderInorder</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">inorder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">node_to_inorder_idx</span><span class="p">;</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">inorder</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">node_to_inorder_idx</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="n">inorder</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">BinaryTreeFromPreorderInorderHelper</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">preorder</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">inorder</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span><span class="w"> </span><span class="n">node_to_inorder_idx</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Reconstruct a binary tree from a preorder traversal with markers</h3>
+<p>用null表示先序遍历中空的子结点，从这样的先序遍历序列重建二叉树。</p>
+<p>。。。</p>
+<p>不会</p>
+<p>着手点在于null。 于上一题相比， 这里只需要前序遍历就能重建树，因为null结点提供了额外的信息，指示了应该在什么时候停止向下创建子树。</p>
+<p>另外应该利用的一点是，前序遍历序列中的第一个值是根结点的值。虽然不知道右子树什么时候开始，如果左子树创建正确的话，那么剩余的元素全部是属于右子树的。</p>
+<p>为了知道当前在构建哪一个结点以及右子树从什么时候开始，使用subtree_pointer_idx记录当前的结点。</p>
+<p>总体的时间复杂度为O(n)。</p>
+<p>另外这里使用了<code>move</code>函数</p>
+<blockquote>
+<p>std::move 只是将参数转换为右值引用而已（相当于一个 static_cast）</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">ReconstructPreorderHelper</span><span class="p">(</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">preorder</span><span class="p">,</span>
+<span class="w">        </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">subtree_pointer</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">&amp;</span><span class="n">subtree_pointer_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">*</span><span class="n">subtree_pointer</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">p_node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preorder</span><span class="p">[</span><span class="n">subtree_pointer_idx</span><span class="p">];</span>
+<span class="w">    </span><span class="o">++</span><span class="n">subtree_pointer_idx</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 当前为空结点，返回</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">p_node</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 分别构建左右子树</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReconstructPreorderHelper</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="n">subtree_pointer</span><span class="p">);</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ReconstructPreorderHelper</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="n">subtree_pointer</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span>
+<span class="w">            </span><span class="o">*</span><span class="n">p_node</span><span class="p">,</span>
+<span class="w">            </span><span class="n">move</span><span class="p">(</span><span class="n">left</span><span class="p">),</span>
+<span class="w">            </span><span class="n">move</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="p">}</span>
+<span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">ReconstructPreorder</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">*&gt;&amp;</span><span class="w"> </span><span class="n">preorder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">subtree_pointer_idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ReconstructPreorderHelper</span><span class="p">(</span><span class="n">preorder</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">subtree_pointer_idx</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the leaves of a binary tree</h3>
+<p>访问二叉树的所有叶子结点，从左到右的顺序排列</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">CreateListOfLeavesHelper</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span>
+<span class="w">                              </span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="o">&amp;</span><span class="n">ret</span><span class="p">){</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ret</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tree</span><span class="p">);</span>
+<span class="w">        </span><span class="k">return</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">CreateListOfLeavesHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">    </span><span class="n">CreateListOfLeavesHelper</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">CreateListOfLeaves</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">    </span><span class="n">CreateListOfLeavesHelper</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="n">ret</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the exterior of a binary tree</h3>
+<p>exterior定义：从根结点到最左的叶结点，从左到右所有的叶结点，最右的叶结点再到根结点。</p>
+<p>直接的想法就是，先从根结点访问到最左下，再依次访问叶结点，再从根结点访问到最右结点，最后将3条路径的结果拼接起来。</p>
+<p>这样会存在边角结点多次访问的问题。</p>
+<p>将这样一个问题分解成在左右子树上的遍历，再将结果拼在一起。</p>
+<p>在左子树中，边访问数据域边向下前进。而在右子树中，需要先到达最底层的结点才能继续访问数据域。 这样才能保证题目中要求的访问顺序。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">bool</span><span class="w"> </span><span class="nf">IsLeaf</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">LeftBoundaryLeaf</span><span class="p">(</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_boundary</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_boundary</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">IsLeaf</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tree</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="c1">// 向左一直是保持boundary</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LeftBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">is_boundary</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">    </span><span class="c1">// 向右的情况下，如果一个结点没有左子树，该结点仍然是boundary 的一部分</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LeftBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">is_boundary</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">RightBoundaryLeaf</span><span class="p">(</span>
+<span class="w">        </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">is_boundary</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">    </span><span class="c1">// 向左的情况下，如果上一个结点是boundary 当前结点没有左子树，该结点仍然是boundary 的一部分</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RightBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="n">is_boundary</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="k">nullptr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">reserve</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+<span class="w">    </span><span class="c1">// 向左一直是保持boundary</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">right_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RightBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="n">is_boundary</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">is_boundary</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">IsLeaf</span><span class="p">(</span><span class="n">tree</span><span class="p">))</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tree</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">ExteriorBinaryTree</span><span class="p">(</span>
+<span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;&amp;</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="n">vector</span><span class="o">&lt;</span><span class="k">const</span><span class="w"> </span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;*&gt;</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="p">{};</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">ret</span><span class="p">.</span><span class="n">emplace_back</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tree</span><span class="p">);</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">left_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LeftBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="w">  </span><span class="k">auto</span><span class="w"> </span><span class="n">right_part</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RightBoundaryLeaf</span><span class="p">(</span><span class="n">tree</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">left_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">  </span><span class="n">ret</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">ret</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">right_part</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3>Compute the right sibling tree</h3>
+<p>假设结点中还包含一个额外的域，level-next，指向右兄弟结点。</p>
+<p>给一个perfect binary tree，找出每个结点的右兄弟结点。</p>
+<p>既然给出了完美二叉树，直接按层遍历就能得到每个结点的兄弟结点。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">ConstructRightSibling</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*&gt;</span><span class="w"> </span><span class="n">curr_level</span><span class="p">,</span><span class="w"> </span><span class="n">next_level</span><span class="p">;</span>
+<span class="w">  </span><span class="n">curr_level</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">tree</span><span class="p">);</span>
+<span class="w">  </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">curr_level</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">curr_level</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="o">++</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="n">curr_level</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">curr_level</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="n">each</span><span class="o">:</span><span class="w"> </span><span class="n">curr_level</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">each</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">()</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">              </span><span class="n">next_level</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">each</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+<span class="w">              </span><span class="n">next_level</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">each</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="n">curr_level</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">next_level</span><span class="p">;</span>
+<span class="w">      </span><span class="n">next_level</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>下面是EPI给出的空间复杂度为O(1)的解法，emm，😅</p>
+<p>对于完美二叉树中的结点，可以分为两种情况</p>
+<ul>
+<li>若是左孩子，则next为父结点的右孩子</li>
+<li>若是右孩子，则next为父结点next的左孩子</li>
+</ul>
+<p>根据这个特性，只要按层去访问即可。(因为一起的二叉树并不会有next域，利用next域可以快速地按层访问)。</p>
+<div class="highlight"><pre><span></span><code><span class="kt">void</span><span class="w"> </span><span class="nf">SetRightSibling</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">iter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// 传入的是最左侧的结点</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">left</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">right</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">right</span><span class="o">-&gt;</span><span class="n">next</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">        </span><span class="n">iter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">iter</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">ConstructRightSibling</span><span class="p">(</span><span class="n">BinaryTreeNode</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;*</span><span class="w"> </span><span class="n">tree</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// TODO - you fill in here.</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">left_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tree</span><span class="p">;</span><span class="w"> </span><span class="c1">// 沿着左侧向下</span>
+<span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">left_start</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">left_start</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">SetRightSibling</span><span class="p">(</span><span class="n">left_start</span><span class="p">);</span>
+<span class="w">        </span><span class="n">left_start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">left_start</span><span class="o">-&gt;</span><span class="n">left</span><span class="p">.</span><span class="n">get</span><span class="p">();</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

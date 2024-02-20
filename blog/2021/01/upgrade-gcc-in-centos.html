@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>CentOS中更新GCC</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2021/01/upgrade-gcc-in-centos" rel="bookmark" title="Permalink to CentOS中更新GCC">CentOS中更新GCC</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2021-01-28 Thu
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/centos/">CentOS</a> <a href="/tags/gcc/">GCC</a> <a href="/tags/scl/">SCL</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <!-- Status: draft -->
+
+<p>厂里的系统都是基于CentOS 的，就是那个</p>
+<blockquote>
+<p>One centOS 倒下了，Ten centOS 起来了</p>
+</blockquote>
+<p>的CentOS 。</p>
+<p>这玩意的问题就是它实在是太老了，我要装一下xgboost编译都不成功。</p>
+<p>看了一下目前GCC的版本还是<code>4.8.5</code>, 而GCC都出到<code>10.2</code>了<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, 真心穿越千年的爱恋。</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>gcc<span class="w"> </span>-v
+Using<span class="w"> </span>built-in<span class="w"> </span>specs.
+<span class="nv">COLLECT_GCC</span><span class="o">=</span>gcc
+<span class="nv">COLLECT_LTO_WRAPPER</span><span class="o">=</span>/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+Target:<span class="w"> </span>x86_64-redhat-linux
+Configured<span class="w"> </span>with:<span class="w"> </span>../configure<span class="w"> </span>--prefix<span class="o">=</span>/usr<span class="w"> </span>--mandir<span class="o">=</span>/usr/share/man<span class="w"> </span>--infodir<span class="o">=</span>/usr/share/info<span class="w"> </span>--with-bugurl<span class="o">=</span>http://bugzilla.redhat.com/bugzilla<span class="w"> </span>--enable-bootstrap<span class="w"> </span>--enable-shared<span class="w"> </span>--enable-threads<span class="o">=</span>posix<span class="w"> </span>--enable-checking<span class="o">=</span>release<span class="w"> </span>--with-system-zlib<span class="w"> </span>--enable-__cxa_atexit<span class="w"> </span>--disable-libunwind-exceptions<span class="w"> </span>--enable-gnu-unique-object<span class="w"> </span>--enable-linker-build-id<span class="w"> </span>--with-linker-hash-style<span class="o">=</span>gnu<span class="w"> </span>--enable-languages<span class="o">=</span>c,c++,objc,obj-c++,java,fortran,ada,go,lto<span class="w"> </span>--enable-plugin<span class="w"> </span>--enable-initfini-array<span class="w"> </span>--disable-libgcj<span class="w"> </span>--with-isl<span class="o">=</span>/root/rpmbuild/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install<span class="w"> </span>--with-cloog<span class="o">=</span>/root/rpmbuild/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install<span class="w"> </span>--enable-gnu-indirect-function<span class="w"> </span>--with-tune<span class="o">=</span>generic<span class="w"> </span>--with-arch_32<span class="o">=</span>x86-64<span class="w"> </span>--build<span class="o">=</span>x86_64-redhat-linux
+Thread<span class="w"> </span>model:<span class="w"> </span>posix
+gcc<span class="w"> </span>version<span class="w"> </span><span class="m">4</span>.8.5<span class="w"> </span><span class="m">20150623</span><span class="w"> </span><span class="o">(</span>Red<span class="w"> </span>Hat<span class="w"> </span><span class="m">4</span>.8.5-5<span class="o">)</span><span class="w"> </span><span class="o">(</span>GCC<span class="o">)</span>
+</code></pre></div>
+
+<p>这个直接upgrade也是不成功滴，压根没有新版本可以升，系统的版本都太老了。</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>cat<span class="w"> </span>/etc/centos-release
+CentOS<span class="w"> </span>Linux<span class="w"> </span>release<span class="w"> </span><span class="m">7</span>.2<span class="w"> </span><span class="o">(</span>Final<span class="o">)</span>
+</code></pre></div>
+
+<p>本着遇事不决上stackoverflow的原则，在SO上也找到了一个例子<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>，可惜的是第二个命令运行不起来。
+根据发本文时的软件状况以及本机环境，这里需要先安装Software Collections (SCL)，再安装devtoolset-8。</p>
+<div class="highlight"><pre><span></span><code>sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>centos-release-scl
+sudo<span class="w"> </span>yum<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>devtoolset-8
+scl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>devtoolset-8<span class="w"> </span>bash
+which<span class="w"> </span>gcc
+gcc<span class="w"> </span>--version
+</code></pre></div>
+
+<p>这样装完之后就能生效了，可以看到GCC的版本已经变了</p>
+<div class="highlight"><pre><span></span><code>gcc<span class="w"> </span><span class="o">(</span>GCC<span class="o">)</span><span class="w"> </span><span class="m">8</span>.3.1<span class="w"> </span><span class="m">20190311</span><span class="w"> </span><span class="o">(</span>Red<span class="w"> </span>Hat<span class="w"> </span><span class="m">8</span>.3.1-3<span class="o">)</span>
+Copyright<span class="w"> </span><span class="o">(</span>C<span class="o">)</span><span class="w"> </span><span class="m">2018</span><span class="w"> </span>Free<span class="w"> </span>Software<span class="w"> </span>Foundation,<span class="w"> </span>Inc.
+This<span class="w"> </span>is<span class="w"> </span>free<span class="w"> </span>software<span class="p">;</span><span class="w"> </span>see<span class="w"> </span>the<span class="w"> </span><span class="nb">source</span><span class="w"> </span><span class="k">for</span><span class="w"> </span>copying<span class="w"> </span>conditions.<span class="w">  </span>There<span class="w"> </span>is<span class="w"> </span>NO
+warranty<span class="p">;</span><span class="w"> </span>not<span class="w"> </span>even<span class="w"> </span><span class="k">for</span><span class="w"> </span>MERCHANTABILITY<span class="w"> </span>or<span class="w"> </span>FITNESS<span class="w"> </span>FOR<span class="w"> </span>A<span class="w"> </span>PARTICULAR<span class="w"> </span>PURPOSE.
+</code></pre></div>
+
+<p>再安装XGBoost，终于成功了。</p>
+<h3>小结</h3>
+<p>根据CentOS的wiki<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>, SCL是指软件选集(Software Collections, SCL), SCL的目的就是为老旧的CentOS提供新版的软件集, 
+安装完SCL和需要的软件集后，启动环境的命令是</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>scl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;scl-package-name&gt;<span class="w"> </span>&lt;command&gt;
+</code></pre></div>
+
+<p>在前面的例子中, 要在多个命令下都启动GCC的环境, 使用的就是调起bash, 在新的shell内执行.</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>scl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>devtoolset-8<span class="w"> </span>bash
+</code></pre></div>
+
+<p>要检查已经安装的SCL集合，可以用</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>scl<span class="w"> </span>--list
+</code></pre></div>
+
+<p>更多的信息可以看SCL的QuickStart指引<sup id="fnref:4"><a class="footnote-ref" href="#fn:4">4</a></sup>以及Xmodulo的介绍<sup id="fnref:5"><a class="footnote-ref" href="#fn:5">5</a></sup>。</p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://gcc.gnu.org/&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>https://stackoverflow.com/questions/36327805/how-to-install-gcc-5-3-with-yum-on-centos-7-2&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>https://wiki.centos.org/zh/AdditionalResources/Repositories/SCL&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p>https://www.softwarecollections.org/en/docs/&#160;<a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:5">
+<p>https://www.xmodulo.com/enable-software-collections-centos.html&#160;<a class="footnote-backref" href="#fnref:5" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

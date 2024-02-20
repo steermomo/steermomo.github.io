@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>为Pelican编写插件</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/03/wei-pelicanbian-xie-cha-jian" rel="bookmark" title="Permalink to 为Pelican编写插件">为Pelican编写插件</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-03-31 Tue
+        </span>
+<span>Category: <a href="/category/pelican/">Pelican</a></span>
+<!-- <p>tags: <a href="/tags/pelican/">Pelican</a> <a href="/tags/python/">Python</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>🐧</p>
+<p>这里为<a href="Pelican" title="https://blog.getpelican.com/">Pelican</a>移植了一个静态的相册<a href="Sigal" title="http://sigal.saimon.org/en/latest/">Sigal</a>，使得相册程序也能托管在Github Page上。</p>
+<p>很久之前就有打算过给Pelican写个插件实现这样的功能，一直没有仔细看过Pelican的实现逻辑是怎么样的，今天刚好看到了这样一个静态相册，花了一晚上的时间将其以插件的形式集成到Pelican中。</p>
+<p>Pelican中关于插件的文档并不是很多，文档中给的样例很短</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">pelican</span> <span class="kn">import</span> <span class="n">signals</span>
+
+<span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">sender</span><span class="p">):</span>
+    <span class="nb">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> initialized !!&quot;</span> <span class="o">%</span> <span class="n">sender</span>
+
+<span class="k">def</span> <span class="nf">register</span><span class="p">():</span>
+    <span class="n">signals</span><span class="o">.</span><span class="n">initialized</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">test</span><span class="p">)</span>
+</code></pre></div>
+
+<p>看起来是自己实现一个处理函数，然后将这个函数注册到Pelican内部的信号量上，这样Pelican会将自定义函数插入到处理的流程中，类似于在水管中多加了一段。</p>
+<p>关于信号量的说明也是看得我一脸懵逼，我在整个都实现完之后才看明白不同的阶段及参数是什么意思。</p>
+<p>Signal是可以直接从文件夹生成相册，还会有其他的一些自定义修饰。我觉得这个特性拿来配置在静态博客下也是很方便的，更重要的是不用再担心图床什么时候挂掉了。</p>
+<p>在Pelican中，如果要生成新的页面而不是在已有的内容上添加的话，需要自定义<code>generator</code>， 文档中给了比较短的一段示例</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_generators</span><span class="p">(</span><span class="n">pelican_object</span><span class="p">):</span>
+    <span class="c1"># define a new generator here if you need to</span>
+    <span class="k">return</span> <span class="n">MyGenerator</span>
+
+<span class="n">signals</span><span class="o">.</span><span class="n">get_generators</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">get_generators</span><span class="p">)</span>
+</code></pre></div>
+
+<p>这个也是说的不太明白，文档中还有一段<code>How to implement a new generator?</code>提到了，<code>generator</code>需要实现两个方法，这两个方法将会被依次调用</p>
+<ul>
+<li><code>generate_context</code> 这个方法就是要生成所需要的信息，用于传递给jinja2模板。</li>
+<li><code>generate_output</code> 这个方法用来生成页面，将会传入一个<code>writer</code>的参数，用于控制jinja2的一些参数，以及写入内容的字典。</li>
+</ul>
+<p>实际上这两个方法要怎么生成，内部该有怎样的结构，只能看源码了。 我按照Pelican中<code>generator.py</code>的代码，模仿着写了一个<code>gallery_generator</code>类。这个类的内部代码则是从Signal移植过来的。</p>
+<p>Signal的代码是没有办法直接拿来用的，它本来就是一个独立的项目，实现了自己的<code>writer</code>用于控制页面生成。 需要把其中相关的代码抽出来，调整成与Pelican适配的形式。</p>
+<p>其中模板文件跟CSS比较好改写，需要将jinja2模板中的路径改成带参数的。 比较费时的是Signal中<code>url</code>的生成，与Pelican的规则完全不搭配。 Signal本身的<code>url</code>生成都是基于根目录的，而在Pelican中需要将<code>content</code>中的内容搬到<code>output</code>下的子目录中，作为静态博客的一个子部分，原来的相对路径都不对。</p>
+<p>在这样一个项目中调试比较难(或者说我压根不会加断点调试)，全靠<code>logger</code>提供信息，最后所有的<code>URL</code>生成都被我改成用绝对路径了(带参数自动配置)。 Debug不如重写来得快。</p>
+<p>陆续花了7小时左右的时间，静态博客也用上相册了🐧</p>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

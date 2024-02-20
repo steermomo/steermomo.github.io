@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>在PyTorch DistributedSampler中封装其他Sampler策略</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2020/12/pytorch-ddp-sampler-warper" rel="bookmark" title="Permalink to 在PyTorch DistributedSampler中封装其他Sampler策略">在PyTorch DistributedSampler中封装其他Sampler策略</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2020-12-23 Wed
+        </span>
+<span>Category: <a href="/category/coding/">Coding</a></span>
+<!-- <p>tags: <a href="/tags/python/">Python</a> <a href="/tags/pytorch/">PyTorch</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>用了PyTorch的分布式训练后，我把所有的dataloader都加上了 DistributedSampler 。</p>
+<p>现在遇到的一个问题是需要对不同类别的样本进行采样，而PytTorch自带的WeightedRandomSampler 又不是那么回事，不能直接对类别进行采样，索性自己造了个轮子解决这个问题。</p>
+<h2>WeightedBalanceClassSampler</h2>
+<p>首先要解决的是对每个类别进行采样，这里用了catalyst的一部分代码<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>。catalyst提供了一个 BalanceClassSampler 实现类别均衡采样，但在我的场景下，类别不均衡比较严重，BalanceClassSampler 里将所有类的数量直接填成一样的了，不满足我的要求。</p>
+<p>在 BalanceClassSampler 的基础上，这里实现了 WeightedBalanceClassSampler 用于带权采样。
+用 weight 指定每个类别的采样比例，用length指定采样后数据集的大小。</p>
+<p>weight 归一化后，乘上length计算采样后每个的数目，使用 saferound 保证类型转换后sample的总数仍然是一样的。</p>
+<p>在 __iter__ 方法中 使用 np.random.choice 对每个类别下的索引进行采样。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">WeightedBalanceClassSampler</span><span class="p">(</span><span class="n">Sampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Allows you to create stratified sample on unbalanced classes with given probabilities (weights).</span>
+<span class="sd">    Args:</span>
+<span class="sd">        labels: list of class label for each elem in the dataset</span>
+<span class="sd">        weight: A sequence of weights to balance classes, not necessary summing up to one.</span>
+<span class="sd">        length: the length of the sample dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">weight</span><span class="p">:</span> <span class="n">List</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sampler initialisation.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lbl2idx</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">label</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">labels</span><span class="p">))[</span><span class="n">labels</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">weight</span><span class="p">)</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">weight</span> <span class="o">/</span> <span class="n">weight</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">samples_per_class</span> <span class="o">=</span> <span class="n">weight</span> <span class="o">*</span> <span class="n">length</span>
+
+        <span class="n">samples_per_class</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">saferound</span><span class="p">(</span><span class="n">samples_per_class</span><span class="p">,</span> <span class="n">places</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">labels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samples_per_class</span> <span class="o">=</span> <span class="n">samples_per_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Yields:</span>
+<span class="sd">            indices of stratified sample</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">indices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lbl2idx</span><span class="p">):</span>
+            <span class="n">replace_flag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples_per_class</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lbl2idx</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            <span class="n">indices</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lbl2idx</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">samples_per_class</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">replace</span><span class="o">=</span><span class="n">replace_flag</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">             length of result sample</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+</code></pre></div>
+
+<h2>DistributedSamplerWrapper</h2>
+<p>PyTorch的DistributedSampler是直接对dataset进行封装，这里在已经封装了一层 WeightedBalanceClassSampler 后，需要将内部的 sampler 再放到DistributedSampler 内。</p>
+<p>这里仍然是用了catalyst的两个类：DatasetFromSampler和DistributedSamplerWrapper。</p>
+<p>其中 DatasetFromSampler 将内部的sampler包装成dataset的接口。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DatasetFromSampler</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dataset to create indexes from `Sampler`.</span>
+<span class="sd">    Args:</span>
+<span class="sd">        sampler: PyTorch sampler</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sampler</span><span class="p">:</span> <span class="n">Sampler</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialisation for DatasetFromSampler.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">sampler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets element of the dataset.</span>
+<span class="sd">        Args:</span>
+<span class="sd">            index: index of the element in the dataset</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Single element by index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sampler_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_list</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            int: length of the dataset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">)</span>
+</code></pre></div>
+
+<p>而DistributedSamplerWrapper是继承自PyTorch自带的DistributedSampler。</p>
+<p>看 PyTorch DistributedSampler的源码<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>可以知道，继承后需要覆写它的 __iter__ 方法，实现自己的迭代过程。</p>
+<p>父类 DistributedSampler的 __iter__ 方法会返回当前rank下的dataset 索引，即已经处理好了分布式下的sampler，那在这里可以使用父类返回的索引值，对内部的 WeightedBalanceClassSampler 再进行一次索引，实现对 WeightedBalanceClassSampler 的封装。</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">DistributedSamplerWrapper</span><span class="p">(</span><span class="n">DistributedSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper over `Sampler` for distributed training.</span>
+<span class="sd">    Allows you to use any sampler in distributed mode.</span>
+<span class="sd">    It is especially useful in conjunction with</span>
+<span class="sd">    `torch.nn.parallel.DistributedDataParallel`. In such case, each</span>
+<span class="sd">    process can pass a DistributedSamplerWrapper instance as a DataLoader</span>
+<span class="sd">    sampler, and load a subset of subsampled data of the original dataset</span>
+<span class="sd">    that is exclusive to it.</span>
+<span class="sd">    .. note::</span>
+<span class="sd">        Sampler is assumed to be of constant size.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sampler</span><span class="p">,</span>
+        <span class="n">num_replicas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rank</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            sampler: Sampler used for subsampling</span>
+<span class="sd">            num_replicas (int, optional): Number of processes participating in</span>
+<span class="sd">              distributed training</span>
+<span class="sd">            rank (int, optional): Rank of the current process</span>
+<span class="sd">              within ``num_replicas``</span>
+<span class="sd">            shuffle (bool, optional): If true (default),</span>
+<span class="sd">              sampler will shuffle the indices</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistributedSamplerWrapper</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">DatasetFromSampler</span><span class="p">(</span><span class="n">sampler</span><span class="p">),</span>
+            <span class="n">num_replicas</span><span class="o">=</span><span class="n">num_replicas</span><span class="p">,</span>
+            <span class="n">rank</span><span class="o">=</span><span class="n">rank</span><span class="p">,</span>
+            <span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sampler</span> <span class="o">=</span> <span class="n">sampler</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;@TODO: Docs. Contribution is welcome.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span> <span class="o">=</span> <span class="n">DatasetFromSampler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sampler</span><span class="p">)</span>
+        <span class="n">indexes_of_indexes</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span>
+        <span class="n">subsampler_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="n">itemgetter</span><span class="p">(</span><span class="o">*</span><span class="n">indexes_of_indexes</span><span class="p">)(</span><span class="n">subsampler_indexes</span><span class="p">))</span>
+</code></pre></div>
+
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://github.com/catalyst-team/catalyst/blob/master/catalyst/data/sampler.py&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>https://github.com/pytorch/pytorch/blob/master/torch/utils/data/distributed.py&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

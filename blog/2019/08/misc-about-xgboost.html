@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>XGBoost 调参</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2019/08/misc-about-xgboost" rel="bookmark" title="Permalink to XGBoost 调参">XGBoost 调参</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2019-08-26 Mon
+        </span>
+<span>Category: <a href="/category/xgboost/">XGBoost</a></span>
+<!-- <p>tags: <a href="/tags/xgboost/">XGBoost</a> <a href="/tags/gbm/">GBM</a> <a href="/tags/machine-learning/">Machine Learning</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>对于XGBoost调参都是一顿瞎调, 然后从Kaggle上fork一个kernel了事. 因为用hyperopt或者是<a href="https://github.com/fmfn/BayesianOptimization">BayesianOptimization</a> 跑出来的参数跟别人的效果差了老多.</p>
+<p>XGBoost是在GBDT的基础上改进的, 首先要看GBM的参数是什么意思<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>.</p>
+<p><br></p>
+<h2>GBM参数</h2>
+<p><br></p>
+<p>GBM的参数分为3种:</p>
+<ol>
+<li>决策树参数: 影响决策树的构建   </li>
+<li>提升方法(Boosting)参数: 影响提升方法的过程   </li>
+<li>杂项: 控制其他部分   </li>
+</ol>
+<p>下图介绍了一部分参数的含义<sup id="fnref2:1"><a class="footnote-ref" href="#fn:1">1</a></sup></p>
+<p><img src="/images/tree-infographic.webp" style="max-width: 100%"></p>
+<p><br></p>
+<h3>与决策树相关的参数 - <strong>Tree-Specific Parameters</strong></h3>
+<ol>
+<li><code>min_samples_split</code>  <ul>
+<li>控制结点可划分时的最少样本数, 样本数少于该值时, 结点不会继续划分.</li>
+<li>用于控制过拟合, 这个值太大了又会导致欠拟合( 考虑决策树的剪枝过程,  这个参数的作用是十分直观的 )</li>
+</ul>
+</li>
+<li><code>min_sample_leaf</code>  <ul>
+<li>控制结点中的最少样本数目,  任何叶节点的样本数都要大于这个值</li>
+<li>类似于上一个参数, 也可以用于控制过拟合</li>
+<li>当存在类别不均衡问题时, 应该设为较小的值, 因为类别较少的样本数可能很少</li>
+</ul>
+</li>
+<li><code>min_weight_fraction_leaf</code>  </li>
+<li>类似于上一个参数,  只是表示的形式不同, 这里用总样本数的比例表示最小叶结点样本数<ul>
+<li>该参数与上一个参数只应该定义一个</li>
+</ul>
+</li>
+<li><code>max_depth</code>  <ul>
+<li>决策树的最大深度</li>
+<li>用于控制过拟合( 更深的树 更有可能拟合训练数据)</li>
+<li>应该使用CV调整</li>
+</ul>
+</li>
+<li><code>max_leaf_nodes</code>  <ul>
+<li>最大叶结点数目</li>
+<li>可以用于替代上一个参数, 深度为n的二叉树叶结点的数目为2^n.</li>
+<li>如果定义该参数, 上一个参数将会被忽略</li>
+</ul>
+</li>
+<li><code>max_features</code>  <ul>
+<li>划分结点时最多选择的特征数目( 考虑一下随机森林的情况, 每次只选择一部分特征用于构建划分结点)</li>
+<li>总特征数目的均方根是较好的选择, 但是应该考虑到特征数量的30%~40%  </li>
+</ul>
+</li>
+</ol>
+<p><br></p>
+<h3>与提升方法相关的参数 - Boosting Parameters</h3>
+<p>提升方法的一个伪码</p>
+<div class="highlight"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">初始化基分类器</span>
+
+<span class="mf">2.</span><span class="w"> </span><span class="n">从1迭代到n_estimators</span>
+<span class="w">    </span><span class="mf">2.1</span><span class="w"> </span><span class="n">根据前一次预测</span><span class="p">,</span><span class="w"> </span><span class="n">更新样本权值</span>
+<span class="w">    </span><span class="mf">2.2</span><span class="w"> </span><span class="n">在样本上训练模型</span>
+<span class="w">    </span><span class="mf">2.3</span><span class="w"> </span><span class="n">在所有样本上进行预测</span>
+<span class="w">    </span><span class="mf">2.4</span><span class="w"> </span><span class="n">更新基分类器的线性组合</span><span class="p">,</span><span class="w"> </span><span class="n">考虑learning</span><span class="w"> </span><span class="n">rate</span>
+
+<span class="mf">3.</span><span class="w"> </span><span class="n">返回基分类器的线性组合</span>
+</code></pre></div>
+
+<p>其中涉及到的参数有</p>
+<ol>
+<li><code>learning rate</code>  <ul>
+<li>在Boosting方法中, 根据基分类器的错误率, 已经会给每一个基分类器指定一个权重. 这里再加一个learning rate, 应该是在这个权重的基础上再加上一个衰减因子. (我记得在kaggle的讨论区看过. 但是一时找不到了)</li>
+<li>更低的lr会增加模型的泛化能力, 但是同时也要求要更多的树.</li>
+</ul>
+</li>
+<li><code>n_estimators</code>  </li>
+<li>树的数量/Boosting迭代次数 (难以想象半年前我不知道树的数量跟迭代次数有什么关系, 太弱鸡)<ul>
+<li>树的数量太多也可能会过拟合, 因此也需要用CV去调整</li>
+</ul>
+</li>
+<li><code>subsample</code>  <ul>
+<li>训练每棵树时使用的样本比例. 即训练时对数据随机采样, 获取指定比例大小的数据集.</li>
+<li>0.8 通常较好, 但是可以进一步调整.</li>
+</ul>
+</li>
+</ol>
+<p><br></p>
+<h3>杂项参数 - Miscellaneous Parameters</h3>
+<p>除此之外, 还有一些其他参数控制</p>
+<ol>
+<li><code>loss</code><ul>
+<li>控制损失函数的类型, 分类或是回归</li>
+</ul>
+</li>
+<li><code>init</code><ul>
+<li>GBM的初始值, (统计学习方法P147)</li>
+</ul>
+</li>
+<li><code>random_state</code><ul>
+<li>涉及到随机时都会有的参数,  铁定是42</li>
+</ul>
+</li>
+<li><code>verbose</code><ul>
+<li>控制模型啰嗦的程度, 值越大话越多.</li>
+</ul>
+</li>
+<li><code>warm_start</code><ul>
+<li>是否在训练前先使用一棵树拟合训练集.</li>
+</ul>
+</li>
+</ol>
+<p>接下来是干瞪眼时刻, 说这些, 虽然知道参数是什么意思,  咋调啊 o.O</p>
+<p><img src="/images/sticker_feature.webp" style="max-width: 50%"></p>
+<p>对于LR来说, 越低越好, 同时要有足够数量的决策树. 但是当LR很小, 决策树很多时, 计算量要求也很大.</p>
+<ol>
+<li>选择相对较大的lr, 默认的0.1, 对于不同的问题, 0.05~0.2都是可以的.</li>
+<li>确定对应当前学习率最优的决策树数量.</li>
+<li>调整决策树相关的参数</li>
+<li>降低学习率, 同时增加决策树的数量.</li>
+</ol>
+<p>剩下的调整过程参见<sup id="fnref3:1"><a class="footnote-ref" href="#fn:1">1</a></sup>, 就是粗暴地<code>GridSearchCV</code>.</p>
+<p>注意第4步, 在降低学习率的同时应该增加树的数量, 如果CV效果下降, 说明树的数量增加得不够.</p>
+<p><br></p>
+<h2>XGBoost 参数<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></h2>
+<p><br></p>
+<p>XGBoost的优点</p>
+<ul>
+<li>引入正则化, 降低过拟合</li>
+<li>并行处理. (生成树的过程仍然是串行的, 但是构建树的内部过程可以并行)</li>
+<li>高度灵活, 可以自定义损失函数和评价指标</li>
+<li>内建处理缺失值的方式, XGBoost对缺失值指定了默认的划分方向, 这种划分是由学习得来的.</li>
+<li>剪枝处理, XGBoost分裂到最大深度后对树进行剪枝.</li>
+<li>内建CV</li>
+</ul>
+<p><br></p>
+<p>XGBoost参数分为3类:</p>
+<ol>
+<li>一般参数</li>
+<li>Booster参数, 控制每个booster</li>
+<li>任务参数</li>
+</ol>
+<p><br></p>
+<h3>一般参数</h3>
+<ol>
+<li><code>booster</code>[default=gbtree]<ul>
+<li>booster的类型<ul>
+<li>gbtree: 树模型</li>
+<li>gblinear: 线性模型</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>slient</code><ul>
+<li>设为1时, 模型就比较自闭, 不爱说话</li>
+</ul>
+</li>
+<li>nthread<ul>
+<li>线程数, 默认为机器的线程数量</li>
+</ul>
+</li>
+</ol>
+<p><br></p>
+<h3>Booster 参数</h3>
+<p>这里只考虑gbtree的参数</p>
+<ol>
+<li><code>eta[defaul=0.3]</code><ul>
+<li>学习率/衰减因子</li>
+</ul>
+</li>
+<li><code>min_child_weight[default=1]</code><ul>
+<li>子结点中的最小样本权重和</li>
+<li>类似于GBM中的<code>min_child_leaf</code>(啥, 原文写的是这个, 我觉得应该是<code>min_sample_leaf</code>).</li>
+<li>控制模型过拟合程度, 大偏向于欠拟合, 小偏向于过拟合 </li>
+</ul>
+</li>
+<li><code>max_depth[default=6]</code><ul>
+<li>决策树的最大深度</li>
+<li>过大偏向过拟合, 过小偏向欠拟合</li>
+</ul>
+</li>
+<li><code>max_leaf_nodes</code><ul>
+<li>最大叶子结点数量, 与<code>max_depth</code>类似</li>
+</ul>
+</li>
+<li><code>gamma[default=0]</code><ul>
+<li>gamma控制在结点分裂时的最小增益量( 类似于决策树中的熵增或增益率)</li>
+</ul>
+</li>
+<li><code>max_delta_step[defalut=0]</code><ul>
+<li>没看懂, 不用管</li>
+</ul>
+</li>
+<li><code>subsample[default=1]</code><ul>
+<li>训练每棵树时的样本采样比例.</li>
+</ul>
+</li>
+<li><code>colsample_bytree[default=1]</code><ul>
+<li>特征采样的比例, 类比随机森林</li>
+</ul>
+</li>
+<li><code>colsample_bylevel[default=1]</code><ul>
+<li>每层上特征采样比例,  没看懂跟上一个参数有什么关系</li>
+</ul>
+</li>
+<li><code>lambda[default=1]</code><ul>
+<li>L2正则项的权重</li>
+</ul>
+</li>
+<li><code>alpha[default=0]</code><ul>
+<li>L1正则项的权重</li>
+</ul>
+</li>
+<li><code>scale_pos_weight[default=1]</code><ul>
+<li>当类别极度不均衡时, 这个参数设为大于0的数, 帮助更快收敛</li>
+</ul>
+</li>
+</ol>
+<p><br></p>
+<h3>Task Parameters</h3>
+<ol>
+<li><code>objective[default=reg:linear]</code><ul>
+<li>损失函数<ul>
+<li>binary: logistic</li>
+<li>multi: softmax</li>
+<li>multi: softprob</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>eval_metric[default according to objective]</code><ul>
+<li>验证数据上使用的评价指标</li>
+<li>回归任务默认为rmse. 分类任务默认error</li>
+<li>常用的值<ul>
+<li>rmse</li>
+<li>mae</li>
+<li>logloss</li>
+<li>error, 二分类错误率</li>
+<li>merror, 多分类错误率</li>
+<li>mlogloss</li>
+<li>auc</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>seed</code><ul>
+<li>随机数种子, 钦定42</li>
+</ul>
+</li>
+</ol>
+<p>调整过程</p>
+<ol>
+<li>选择相对较高的学习率, (0.1), 确定对应的最优决策树数量</li>
+<li>调整树相关的参数, (depth, child_weight, gamma, subsample)</li>
+<li>调整正则项参数(lambda ,alpha)</li>
+<li>降低学习率, 同时增加决策树的数量</li>
+</ol>
+<p>剩下的参见<sup id="fnref2:2"><a class="footnote-ref" href="#fn:2">2</a></sup>. 又是<code>GridSearchCV</code>.</p>
+<p><br></p>
+<h2>总结</h2>
+<p>虽然知道参数啥意思, 但是就GridSearchCV吗, 太暴力了.</p>
+<p><img src="/images/sticker_expand.webp" style="max-width: 50%"></p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/">Complete Machine Learning Guide to Parameter Tuning in Gradient Boosting (GBM) in Python</a>&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:1" title="Jump back to footnote 1 in the text">&#8617;</a><a class="footnote-backref" href="#fnref3:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/">Complete Guide to Parameter Tuning in XGBoost with codes in Python</a>&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>

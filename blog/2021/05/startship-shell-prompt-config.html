@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta name="google-site-verification" content="d0pvXqLPH8JyCfWVyhZ7njhGUndRFIR95YM3myMb7rU" />
+        <meta charset="utf-8" />
+        <meta http-equiv="Cache-Control" content="no-transform" />
+        <meta http-equiv="Cache-Control" content="no-siteapp" />
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+        <title>Starship配置命令行提示符</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+        <script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+
+
+        <link rel="stylesheet" href="//unpkg.com/heti/umd/heti.min.css">
+
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <!-- <h1><a href="/">steer </a></h1> -->
+                <nav>
+                        <ul>
+                                <li><a href="/">🦉</a></li>
+                                <li><a href="/blog">Blog</a></li>
+                                <li><a href="/archives">Archives</a></li>
+                                <li><a href="/gallery">Gallery</a></li>
+                                <li id="navName">steer </li>
+                        </ul>
+                </nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/blog/2021/05/startship-shell-prompt-config" rel="bookmark" title="Permalink to Starship配置命令行提示符">Starship配置命令行提示符</a>
+      </h1>
+    </header>
+
+    <div class="entry-content">
+<div class="post-meta">
+        Date: <span >
+               2021-05-11 Tue
+        </span>
+<span>Category: <a href="/category/misc/">MISC</a></span>
+<!-- <p>tags: <a href="/tags/shell/">Shell</a> </p> -->
+
+</div><!-- /.post-info -->
+
+      <p>最近尝试了一下Starship，其官方声称是一个CROSS-SHELL PROMPT，用RUST实现，看起来蛮高级迅速。
+整了一下配置过程，发现中文网络上对其的配置过程介绍的比较少。</p>
+<h2>移除oh-my-zsh</h2>
+<p>之前一直用的是oh-my-zsh，有了新玩具，旧的先移除了。直接在终端中使用移除命令即可。</p>
+<div class="highlight"><pre><span></span><code>uninstall_oh_my_zsh
+</code></pre></div>
+
+<h2>安装Starship</h2>
+<p>在这篇文章写作的时候，brew中还没有针对M1芯片的包，安装过程直接使用了shell脚本</p>
+<div class="highlight"><pre><span></span><code>sh<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>curl<span class="w"> </span>-fsSL<span class="w"> </span>https://starship.rs/install.sh<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<h2>安装Nerd字体</h2>
+<p>从 www.nerdfonts.com 上下载字体，我使用的是Fira Mono Nerd Font
+并在终端中启用字体</p>
+<h2>配置启动</h2>
+<p>在 ~/.zshrc 文件的最末端加上如下命令用于自动启动starhip。</p>
+<div class="highlight"><pre><span></span><code># ~/.zshrc
+
+eval &quot;$(starship init zsh)&quot;
+</code></pre></div>
+
+<h2>ys主题配置格式</h2>
+<p>在使用starship之前，一直用的是oh-my-zsh，ys主题，
+<img style="width: 70%;" src="https://user-images.githubusercontent.com/49100982/108255792-be1ede00-716d-11eb-8c26-f7ad7ab3c4f2.jpg">
+</img></p>
+<p>而Starship默认的提示格式也太简陋了，上一条线就给了目录，下一条线给了个箭头完事</p>
+<div style="margin: auto;">
+<video style="width: 70%;display: block;margin: 0 auto;" muted="muted" autoplay="autoplay" loop="loop" playsinline="" class="demo-video"><source src="https://starship.rs/demo.webm" type="video/webm"> <source src="https://starship.rs/demo.mp4" type="video/mp4"></video>
+</div>
+
+<p>这里想把它改成ys主题的形式，ys的配置文件<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup>中给出了配置格式</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Prompt format:</span>
+<span class="c1">#</span>
+<span class="c1"># PRIVILEGES USER @ MACHINE in DIRECTORY on git:BRANCH STATE [TIME] C:LAST_EXIT_CODE</span>
+<span class="c1"># $ COMMAND</span>
+<span class="c1">#</span>
+<span class="c1"># For example:</span>
+<span class="c1">#</span>
+<span class="c1"># % ys @ ys-mbp in ~/.oh-my-zsh on git:master x [21:47:42] C:0</span>
+<span class="c1"># $</span>
+<span class="nv">PROMPT</span><span class="o">=</span><span class="s2">&quot;</span>
+<span class="s2">%{</span><span class="nv">$terminfo</span><span class="s2">[bold]</span><span class="nv">$fg</span><span class="s2">[blue]%}#%{</span><span class="nv">$reset_color</span><span class="s2">%} \</span>
+<span class="s2">%(#,%{</span><span class="nv">$bg</span><span class="s2">[yellow]%}%{</span><span class="nv">$fg</span><span class="s2">[black]%}%n%{</span><span class="nv">$reset_color</span><span class="s2">%},%{</span><span class="nv">$fg</span><span class="s2">[cyan]%}%n) \</span>
+<span class="s2">%{</span><span class="nv">$fg</span><span class="s2">[white]%}@ \</span>
+<span class="s2">%{</span><span class="nv">$fg</span><span class="s2">[green]%}%m \</span>
+<span class="s2">%{</span><span class="nv">$fg</span><span class="s2">[white]%}in \</span>
+<span class="s2">%{</span><span class="nv">$terminfo</span><span class="s2">[bold]</span><span class="nv">$fg</span><span class="s2">[yellow]%}%~%{</span><span class="nv">$reset_color</span><span class="s2">%}\</span>
+<span class="si">${</span><span class="nv">hg_info</span><span class="si">}</span><span class="s2">\</span>
+<span class="si">${</span><span class="nv">git_info</span><span class="si">}</span><span class="s2">\</span>
+<span class="si">${</span><span class="nv">venv_info</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2"> \</span>
+<span class="s2">%{</span><span class="nv">$fg</span><span class="s2">[white]%}[%*] </span><span class="nv">$exit_code</span>
+<span class="s2">%{</span><span class="nv">$terminfo</span><span class="s2">[bold]</span><span class="nv">$fg</span><span class="s2">[red]%}</span>$<span class="s2"> %{</span><span class="nv">$reset_color</span><span class="s2">%}&quot;</span>
+</code></pre></div>
+
+<h2>配置Starship</h2>
+<p>在Starship中，直接使用 starship config 命令可以打开配置文件。</p>
+<p>配置过程看起来有点复杂，Starship中对prompt的配置<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup>给出了一个示例</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Use custom format</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">[┌───────────────────&gt;](bold green)</span>
+<span class="s2">[│](bold green)</span><span class="nv">$directory$rust$package</span>
+<span class="s2">[└─&gt;](bold green) &quot;&quot;&quot;</span>
+</code></pre></div>
+
+<p>这个例子看起来还要手写format， 其中format所有可用的配置项目如下</p>
+<div class="highlight"><pre><span></span><code><span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$all</span><span class="s2">&quot;</span>
+
+<span class="c1"># Which is equivalent to</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&quot;&quot;</span>
+<span class="nv">$username</span><span class="s2">\</span>
+<span class="nv">$hostname</span><span class="s2">\</span>
+<span class="nv">$shlvl</span><span class="s2">\</span>
+<span class="nv">$kubernetes</span><span class="s2">\</span>
+<span class="nv">$directory</span><span class="s2">\</span>
+<span class="nv">$vcsh</span><span class="s2">\</span>
+<span class="nv">$git_branch</span><span class="s2">\</span>
+<span class="nv">$git_commit</span><span class="s2">\</span>
+<span class="nv">$git_state</span><span class="s2">\</span>
+<span class="nv">$git_status</span><span class="s2">\</span>
+<span class="nv">$hg_branch</span><span class="s2">\</span>
+<span class="nv">$docker_context</span><span class="s2">\</span>
+<span class="nv">$package</span><span class="s2">\</span>
+<span class="nv">$cmake</span><span class="s2">\</span>
+<span class="nv">$dart</span><span class="s2">\</span>
+<span class="nv">$deno</span><span class="s2">\</span>
+<span class="nv">$dotnet</span><span class="s2">\</span>
+<span class="nv">$elixir</span><span class="s2">\</span>
+<span class="nv">$elm</span><span class="s2">\</span>
+<span class="nv">$erlang</span><span class="s2">\</span>
+<span class="nv">$golang</span><span class="s2">\</span>
+<span class="nv">$helm</span><span class="s2">\</span>
+<span class="nv">$java</span><span class="s2">\</span>
+<span class="nv">$julia</span><span class="s2">\</span>
+<span class="nv">$kotlin</span><span class="s2">\</span>
+<span class="nv">$nim</span><span class="s2">\</span>
+<span class="nv">$nodejs</span><span class="s2">\</span>
+<span class="nv">$ocaml</span><span class="s2">\</span>
+<span class="nv">$perl</span><span class="s2">\</span>
+<span class="nv">$php</span><span class="s2">\</span>
+<span class="nv">$purescript</span><span class="s2">\</span>
+<span class="nv">$python</span><span class="s2">\</span>
+<span class="nv">$red</span><span class="s2">\</span>
+<span class="nv">$ruby</span><span class="s2">\</span>
+<span class="nv">$rust</span><span class="s2">\</span>
+<span class="nv">$scala</span><span class="s2">\</span>
+<span class="nv">$swift</span><span class="s2">\</span>
+<span class="nv">$terraform</span><span class="s2">\</span>
+<span class="nv">$vagrant</span><span class="s2">\</span>
+<span class="nv">$zig</span><span class="s2">\</span>
+<span class="nv">$nix_shell</span><span class="s2">\</span>
+<span class="nv">$conda</span><span class="s2">\</span>
+<span class="nv">$memory_usage</span><span class="s2">\</span>
+<span class="nv">$aws</span><span class="s2">\</span>
+<span class="nv">$gcloud</span><span class="s2">\</span>
+<span class="nv">$openstack</span><span class="s2">\</span>
+<span class="nv">$env_var</span><span class="s2">\</span>
+<span class="nv">$crystal</span><span class="s2">\</span>
+<span class="nv">$custom</span><span class="s2">\</span>
+<span class="nv">$cmd_duration</span><span class="s2">\</span>
+<span class="nv">$line_break</span><span class="s2">\</span>
+<span class="nv">$lua</span><span class="s2">\</span>
+<span class="nv">$jobs</span><span class="s2">\</span>
+<span class="nv">$battery</span><span class="s2">\</span>
+<span class="nv">$time</span><span class="s2">\</span>
+<span class="nv">$status</span><span class="s2">\</span>
+<span class="nv">$shell</span><span class="s2">\</span>
+<span class="nv">$character</span><span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+
+<p>对比oh my zsh中ys主题的配置，大概的格式如下</p>
+<div class="highlight"><pre><span></span><code>ys<span class="w"> </span>@<span class="w"> </span>ys-mbp<span class="w"> </span><span class="k">in</span><span class="w"> </span>~/.oh-my-zsh<span class="w"> </span>on<span class="w"> </span>git:master<span class="w"> </span>x<span class="w"> </span><span class="o">[</span><span class="m">21</span>:47:42<span class="o">]</span><span class="w"> </span>C:0
+用户名<span class="w"> </span>@<span class="w"> </span>主机名<span class="w"> </span><span class="k">in</span><span class="w"> </span>路径<span class="w"> </span>on<span class="w"> </span>git分支提示<span class="w"> </span>时间<span class="w"> </span>状态码
+</code></pre></div>
+
+<p>倒腾了一小会，发现不需要自己再手动写配置格式，在Starship的Configuration部分已经预置了很多场景下的配置项，
+只是默认情况下没有打开。</p>
+<p>比如需要添加Username项目，在starship.toml文件内添加</p>
+<div class="highlight"><pre><span></span><code><span class="k">[username]</span>
+<span class="na">disabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
+<span class="na">show_always</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+</code></pre></div>
+
+<p>就能在提示符中显示Username了。</p>
+<p>若设置成类似于ys主题的效果，其完整的配置内容如下</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Use custom format</span>
+
+<span class="o">[</span>username<span class="o">]</span>
+<span class="nv">style_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;white bold&quot;</span>
+<span class="nv">style_root</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;black bold&quot;</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;[</span><span class="nv">$user</span><span class="s2">](</span><span class="nv">$style</span><span class="s2">) &quot;</span>
+<span class="nv">disabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="nv">show_always</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+
+<span class="o">[</span>directory<span class="o">]</span>
+<span class="nv">truncation_length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">8</span>
+<span class="nv">truncation_symbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;…/&quot;</span>
+
+<span class="o">[</span>hostname<span class="o">]</span>
+<span class="nv">ssh_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w">  </span><span class="s2">&quot;on [</span><span class="nv">$hostname</span><span class="s2">](bold red) &quot;</span>
+<span class="nv">trim_at</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;.companyname.com&quot;</span>
+<span class="nv">disabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="o">[</span>status<span class="o">]</span>
+<span class="nv">style</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bg:blue&quot;</span>
+<span class="nv">symbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;🔴&quot;</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;[\[$symbol $common_meaning$signal_name$maybe_int\]]($style) &#39;</span>
+<span class="nv">map_symbol</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span>
+<span class="nv">disabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+
+<span class="o">[</span>time<span class="o">]</span>
+<span class="nv">disabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span>
+<span class="nv">format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;[\[ $time \]]($style) &#39;</span>
+<span class="nv">time_format</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;%T&quot;</span>
+<span class="nv">utc_time_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;+8&quot;</span>
+</code></pre></div>
+
+<h2>小结</h2>
+<p>在Startship中，可以通过starship config 命令直接打开toml格式的配置文件。
+如果要自定义prompt格式，可以通过手写format字串的方式实现灵活的自定义过程，
+更简单的是使用其预设的配置，基本是如下的定义格式</p>
+<div class="highlight"><pre><span></span><code><span class="o">[</span>预设项名称<span class="o">]</span>
+<span class="nv">配置1</span><span class="o">=</span>值1
+<span class="nv">配置2</span><span class="o">=</span>值2
+</code></pre></div>
+
+<p>详细的预设内容在Starship的Configuration<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup>内有文档说明，
+通过该配置文档可以避免手写format。</p>
+<div class="footnote">
+<hr>
+<ol>
+<li id="fn:1">
+<p>https://github.com/ohmyzsh/ohmyzsh/blob/master/themes/ys.zsh-theme&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>https://starship.rs/config/#prompt&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>https://starship.rs/config/#configuration&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+    </div><!-- /.entry-content -->
+
+
+  </article>
+
+
+</section>
+
+<div id="comments">
+  <h2 style="margin-top: 0.1rem;">Comments !</h2>
+  <div id="gitalk-container"></div>
+</div>
+<script>
+  var gitalk = new Gitalk({
+    clientID: '4dfbf5aad180623dc634',
+    clientSecret: '4c7167883746062103d9dbc2ec8b1ddfd6780d58',
+    repo: 'steermomo.github.io',
+    owner: 'steermomo',
+    admin: ['steermomo'],
+    id: location.pathname,      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false,  // Facebook-like distraction free mode
+    createIssueManually: true,
+  })
+  gitalk.render('gitalk-container')
+</script>
+        <section id="extras" class="body">
+        </section><!-- /#extras -->
+<footer id="contentinfo" class="body">
+  <address id="about" class="vcard body">
+    Copyright © 2024
+    </br>
+    Proudly powered by <a href="http://getpelican.com/">Pelican</a>, which takes great advantage of <a
+      href="http://python.org">Python</a>.
+  </address>
+
+  <!-- /#about -->
+
+
+</footer><!-- /#contentinfo -->
+
+
+
+</body>
+
+</html>
