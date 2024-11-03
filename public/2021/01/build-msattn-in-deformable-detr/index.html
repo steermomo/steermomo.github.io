@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="http://localhost:1313/images/favicon.ico" />
+<title>Build MSAttn in Deformable DETR | Steer</title>
+<meta name="title" content="Build MSAttn in Deformable DETR" />
+<meta name="description" content="最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。
+所用的代码是Deformable DETR的官方实现1，其中需要先对CUDA的算子进行编译
+cd ./models/ops
+sh ./make.sh
+# unit test (should see all checking is True)
+python test.py
+我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误
+error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device
+集群上的环境是:
+CUDA                10.2
+torch               1.7.0&#43;cu101
+torchvision         0.8.1&#43;cu101
+OS                  4.14.105-1-tlinux3-0013
+&#43;-----------------------------------------------------------------------------&#43;
+| NVIDIA-SMI 440.64.00    Driver Version: 440.64.00    CUDA Version: 10.2     |
+|-------------------------------&#43;----------------------&#43;----------------------&#43;
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|===============================&#43;======================&#43;======================|
+|   0  Tesla P40           On   | 00000000:04:00.0 Off |                  Off |
+| N/A   43C    P0    57W / 250W |  20653MiB / 24451MiB |    100%      Default |
+&#43;-------------------------------&#43;----------------------&#43;----------------------&#43;
+&#43;-------------------------------&#43;----------------------&#43;----------------------&#43;
+|   7  Tesla P40           On   | 00000000:0F:00.0 Off |                  Off |
+| N/A   47C    P0   142W / 250W |  20653MiB / 24451MiB |     40%      Default |
+&#43;-------------------------------&#43;----------------------&#43;----------------------&#43;
+找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh" />
+<meta name="keywords" content="" />
+
+
+<meta property="og:url" content="http://localhost:1313/2021/01/build-msattn-in-deformable-detr/">
+  <meta property="og:site_name" content="Steer">
+  <meta property="og:title" content="Build MSAttn in Deformable DETR">
+  <meta property="og:description" content="最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。
+所用的代码是Deformable DETR的官方实现1，其中需要先对CUDA的算子进行编译
+cd ./models/ops sh ./make.sh # unit test (should see all checking is True) python test.py 我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误
+error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device 集群上的环境是:
+CUDA 10.2 torch 1.7.0&#43;cu101 torchvision 0.8.1&#43;cu101 OS 4.14.105-1-tlinux3-0013 &#43;-----------------------------------------------------------------------------&#43; | NVIDIA-SMI 440.64.00 Driver Version: 440.64.00 CUDA Version: 10.2 | |-------------------------------&#43;----------------------&#43;----------------------&#43; | GPU Name Persistence-M| Bus-Id Disp.A | Volatile Uncorr. ECC | | Fan Temp Perf Pwr:Usage/Cap| Memory-Usage | GPU-Util Compute M. | |===============================&#43;======================&#43;======================| | 0 Tesla P40 On | 00000000:04:00.0 Off | Off | | N/A 43C P0 57W / 250W | 20653MiB / 24451MiB | 100% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; | 7 Tesla P40 On | 00000000:0F:00.0 Off | Off | | N/A 47C P0 142W / 250W | 20653MiB / 24451MiB | 40% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; 找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="blog">
+    <meta property="article:published_time" content="2021-01-27T00:06:04+08:00">
+    <meta property="article:modified_time" content="2021-01-27T00:06:04+08:00">
+
+
+
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Build MSAttn in Deformable DETR">
+  <meta name="twitter:description" content="最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。
+所用的代码是Deformable DETR的官方实现1，其中需要先对CUDA的算子进行编译
+cd ./models/ops sh ./make.sh # unit test (should see all checking is True) python test.py 我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误
+error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device 集群上的环境是:
+CUDA 10.2 torch 1.7.0&#43;cu101 torchvision 0.8.1&#43;cu101 OS 4.14.105-1-tlinux3-0013 &#43;-----------------------------------------------------------------------------&#43; | NVIDIA-SMI 440.64.00 Driver Version: 440.64.00 CUDA Version: 10.2 | |-------------------------------&#43;----------------------&#43;----------------------&#43; | GPU Name Persistence-M| Bus-Id Disp.A | Volatile Uncorr. ECC | | Fan Temp Perf Pwr:Usage/Cap| Memory-Usage | GPU-Util Compute M. | |===============================&#43;======================&#43;======================| | 0 Tesla P40 On | 00000000:04:00.0 Off | Off | | N/A 43C P0 57W / 250W | 20653MiB / 24451MiB | 100% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; | 7 Tesla P40 On | 00000000:0F:00.0 Off | Off | | N/A 47C P0 142W / 250W | 20653MiB / 24451MiB | 40% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; 找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh">
+
+
+
+
+  <meta itemprop="name" content="Build MSAttn in Deformable DETR">
+  <meta itemprop="description" content="最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。
+所用的代码是Deformable DETR的官方实现1，其中需要先对CUDA的算子进行编译
+cd ./models/ops sh ./make.sh # unit test (should see all checking is True) python test.py 我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误
+error in ms_deformable_im2col_cuda: no kernel image is available for execution on the device 集群上的环境是:
+CUDA 10.2 torch 1.7.0&#43;cu101 torchvision 0.8.1&#43;cu101 OS 4.14.105-1-tlinux3-0013 &#43;-----------------------------------------------------------------------------&#43; | NVIDIA-SMI 440.64.00 Driver Version: 440.64.00 CUDA Version: 10.2 | |-------------------------------&#43;----------------------&#43;----------------------&#43; | GPU Name Persistence-M| Bus-Id Disp.A | Volatile Uncorr. ECC | | Fan Temp Perf Pwr:Usage/Cap| Memory-Usage | GPU-Util Compute M. | |===============================&#43;======================&#43;======================| | 0 Tesla P40 On | 00000000:04:00.0 Off | Off | | N/A 43C P0 57W / 250W | 20653MiB / 24451MiB | 100% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; | 7 Tesla P40 On | 00000000:0F:00.0 Off | Off | | N/A 47C P0 142W / 250W | 20653MiB / 24451MiB | 40% Default | &#43;-------------------------------&#43;----------------------&#43;----------------------&#43; 找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh">
+  <meta itemprop="datePublished" content="2021-01-27T00:06:04+08:00">
+  <meta itemprop="dateModified" content="2021-01-27T00:06:04+08:00">
+  <meta itemprop="wordCount" content="281">
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+  <style>
+  body {
+    font-family: Verdana, sans-serif;
+    margin: auto;
+    padding: 20px;
+    max-width: 720px;
+    text-align: left;
+    background-color: #fff;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong,
+  b {
+    color: #222;
+  }
+
+  a {
+    color: #3273dc;
+     
+  }
+
+  .title {
+    text-decoration: none;
+    border: 0;
+  }
+
+  .title span {
+    font-weight: 400;
+  }
+
+  nav a {
+    margin-right: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  content {
+    line-height: 1.6;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code {
+    padding: 2px 5px;
+    background-color: #f2f2f2;
+  }
+
+  pre code {
+    color: #222;
+    display: block;
+    padding: 20px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  div.highlight pre {
+    background-color: initial;
+    color: initial;
+  }
+
+  div.highlight code {
+    background-color: unset;
+    color: unset;
+  }
+
+  blockquote {
+    border-left: 1px solid #999;
+    color: #222;
+    padding-left: 20px;
+    font-style: italic;
+  }
+
+  footer {
+    padding: 25px;
+    text-align: center;
+  }
+
+  .helptext {
+    color: #777;
+    font-size: small;
+  }
+
+  .errorlist {
+    color: #eba613;
+    font-size: small;
+  }
+
+   
+  ul.blog-posts {
+    list-style-type: none;
+    padding: unset;
+  }
+
+  ul.blog-posts li {
+    display: flex;
+  }
+
+  ul.blog-posts li span {
+    flex: 0 0 130px;
+  }
+
+  ul.blog-posts li a:visited {
+    color: #8b6fcb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #333;
+      color: #ddd;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    strong,
+    b {
+      color: #eee;
+    }
+
+    a {
+      color: #8cc2dd;
+    }
+
+    code {
+      background-color: #777;
+    }
+
+    pre code {
+      color: #ddd;
+    }
+
+    blockquote {
+      color: #ccc;
+    }
+
+    textarea,
+    input {
+      background-color: #252525;
+      color: #ddd;
+    }
+
+    .helptext {
+      color: #aaa;
+    }
+  }
+
+</style>
+
+</head>
+
+<body>
+  <header><a href="/" class="title">
+  <h2>Steer</h2>
+</a>
+<nav><a href="/">Home</a>
+
+<a href="/about/">About</a>
+
+
+<a href="/blog">Blog</a>
+
+</nav>
+</header>
+  <main>
+
+<h1>Build MSAttn in Deformable DETR</h1>
+<p>
+  <i>
+    <time datetime='2021-01-27' pubdate>
+      27 Jan, 2021
+    </time>
+  </i>
+</p>
+
+<content>
+  <p>最近一个任务需要用到Deformable-DETR，其中比较关键的一步是Multi-scale Deformable Attention Module （MSDeformAttn），这个模块能够实现在multi-scale的feature map上的deformable convolution操作。</p>
+<p>所用的代码是Deformable DETR的官方实现<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>，其中需要先对CUDA的算子进行编译</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cd ./models/ops
+</span></span><span style="display:flex;"><span>sh ./make.sh
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># unit test (should see all checking is True)</span>
+</span></span><span style="display:flex;"><span>python test.py
+</span></span></code></pre></div><p>我这里编译完之后，在集群上的M40 GPU上是可以正常训练的，但是切换到P40之后，运行就一直刷错误</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>error in ms_deformable_im2col_cuda: no kernel image is available <span style="color:#66d9ef">for</span> execution on the device
+</span></span></code></pre></div><p>集群上的环境是:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>CUDA                10.2
+</span></span><span style="display:flex;"><span>torch               1.7.0+cu101
+</span></span><span style="display:flex;"><span>torchvision         0.8.1+cu101
+</span></span><span style="display:flex;"><span>OS                  4.14.105-1-tlinux3-0013
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>+-----------------------------------------------------------------------------+
+</span></span><span style="display:flex;"><span>| NVIDIA-SMI 440.64.00    Driver Version: 440.64.00    CUDA Version: 10.2     |
+</span></span><span style="display:flex;"><span>|-------------------------------+----------------------+----------------------+
+</span></span><span style="display:flex;"><span>| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+</span></span><span style="display:flex;"><span>| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+</span></span><span style="display:flex;"><span>|<span style="color:#f92672">===============================</span>+<span style="color:#f92672">======================</span>+<span style="color:#f92672">======================</span>|
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">0</span>  Tesla P40           On   | 00000000:04:00.0 Off |                  Off |
+</span></span><span style="display:flex;"><span>| N/A   43C    P0    57W / 250W |  20653MiB / 24451MiB |    100%      Default |
+</span></span><span style="display:flex;"><span>+-------------------------------+----------------------+----------------------+
+</span></span><span style="display:flex;"><span>+-------------------------------+----------------------+----------------------+
+</span></span><span style="display:flex;"><span>|   <span style="color:#ae81ff">7</span>  Tesla P40           On   | 00000000:0F:00.0 Off |                  Off |
+</span></span><span style="display:flex;"><span>| N/A   47C    P0   142W / 250W |  20653MiB / 24451MiB |     40%      Default |
+</span></span><span style="display:flex;"><span>+-------------------------------+----------------------+----------------------+
+</span></span></code></pre></div><p>找到这段错误代码来自models/ops/src/cuda/ms_deform_im2col_cuda.cuh</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cpp" data-lang="cpp"><span style="display:flex;"><span><span style="color:#66d9ef">void</span> <span style="color:#a6e22e">ms_deformable_im2col_cuda</span>(cudaStream_t stream,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> scalar_t<span style="color:#f92672">*</span> data_value,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int64_t</span><span style="color:#f92672">*</span> data_spatial_shapes, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int64_t</span><span style="color:#f92672">*</span> data_level_start_index, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> scalar_t<span style="color:#f92672">*</span> data_sampling_loc,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> scalar_t<span style="color:#f92672">*</span> data_attn_weight,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> batch_size,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> spatial_size, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_heads, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> channels, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_levels, 
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_query,
+</span></span><span style="display:flex;"><span>                              <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_point,
+</span></span><span style="display:flex;"><span>                              scalar_t<span style="color:#f92672">*</span> data_col)
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_kernels <span style="color:#f92672">=</span> batch_size <span style="color:#f92672">*</span> num_query <span style="color:#f92672">*</span> num_heads <span style="color:#f92672">*</span> channels;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_actual_kernels <span style="color:#f92672">=</span> batch_size <span style="color:#f92672">*</span> num_query <span style="color:#f92672">*</span> num_heads <span style="color:#f92672">*</span> channels;
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">const</span> <span style="color:#66d9ef">int</span> num_threads <span style="color:#f92672">=</span> CUDA_NUM_THREADS;
+</span></span><span style="display:flex;"><span>  ms_deformable_im2col_gpu_kernel<span style="color:#f92672">&lt;</span>scalar_t<span style="color:#f92672">&gt;</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#f92672">&lt;&lt;&lt;</span>GET_BLOCKS(num_actual_kernels, num_threads), num_threads,
+</span></span><span style="display:flex;"><span>          <span style="color:#ae81ff">0</span>, stream<span style="color:#f92672">&gt;&gt;&gt;</span>(
+</span></span><span style="display:flex;"><span>      num_kernels, data_value, data_spatial_shapes, data_level_start_index, data_sampling_loc, data_attn_weight, 
+</span></span><span style="display:flex;"><span>      batch_size, spatial_size, num_heads, channels, num_levels, num_query, num_point, data_col);
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  cudaError_t err <span style="color:#f92672">=</span> cudaGetLastError();
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">if</span> (err <span style="color:#f92672">!=</span> cudaSuccess)
+</span></span><span style="display:flex;"><span>  {
+</span></span><span style="display:flex;"><span>    printf(<span style="color:#e6db74">&#34;error in ms_deformable_im2col_cuda: %s</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, cudaGetErrorString(err));
+</span></span><span style="display:flex;"><span>  }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>在调用ms_deformable_im2col_gpu_kernel之后出现了问题，网上搜了一下也没发现解决方案。</p>
+<p>只能自己看了一下<code>setup.py</code>, 发现里面与编译相关配置为</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> torch<span style="color:#f92672">.</span>cuda<span style="color:#f92672">.</span>is_available() <span style="color:#f92672">and</span> CUDA_HOME <span style="color:#f92672">is</span> <span style="color:#f92672">not</span> <span style="color:#66d9ef">None</span>:
+</span></span><span style="display:flex;"><span>        extension <span style="color:#f92672">=</span> CUDAExtension
+</span></span><span style="display:flex;"><span>        sources <span style="color:#f92672">+=</span> source_cuda
+</span></span><span style="display:flex;"><span>        define_macros <span style="color:#f92672">+=</span> [(<span style="color:#e6db74">&#34;WITH_CUDA&#34;</span>, <span style="color:#66d9ef">None</span>)]
+</span></span><span style="display:flex;"><span>        extra_compile_args[<span style="color:#e6db74">&#34;nvcc&#34;</span>] <span style="color:#f92672">=</span> [
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-DCUDA_HAS_FP16=1&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-D__CUDA_NO_HALF_OPERATORS__&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-D__CUDA_NO_HALF_CONVERSIONS__&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;-D__CUDA_NO_HALF2_OPERATORS__&#34;</span>,
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">raise</span> <span style="color:#a6e22e">NotImplementedError</span>(<span style="color:#e6db74">&#39;Cuda is not availabel&#39;</span>)
+</span></span></code></pre></div><p>P40上也没有FP16的支持，遂将<code>-DCUDA_HAS_FP16=1</code>改成了<code>-DCUDA_HAS_FP16=0</code>。
+然后删除build文件重新编译一遍，运行就都正常了。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://github.com/fundamentalvision/Deformable-DETR">https://github.com/fundamentalvision/Deformable-DETR</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+
+</content>
+<p>
+  
+</p>
+
+  </main>
+  <footer> Zer0 
+</footer>
+
+    
+</body>
+
+</html>
