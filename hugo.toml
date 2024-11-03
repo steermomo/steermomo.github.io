@@ -2,7 +2,7 @@ baseURL = 'https://i.steer.space'
 languageCode = 'en-us'
 title = 'Steer'
 
-theme = 'hugo-bearblog'
+theme = 'hugo-bearblog-cus'
 
 [markup.goldmark.renderer]
 unsafe = true
